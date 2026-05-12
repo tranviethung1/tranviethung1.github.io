@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh Toán Cầu Lông</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .navbar {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .navbar button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: 0.3s;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    .navbar button.active {
+      background: #fff;
+      color: #667eea;
+    }
+    .navbar button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+    h1, h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    button {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .result {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+    .result.show {
+      display: block;
+    }
+    .result h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .result-item:last-child {
+      border-bottom: none;
+    }
+    .result-label {
+      font-weight: 600;
+      color: #555;
+    }
+    .result-value {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+    .summary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .summary h4 {
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .summary .total {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .admin-section {
+      background: #fff9e6;
+      border: 2px solid #ffc107;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .admin-section h3 {
+      color: #ff9800;
+      margin-bottom: 15px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .button-group button {
+      flex: 1;
+    }
+    .btn-secondary {
+      background: #6c757d;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .navbar {
+        flex-direction: column;
+      }
+      .summary .total {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="navbar">
+      <button class="nav-btn active" data-page="user">🎮 Tính Tiền Người Chơi</button>
+      <button class="nav-btn" data-page="admin">🔐 Quản Lý Admin</button>
+    </div>
+
+    <!-- Trang Người Chơi -->
+    <div id="user" class="page active">
+      <div class="card">
+        <h1>💰 Tính Tiền Thanh Toán</h1>
+        <p style="color: #999; margin-bottom: 30px;">Nhập số người chơi để tính tiền mỗi người phải trả</p>
+        
+        <div class="form-group">
+          <label for="userNumPlayers">Số người chơi:</label>
+          <input type="number" id="userNumPlayers" min="1" value="4" placeholder="Nhập số người chơi">
+        </div>
+
+        <button onclick="calculateUserPayment()">Tính Tiền</button>
+
+        <div id="userResult" class="result">
+          <h3>📊 Chi Tiết Thanh Toán</h3>
+          <div class="result-item">
+            <span class="result-label">Tổng tiền (từ quản lý):</span>
+            <span class="result-value" id="userTotalDisplay">0 đ</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Số người chơi:</span>
+            <span class="result-value" id="userNumPlayersDisplay">0</span>
+          </div>
+          <div class="summary">
+            <h4>Mỗi người phải trả:</h4>
+            <div class="total" id="userPerPersonDisplay">0 đ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trang Admin -->
+    <div id="admin" class="page">
+      <div class="card">
+        <h1>⚙️ Quản Lý Thanh Toán</h1>
+        
+        <div class="admin-section">
+          <h3>🔓 Xác Thực Admin</h3>
+          <div class="form-group">
+            <label for="adminPassword">Mật khẩu:</label>
+            <input type="password" id="adminPassword" placeholder="Nhập mật khẩu admin">
+          </div>
+          <button onclick="verifyAdmin()" style="width: 100%;">Đăng Nhập</button>
+          <p id="adminStatus" style="color: #dc3545; margin-top: 10px; display: none;"></p>
+        </div>
+
+        <div id="adminContent" style="display: none;">
+          <div class="form-group">
+            <label for="adminNumBirds">Số lượng cầu (quả):</label>
+            <input type="number" id="adminNumBirds" min="0" value="0" placeholder="Nhập số lượng cầu">
+          </div>
+
+          <div class="form-group">
+            <label for="adminBirdPrice">Giá 1 quả cầu (đ):</label>
+            <input type="number" id="adminBirdPrice" min="0" value="0" placeholder="Nhập giá tiền 1 quả">
+          </div>
+
+          <div class="form-group">
+            <label for="adminCourtFee">Tiền sân (đ):</label>
+            <input type="number" id="adminCourtFee" min="0" value="0" placeholder="Nhập tiền sân">
+          </div>
+
+          <button onclick="calculateAdminTotal()" style="width: 100%; margin-bottom: 20px;">Tính Tổng Tiền</button>
+
+          <div id="adminResult" class="result">
+            <h3>📋 Chi Tiết Tính Toán</h3>
+            <div class="result-item">
+              <span class="result-label">Số lượng cầu:</span>
+              <span class="result-value" id="adminNumBirdsDisplay">0</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Giá/quả:</span>
+              <span class="result-value" id="adminBirdPriceDisplay">0 đ</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Tiền cầu:</span>
+              <span class="result-value" id="adminBirdTotalDisplay">0 đ</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Tiền sân:</span>
+              <span class="result-value" id="adminCourtFeeDisplay">0 đ</span>
+            </div>
+            <div class="summary">
+              <h4>💵 Tổng Tiền Cần Thanh Toán:</h4>
+              <div class="total" id="adminGrandTotalDisplay">0 đ</div>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button onclick="saveAndShare()" style="flex: 2;">💾 Lưu & Chia Sẻ</button>
+            <button class="btn-secondary" onclick="logout()">🚪 Đăng Xuất</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mật khẩu admin (có thể thay đổi)
+    const ADMIN_PASSWORD = "admin123";
+    let isAdminLoggedIn = false;
+    let currentTotal = 0;
+
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        
+        e.target.classList.add('active');
+        const pageId = e.target.getAttribute('data-page');
+        document.getElementById(pageId).classList.add('active');
+      });
+    });
+
+    function verifyAdmin() {
+      const password = document.getElementById('adminPassword').value;
+      const statusEl = document.getElementById('adminStatus');
+      
+      if (password === ADMIN_PASSWORD) {
+        isAdminLoggedIn = true;
+        document.getElementById('adminContent').style.display = 'block';
+        document.getElementById('adminPassword').style.display = 'none';
+        document.querySelector('.admin-section button').style.display = 'none';
+        document.querySelector('.admin-section p').style.display = 'none';
+        statusEl.style.display = 'none';
+      } else {
+        statusEl.textContent = '❌ Mật khẩu không đúng!';
+        statusEl.style.display = 'block';
+      }
+    }
+
+    function calculateAdminTotal() {
+      const numBirds = parseInt(document.getElementById('adminNumBirds').value) || 0;
+      const birdPrice = parseInt(document.getElementById('adminBirdPrice').value) || 0;
+      const courtFee = parseInt(document.getElementById('adminCourtFee').value) || 0;
+
+      const birdTotal = numBirds * birdPrice;
+      const grandTotal = birdTotal + courtFee;
+
+      currentTotal = grandTotal;
+
+      document.getElementById('adminNumBirdsDisplay').textContent = numBirds;
+      document.getElementById('adminBirdPriceDisplay').textContent = formatCurrency(birdPrice);
+      document.getElementById('adminBirdTotalDisplay').textContent = formatCurrency(birdTotal);
+      document.getElementById('adminCourtFeeDisplay').textContent = formatCurrency(courtFee);
+      document.getElementById('adminGrandTotalDisplay').textContent = formatCurrency(grandTotal);
+      document.getElementById('adminResult').classList.add('show');
+    }
+
+    function calculateUserPayment() {
+      const numPlayers = parseInt(document.getElementById('userNumPlayers').value) || 1;
+      
+      if (currentTotal === 0) {
+        alert('Vui lòng quản lý admin tính toán tổng tiền trước!');
+        return;
+      }
+
+      const perPerson = Math.round(currentTotal / numPlayers);
+
+      document.getElementById('userTotalDisplay').textContent = formatCurrency(currentTotal);
+      document.getElementById('userNumPlayersDisplay').textContent = numPlayers;
+      document.getElementById('userPerPersonDisplay').textContent = formatCurrency(perPerson);
+      document.getElementById('userResult').classList.add('show');
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+      }).format(amount).replace('₫', 'đ');
+    }
+
+    function saveAndShare() {
+      const data = {
+        numBirds: parseInt(document.getElementById('adminNumBirds').value) || 0,
+        birdPrice: parseInt(document.getElementById('adminBirdPrice').value) || 0,
+        courtFee: parseInt(document.getElementById('adminCourtFee').value) || 0,
+        totalAmount: currentTotal,
+        timestamp: new Date().toLocaleString('vi-VN')
+      };
+
+      localStorage.setItem('badmintonPayment', JSON.stringify(data));
+      
+      const message = `
+🏸 CHI PHÍ CẦU LÔNG
+━━━━━━━━━━━━━━━━
+📊 Chi Tiết:
+• Số cầu: ${data.numBirds} quả × ${formatCurrency(data.birdPrice)} = ${formatCurrency(data.numBirds * data.birdPrice)}
+• Tiền sân: ${formatCurrency(data.courtFee)}
+━━━━━━━━━━━━━━━━
+💰 TỔNG CỘNG: ${formatCurrency(data.totalAmount)}
+🕐 Thời gian: ${data.timestamp}
+━━━━━━━━━━━━━━━━
+👥 Chia cho người chơi tại: badminton-payment.html
+      `.trim();
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'Chi Phí Cầu Lông',
+          text: message
+        }).catch(err => console.log('Share error:', err));
+      } else {
+        alert('📋 Dữ liệu đã được lưu!\n\n' + message);
+        copyToClipboard(message);
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Đã sao chép vào clipboard!');
+      });
+    }
+
+    function logout() {
+      isAdminLoggedIn = false;
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPassword').style.display = 'block';
+      document.querySelector('.admin-section button').style.display = 'block';
+      document.getElementById('adminContent').style.display = 'none';
+    }
+
+    // Load dữ liệu khi trang load
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('badmintonPayment');
+      if (saved) {
+        const data = JSON.parse(saved);
+        currentTotal = data.totalAmount;
+      }
+    });
+  </script>
+</body>
+</html>
