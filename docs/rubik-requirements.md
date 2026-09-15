@@ -15,7 +15,10 @@ Trang web là mô phỏng Rubik 3×3 tương tác bằng Three.js, ưu tiên luy
 - Khối Rubik hiển thị ở 75.6% kích thước gốc (giảm thêm 10% từ mức 84%), với khoảng thở rõ ràng trong khung hình.
 - Có nút `LUYỆN F2L`: khi bật, toàn bộ cubie có sticker vàng bị đổi thành đen để người luyện chỉ tập trung vào F2L; nhấn lại để hiện màu gốc.
 - Có nút `XÁO TRỘN F2L`: chỉ tạo tình huống F2L, trong khi cross (dấu `+`) trắng hoàn chỉnh ở mặt dưới luôn được giữ nguyên. Xáo trộn không dùng nước `D`.
-- Nút `HỌC GIẢI` bị ẩn và vô hiệu hóa mặc định. Khi người dùng nhấp chọn một corner chưa đúng vị trí F2L (không làm xoay khối), corner được viền nổi bật và nút mới xuất hiện. Nhấn nút sẽ mở bảng hướng dẫn các bước giải F2L; bảng có thể đóng lại.
+- Nút `HỌC GIẢI` bị ẩn và vô hiệu hóa mặc định. Khi người dùng nhấp chọn một corner chưa đúng vị trí F2L (không làm xoay khối), corner được viền nổi bật và nút mới xuất hiện. Khi nhấn nút, người dùng phải chọn màu mặt trung tâm đang hướng về phía mình trước khi xem hướng dẫn.
+- `XÁO TRỘN F2L` chỉ sinh một case từ thư viện case đã xác minh. Mỗi case lưu `setup` và `solution` là hai chuỗi đảo ngược tuyệt đối; vì vậy dải công thức luôn khôi phục đúng trạng thái trước case, thay vì áp dụng công thức cố định cho trạng thái bất kỳ.
+- Sau khi chọn mặt trước, hướng dẫn chỉ hiển thị `solution` của active case dưới dạng dải nước xoay liên tiếp. Hỗ trợ các case F2L bốn hướng (trước–phải, trước–trái, sau–phải, sau–trái), dựa trên trigger và mirror cơ bản. Nước hiện hành được làm nổi bật. `NEXT` thực hiện một nước; `PLAY` tự xoay Rubik từng nước; khi đang chạy nút chuyển thành `PAUSE`; `PREV` chỉ lùi con trỏ công thức. Nút `↺ BAN ĐẦU` trả Rubik và dải công thức về trạng thái ngay trước lúc bắt đầu hướng dẫn.
+- Sau nước cuối, hệ thống xác nhận toàn bộ vị trí cubie trở lại snapshot solved của case và white cross không đổi; nếu không đạt, hiển thị `STATE CHECK FAILED` thay vì tuyên bố giải đúng. Nếu người dùng thực hiện nước xoay bàn phím ngoài dải hướng dẫn, active case bị hủy và yêu cầu xáo trộn lại để tránh dùng công thức lỗi thời. Bảng có thể đóng lại.
 
 ## Quy tắc cập nhật
 

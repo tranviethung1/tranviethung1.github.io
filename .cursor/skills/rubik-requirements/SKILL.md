@@ -15,5 +15,6 @@ Before changing the Rubik trainer:
    - revise requirements that changed;
    - remove superseded requirements.
 5. Validate JavaScript syntax and check the affected interaction behavior.
+6. For any generated solving guide, verify `setup → solution` restores the recorded cubie state and preserves the white cross. Never present a fixed algorithm as a solution for an arbitrary cube state.
 
 Do not silently weaken the F2L practice constraint. If a new request conflicts with it, explain the conflict and ask the user which requirement takes precedence.
