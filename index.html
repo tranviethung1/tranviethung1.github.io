@@ -1,61 +1,372 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tran Viet Hung</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #0f0f1a;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .card {
-      text-align: center;
-      padding: 50px;
-    }
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      margin: 0 auto 20px;
-    }
-    h1 { font-size: 2rem; margin-bottom: 10px; }
-    p { color: #aaa; margin-bottom: 30px; }
-    .links a {
-      display: inline-block;
-      margin: 8px;
-      padding: 10px 24px;
-      background: #667eea;
-      color: #fff;
-      border-radius: 25px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: 0.3s;
-    }
-    .links a:hover { background: #764ba2; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubik's Cube 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #canvas {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .info {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <div class="avatar">👤</div>
-    <h1>Trần Việt Hùng</h1>
-    <p>Xin chào! Đây là trang cá nhân của tôi 👋</p>
-    <div class="links">
-      <a href="#">GitHub</a>
-      <a href="#">Facebook</a>
-      <a href="#">Liên hệ</a>
+    <div class="container">
+        <h1>🎲 Rubik's Cube 3D</h1>
+        <canvas id="canvas"></canvas>
+        
+        <div class="controls">
+            <div style="width: 100%; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('U')">U (Trên)</button>
+                    <button onclick="rotateFace('U_prime')">U' (Trên ngược)</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('D')">D (Dưới)</button>
+                    <button onclick="rotateFace('D_prime')">D' (Dưới ngược)</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('L')">L (Trái)</button>
+                    <button onclick="rotateFace('L_prime')">L' (Trái ngược)</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('R')">R (Phải)</button>
+                    <button onclick="rotateFace('R_prime')">R' (Phải ngược)</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('F')">F (Trước)</button>
+                    <button onclick="rotateFace('F_prime')">F' (Trước ngược)</button>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="rotateFace('B')">B (Sau)</button>
+                    <button onclick="rotateFace('B_prime')">B' (Sau ngược)</button>
+                </div>
+                <button onclick="resetCube()" style="margin-top: 10px; width: 100%; background: rgba(255, 0, 0, 0.3); border-color: #ff6b6b;">Reset</button>
+            </div>
+        </div>
+        
+        <div class="info">
+            <div class="info-title">Hướng dẫn:</div>
+            <div>🖱️ Kéo chuột để xoay khối</div>
+            <div>📱 Chạm và kéo trên thiết bị di động</div>
+            <div>⌨️ Nhấn các nút để xoay các mặt</div>
+        </div>
     </div>
-  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Màu sắc chuẩn của Rubik Cube
+        const COLORS = {
+            white: 0xFFFFFF,   // Trắng
+            yellow: 0xFFFF00,  // Vàng
+            blue: 0x0051BA,    // Xanh dương
+            green: 0x009B48,   // Xanh lá
+            red: 0xC41E3A,     // Đỏ
+            orange: 0xFF5800   // Cam
+        };
+
+        // Cấu hình scene
+        const canvas = document.getElementById('canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(window.innerWidth - 40, window.innerHeight - 300);
+        renderer.shadowMap.enabled = true;
+
+        // Lighting
+        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        light1.position.set(5, 5, 5);
+        light1.castShadow = true;
+        scene.add(light1);
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        light2.position.set(-5, -5, -5);
+        scene.add(light2);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        // Tạo Rubik Cube
+        let cubeGroup = new THREE.Group();
+        scene.add(cubeGroup);
+
+        const CUBE_SIZE = 1;
+        const SMALL_CUBE_SIZE = 0.3;
+        const GAP = 0.05;
+
+        // Tạo 27 small cubes (3x3x3)
+        const smallCubes = [];
+
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                for (let z = -1; z <= 1; z++) {
+                    const cubeGeometry = new THREE.BoxGeometry(SMALL_CUBE_SIZE, SMALL_CUBE_SIZE, SMALL_CUBE_SIZE);
+                    
+                    // Định nghĩa màu cho mỗi mặt
+                    const materials = [
+                        new THREE.MeshStandardMaterial({ color: z === 1 ? COLORS.blue : 0x222222 }),      // Right
+                        new THREE.MeshStandardMaterial({ color: z === -1 ? COLORS.green : 0x222222 }),    // Left
+                        new THREE.MeshStandardMaterial({ color: y === 1 ? COLORS.white : 0x222222 }),     // Top
+                        new THREE.MeshStandardMaterial({ color: y === -1 ? COLORS.yellow : 0x222222 }),   // Bottom
+                        new THREE.MeshStandardMaterial({ color: x === 1 ? COLORS.red : 0x222222 }),       // Front
+                        new THREE.MeshStandardMaterial({ color: x === -1 ? COLORS.orange : 0x222222 })    // Back
+                    ];
+
+                    const cube = new THREE.Mesh(cubeGeometry, materials);
+                    cube.position.set(
+                        (x * (SMALL_CUBE_SIZE + GAP)),
+                        (y * (SMALL_CUBE_SIZE + GAP)),
+                        (z * (SMALL_CUBE_SIZE + GAP))
+                    );
+                    cube.castShadow = true;
+                    cube.receiveShadow = true;
+                    cube.userData = { originalPosition: cube.position.clone(), x, y, z };
+                    
+                    cubeGroup.add(cube);
+                    smallCubes.push(cube);
+                }
+            }
+        }
+
+        // Mouse controls
+        let mouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+
+        document.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (mouseDown && !isRotating) {
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                
+                targetRotationY += deltaX * 0.005;
+                targetRotationX += deltaY * 0.005;
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isRotating) {
+                const deltaX = e.touches[0].clientX - touchStartX;
+                const deltaY = e.touches[0].clientY - touchStartY;
+                
+                targetRotationY += deltaX * 0.005;
+                targetRotationX += deltaY * 0.005;
+                
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        });
+
+        // Hàm xoay mặt
+        let isRotating = false;
+
+        function rotateFace(face) {
+            if (isRotating) return;
+            isRotating = true;
+
+            const faceGroup = new THREE.Group();
+            const cubesToRotate = [];
+
+            // Xác định các khối cần xoay
+            switch(face) {
+                case 'U':
+                case 'U_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.y === 1);
+                    break;
+                case 'D':
+                case 'D_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.y === -1);
+                    break;
+                case 'L':
+                case 'L_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.x === -1);
+                    break;
+                case 'R':
+                case 'R_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.x === 1);
+                    break;
+                case 'F':
+                case 'F_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.z === 1);
+                    break;
+                case 'B':
+                case 'B_prime':
+                    cubesToRotate = smallCubes.filter(c => c.userData.z === -1);
+                    break;
+            }
+
+            cubesToRotate.forEach(cube => {
+                faceGroup.add(cube);
+            });
+            cubeGroup.add(faceGroup);
+
+            // Xoay
+            const rotations = 90 * (Math.PI / 180);
+            const direction = face.includes('_prime') ? -1 : 1;
+            let currentRotation = 0;
+            const targetRotation = rotations * direction;
+            const speed = 0.1;
+
+            const animate = () => {
+                if (Math.abs(targetRotation - currentRotation) > speed) {
+                    currentRotation += speed * direction;
+                    
+                    if (face.startsWith('U')) faceGroup.rotateZ(speed * direction);
+                    else if (face.startsWith('D')) faceGroup.rotateZ(-speed * direction);
+                    else if (face.startsWith('L')) faceGroup.rotateX(-speed * direction);
+                    else if (face.startsWith('R')) faceGroup.rotateX(speed * direction);
+                    else if (face.startsWith('F')) faceGroup.rotateY(speed * direction);
+                    else if (face.startsWith('B')) faceGroup.rotateY(-speed * direction);
+                    
+                    requestAnimationFrame(animate);
+                } else {
+                    // Cập nhật vị trí của các khối
+                    faceGroup.children.forEach(cube => {
+                        const worldPos = new THREE.Vector3();
+                        cube.getWorldPosition(worldPos);
+                        cube.position.copy(worldPos);
+                        cubeGroup.remove(cube);
+                        cubeGroup.add(cube);
+                    });
+                    
+                    cubeGroup.remove(faceGroup);
+                    isRotating = false;
+                }
+            };
+
+            animate();
+        }
+
+        function resetCube() {
+            smallCubes.forEach(cube => {
+                cube.position.copy(cube.userData.originalPosition);
+                cube.rotation.set(0, 0, 0);
+            });
+            cubeGroup.rotation.set(0, 0, 0);
+        }
+
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Smooth camera rotation
+            cubeGroup.rotation.x += (targetRotationX - cubeGroup.rotation.x) * 0.1;
+            cubeGroup.rotation.y += (targetRotationY - cubeGroup.rotation.y) * 0.1;
+
+            renderer.render(scene, camera);
+        }
+
+        // Xử lý resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth - 40;
+            const height = window.innerHeight - 300;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
+
+        animate();
+
+        // Expose functions to global scope
+        window.rotateFace = rotateFace;
+        window.resetCube = resetCube;
+    </script>
 </body>
 </html>
