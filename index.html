@@ -2,14 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>RUBIK / 03</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
     :root { --ink:#121212; --cream:#f4f0e8; --accent:#ff4b2b; --line:rgba(18,18,18,.18); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; overflow:hidden; color:var(--ink); background:var(--cream); font-family:'DM Mono',monospace; }
-    #stage { position:fixed; inset:0; cursor:grab; } #stage:active { cursor:grabbing; }
+    #stage { position:fixed; inset:0; z-index:0; cursor:grab; } #stage:active { cursor:grabbing; }
     canvas { display:block; width:100%; height:100%; outline:none; }
     .grain { pointer-events:none; position:fixed; inset:0; opacity:.2; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
     header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px; pointer-events:none; }
@@ -20,13 +20,98 @@
     .actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:15px; }
     button { min-height:38px; color:var(--ink); border:1px solid var(--ink); background:transparent; font:500 10px 'DM Mono',monospace; letter-spacing:.04em; cursor:pointer; transition:background .18s,color .18s,transform .18s; }
     button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(2px,2px); }
+    /* Keep label contrast: later button background rules must not leave cream text on cream fill. */
+    .practice-controls button:hover, .practice-controls button:focus-visible,
+    .settings-toggle:hover, .settings-toggle:focus-visible,
+    .settings-row button:hover, .settings-row button:focus-visible,
+    .formula-panel .slot-tabs button:hover, .formula-panel .slot-tabs button:focus-visible,
+    .formula-panel .case-options .opt-list button:hover, .formula-panel .case-options .opt-list button:focus-visible,
+    .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
+    .solve-f2l:hover, .solve-f2l:focus-visible { background:var(--ink); color:var(--cream); }
     .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:10px; letter-spacing:.1em; text-align:right; line-height:1.7; } .status b { color:var(--accent); }
     .hint { position:fixed; z-index:2; left:50%; bottom:38px; transform:translateX(-50%); font-size:10px; letter-spacing:.09em; white-space:nowrap; opacity:.66; }
-    .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .practice-controls button.is-active { background:var(--ink); color:var(--cream); }
+    .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
     .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 18px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:5px 5px 0 rgba(18,18,18,.18); } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:79px; transform:translateX(-50%); display:flex; gap:7px; padding:8px; background:rgba(244,240,232,.94); border:1px solid var(--line); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:34px; min-height:34px; padding:0; border:2px solid transparent; color:#fff; font:700 19px Syne,sans-serif; } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
     .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:38px; padding:0; font-size:19px; line-height:1; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .settings-panel { position:fixed; z-index:4; right:32px; top:74px; width:235px; padding:14px; background:rgba(244,240,232,.94); border:1px solid var(--line); box-shadow:6px 6px 0 rgba(18,18,18,.07); backdrop-filter:blur(9px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 12px Syne,sans-serif; } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:9px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; } .settings-row input { width:110px; accent-color:var(--accent); }
-    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:7px; width:188px; max-height:70vh; overflow:auto; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:8px; background:rgba(244,240,232,.9); border:1px solid var(--ink); backdrop-filter:blur(9px); box-shadow:4px 4px 0 rgba(18,18,18,.07); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); background:#fff; } .formula-panel .formula-id { font:700 10px Syne,sans-serif; letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:6px; border-top:1px solid var(--line); } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; } .formula-panel .slot-tabs button { min-height:28px; padding:0; font:700 9px Syne,sans-serif; background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:var(--cream); } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; } .formula-panel .case-options .opt-list button { min-height:32px; padding:6px 8px; text-align:left; white-space:normal; line-height:1.35; font-size:9px; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
-    @media (max-width:650px) { header { padding:21px; } #stage canvas { transform:scale(.9); transform-origin:center; } .practice-controls { right:62px; top:70px; } .practice-controls button { padding:0 9px; font-size:9px; } .settings-toggle { right:18px; top:70px; } .settings-panel { right:18px; top:116px; } .formula-panel { right:18px; width:150px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:130px; bottom:auto; } .hint { display:none; } }
+    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:7px; width:188px; max-height:70vh; overflow:auto; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:8px; background:rgba(244,240,232,.9); border:1px solid var(--ink); backdrop-filter:blur(9px); box-shadow:4px 4px 0 rgba(18,18,18,.07); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); background:#fff; } .formula-panel .formula-id { font:700 10px Syne,sans-serif; letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:6px; border-top:1px solid var(--line); } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; } .formula-panel .slot-tabs button { min-height:28px; padding:0; font:700 9px Syne,sans-serif; background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:3px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:32px; padding:6px 8px; text-align:left; white-space:normal; line-height:1.35; font-size:9px; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:2px; } .formula-panel .case-options .opt-controls button { width:28px; min-height:32px; padding:0; font:700 12px Syne,sans-serif; line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; } .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
+    @media (max-width:720px) {
+      header { padding:10px 12px; }
+      .brand { font-size:22px; }
+      #stage canvas { transform:scale(.78) translateY(-6%); transform-origin:center top; }
+      .practice-controls { top:10px; right:48px; left:auto; gap:5px; max-width:calc(100vw - 140px); flex-wrap:wrap; justify-content:flex-end; }
+      .practice-controls button { padding:0 8px; min-height:34px; font-size:8px; letter-spacing:0; background:rgba(244,240,232,.92); }
+      .practice-controls button.is-active { color:#fff; }
+      .settings-toggle { top:10px; right:10px; width:34px; min-height:34px; font-size:16px; }
+      .settings-panel { left:10px; right:10px; top:52px; width:auto; max-height:min(70vh,420px); overflow:auto; }
+      .formula-panel {
+        z-index:5;
+        top:auto; right:0; left:0; bottom:0; transform:none;
+        width:100%; max-height:46vh; min-height:0;
+        flex-direction:row; align-items:stretch; gap:8px;
+        padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
+        overflow-x:auto; overflow-y:auto;
+        background:#f4f0e8;
+        border-top:1px solid var(--ink);
+        box-shadow:0 -8px 24px rgba(18,18,18,.1);
+        -webkit-overflow-scrolling:touch;
+      }
+      .formula-panel .case-card {
+        flex:0 0 auto; width:92px; max-height:100%; overflow:hidden;
+        padding:7px; box-shadow:none; background:#f4f0e8;
+      }
+      .formula-panel:has(.case-card.is-open) {
+        flex-direction:column; overflow-x:hidden;
+      }
+      .formula-panel:has(.case-card.is-open) .case-card:not(.is-open) { display:none; }
+      .formula-panel .case-card.is-open {
+        width:100%; max-width:none;
+        max-height:calc(46vh - 20px);
+        overflow-x:hidden; overflow-y:auto;
+        touch-action:pan-y;
+        transition:transform .2s ease, opacity .2s ease;
+      }
+      .formula-panel .case-card.is-open.is-dragging {
+        transition:none;
+      }
+      .formula-panel .case-card.is-open.is-dismissing {
+        pointer-events:none;
+      }
+      .formula-panel .case-drag {
+        display:flex; justify-content:center; align-items:center;
+        width:100%; min-height:22px; padding:4px 0 2px; border:0; background:transparent;
+        cursor:grab; touch-action:none;
+      }
+      .formula-panel .case-drag::before {
+        content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.28);
+      }
+      .formula-panel .case-card:not(.is-open) .case-drag { display:none; }
+      .formula-panel .case-card:not(.is-open) .formula-id { font-size:9px; }
+      .formula-panel .preview {
+        width:100%; max-width:76px; max-height:76px; height:auto;
+        aspect-ratio:1; margin:0 auto; object-fit:contain;
+      }
+      .formula-panel .case-card.is-open .case-main {
+        display:grid; grid-template-columns:56px minmax(0,1fr); align-items:center; gap:8px;
+        overflow:hidden; flex:0 0 auto;
+      }
+      .formula-panel .case-card.is-open .preview {
+        width:56px; height:56px; max-width:56px; max-height:56px; margin:0;
+      }
+      .formula-panel .case-card.is-open .case-options {
+        position:relative; z-index:2; background:#f4f0e8; isolation:isolate;
+      }
+      .formula-panel .slot-tabs { gap:4px; position:relative; z-index:3; }
+      .formula-panel .slot-tabs button { min-height:36px; font-size:11px; color:var(--ink); background:#f4f0e8; }
+      .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; }
+      .formula-panel .case-options .opt-list { position:relative; z-index:2; }
+      .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
+      .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
+      .status { left:12px; right:auto; top:52px; bottom:auto; text-align:left; font-size:9px; }
+      .solve-f2l { bottom:calc(46vh + 12px); min-height:40px; }
+      .solve-result { bottom:calc(46vh + 58px); }
+      .panel { left:12px; bottom:calc(46vh + 12px); width:min(240px,70vw); }
+      .hint { display:none; }
+    }
   </style>
 </head>
 <body>
@@ -174,11 +259,125 @@
     }];
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
+    let algPlayback=null, algPlayToken=0, activeAlgId=null;
+    const invertToken=move=>{const t=normalizeMove(move); if(t.endsWith('2')) return t; if(t.endsWith('′')) return t.slice(0,-1); return `${t}′`;};
+    const stepDelay=()=>Math.max(scrambleDelay, 120);
+    function beginAlgPlayback(id, sequence, isSetup){algPlayback={id, moves:parseMoves(sequence), index:0, isSetup}; activeAlgId=id;}
+    function markActiveAlgRow(id){
+      activeAlgId=id;
+      formulaPanel.querySelectorAll('.opt-row').forEach(row=>row.classList.toggle('is-active', row.dataset.algId===id));
+    }
+    async function algPlayAll(id, sequence, isSetup, status){
+      if(busy) return;
+      const token=++algPlayToken;
+      markActiveAlgRow(id);
+      beginAlgPlayback(id, sequence, isSetup);
+      if(isSetup){ resetToSolved(); algPlayback.index=0; }
+      while(algPlayback&&algPlayback.id===id&&algPlayback.index<algPlayback.moves.length){
+        if(token!==algPlayToken) return;
+        await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
+        if(token!==algPlayToken) return;
+        algPlayback.index++;
+        stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+      }
+      if(token===algPlayToken) stateEl.textContent=status;
+    }
+    async function algNext(id, sequence, isSetup, status){
+      if(busy) return;
+      markActiveAlgRow(id);
+      if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSolved(); }
+      if(algPlayback.index>=algPlayback.moves.length) return;
+      await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
+      algPlayback.index++;
+      stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+    }
+    async function algPrev(id, sequence, isSetup, status){
+      if(busy) return;
+      markActiveAlgRow(id);
+      if(!algPlayback||algPlayback.id!==id||algPlayback.index<=0) return;
+      algPlayback.index--;
+      await runMoves([invertToken(algPlayback.moves[algPlayback.index])], stepDelay());
+      stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+    }
+    function createAlgRow({id, label, sequence, isSetup, status, extraClass=''}){
+      const row=document.createElement('div');
+      row.className=`opt-row${activeAlgId===id?' is-active':''}`;
+      row.dataset.algId=id;
+      const btn=document.createElement('button');
+      btn.type='button'; btn.className=`opt-label${extraClass?` ${extraClass}`:''}`;
+      btn.textContent=label; btn.title=sequence||''; btn.disabled=!sequence;
+      btn.onclick=()=>algPlayAll(id, sequence, isSetup, status);
+      const controls=document.createElement('div'); controls.className='opt-controls';
+      const mk=(cls, text, title, fn)=>{
+        const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
+        b.disabled=!sequence; b.onclick=()=>fn(id, sequence, isSetup, status); return b;
+      };
+      controls.appendChild(mk('opt-prev','‹','Prev / lùi 1 nước',algPrev));
+      controls.appendChild(mk('opt-play','▶','Play / chạy hết',algPlayAll));
+      controls.appendChild(mk('opt-next','›','Next / tới 1 nước',algNext));
+      row.appendChild(btn); row.appendChild(controls);
+      return row;
+    }
+    const isMobileUi=()=>matchMedia('(max-width:720px)').matches;
+    function closeOpenCase(){openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null; renderFormulaButtons();}
+    function enableCaseSwipeDismiss(card){
+      if(!isMobileUi()||!card.classList.contains('is-open')) return;
+      const handle=card.querySelector('.case-drag');
+      if(!handle) return;
+      let startY=0, startX=0, dragging=false, dy=0, moved=false;
+      const onStart=(event)=>{
+        const point=event.touches?event.touches[0]:event;
+        startY=point.clientY; startX=point.clientX; dragging=true; dy=0; moved=false;
+        card.classList.add('is-dragging');
+      };
+      const onMove=(event)=>{
+        if(!dragging) return;
+        const point=event.touches?event.touches[0]:event;
+        const deltaY=point.clientY-startY, deltaX=point.clientX-startX;
+        if(Math.abs(deltaX)>Math.abs(deltaY)&&dy<8) return;
+        dy=Math.max(0, deltaY);
+        if(dy>6) moved=true;
+        card.style.transform=`translateY(${dy}px)`;
+        card.style.opacity=String(Math.max(.35, 1-dy/220));
+        if(event.cancelable) event.preventDefault();
+      };
+      const onEnd=()=>{
+        if(!dragging) return;
+        dragging=false; card.classList.remove('is-dragging');
+        if(dy>72){
+          card.classList.add('is-dismissing');
+          card.style.transform=`translateY(${Math.max(dy,180)}px)`;
+          card.style.opacity='0';
+          setTimeout(closeOpenCase, 180);
+        } else {
+          card.style.transform=''; card.style.opacity='';
+        }
+        dy=0;
+      };
+      handle.addEventListener('touchstart', onStart, {passive:true});
+      handle.addEventListener('touchmove', onMove, {passive:false});
+      handle.addEventListener('touchend', onEnd);
+      handle.addEventListener('touchcancel', onEnd);
+      const main=card.querySelector('.case-main');
+      if(main){
+        main.addEventListener('touchstart', onStart, {passive:true});
+        main.addEventListener('touchmove', onMove, {passive:false});
+        main.addEventListener('touchend', onEnd);
+        main.addEventListener('touchcancel', onEnd);
+        main.addEventListener('click', event=>{ if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; } }, true);
+      }
+    }
     function renderFormulaButtons(){
       formulaPanel.innerHTML='';
       f2lSetups.forEach(entry=>{
         const card=document.createElement('div');
         card.className=`case-card${openCaseId===entry.id?' is-open':''}`;
+        if(openCaseId===entry.id){
+          const drag=document.createElement('button');
+          drag.type='button'; drag.className='case-drag'; drag.setAttribute('aria-label','Kéo xuống để đóng');
+          drag.title='Kéo xuống để đóng';
+          card.appendChild(drag);
+        }
         const main=document.createElement('button');
         main.type='button'; main.className='case-main'; main.title='Mở setup & công thức giải';
         if(entry.preview){const img=document.createElement('img'); img.className='preview'; img.src=entry.preview; img.alt=`Preview ${entry.id}`; img.loading='lazy'; main.appendChild(img);}
@@ -190,26 +389,33 @@
         f2lSlotOrder.forEach(slot=>{
           const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot; tab.className=openSlot===slot?'is-active':'';
           tab.setAttribute('aria-selected',String(openSlot===slot));
-          tab.onclick=()=>{openSlot=slot; renderFormulaButtons();};
+          tab.onclick=()=>{openSlot=slot; algPlayback=null; algPlayToken++; activeAlgId=null; renderFormulaButtons();};
           tabs.appendChild(tab);
         });
         options.appendChild(tabs);
         const slotData=entry.slots?.[openSlot]||{setup:'',solutions:[]};
         const list=document.createElement('div'); list.className='opt-list';
-        const setupBtn=document.createElement('button'); setupBtn.type='button'; setupBtn.className='opt-setup';
-        setupBtn.textContent=`SETUP · ${slotData.setup||'—'}`;
-        setupBtn.disabled=!slotData.setup;
-        setupBtn.onclick=async()=>{if(busy||!slotData.setup)return; resetToSolved(); await runMoves(parseMoves(slotData.setup)); stateEl.textContent=`SETUP · ${entry.id} · ${openSlot}`;};
-        list.appendChild(setupBtn);
+        list.appendChild(createAlgRow({
+          id:`${entry.id}|${openSlot}|setup`,
+          label:`SETUP · ${slotData.setup||'—'}`,
+          sequence:slotData.setup||'',
+          isSetup:true,
+          status:`SETUP · ${entry.id} · ${openSlot}`,
+          extraClass:'opt-setup'
+        }));
         (slotData.solutions||[]).forEach((alg,index)=>{
-          const btn=document.createElement('button'); btn.type='button';
-          btn.textContent=`GIẢI ${index+1} · ${alg}`; btn.title=alg;
-          btn.onclick=async()=>{if(busy)return; await runMoves(parseMoves(alg)); stateEl.textContent=`SOLVE · ${entry.id} · ${openSlot} · ${index+1}`;};
-          list.appendChild(btn);
+          list.appendChild(createAlgRow({
+            id:`${entry.id}|${openSlot}|solve|${index}`,
+            label:`GIẢI ${index+1} · ${alg}`,
+            sequence:alg,
+            isSetup:false,
+            status:`SOLVE · ${entry.id} · ${openSlot} · ${index+1}`
+          }));
         });
         options.appendChild(list);
         card.appendChild(options);
         formulaPanel.appendChild(card);
+        enableCaseSwipeDismiss(card);
       });
     }
     renderFormulaButtons();
