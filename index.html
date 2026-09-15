@@ -28,40 +28,44 @@
 <body>
   <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 có thể tương tác"></main>
   <div class="grain"></div>
-  <header><div class="brand">RUBIK<span>:</span>03</div><div class="meta">INTERACTIVE OBJECT<br>THREE.JS / WEBGL<br>2026 EDITION</div></header>
-  <section class="panel" aria-label="Hướng dẫn điều khiển"><h1>XOAY. QUAN SÁT. GIẢI.</h1><p>Kéo để ngắm khối. Nhấp vào một mặt màu để xoay lớp đó. Dùng <b>Shift + nhấp</b> để xoay ngược chiều.</p><div class="actions"><button id="scramble">XÁO TRỘN</button><button id="reset">KHÔI PHỤC</button></div></section>
+  <header><div class="brand">RUBIK<span>:</span>03</div></header>
   <div class="hint">NHẤP MẶT MÀU ĐỂ XOAY &nbsp; / &nbsp; KÉO ĐỂ QUAN SÁT</div>
-  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">READY</span></div>
+  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
 
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
     const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
-    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(7.2, 6.1, 8.4);
-    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.1; stage.appendChild(renderer.domElement);
-    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.minDistance=7; controls.maxDistance=15; controls.target.set(0,0,0); controls.autoRotate=true; controls.autoRotateSpeed=.5;
-    scene.add(new THREE.HemisphereLight(0xffffff,0x564d43,2.3)); const key=new THREE.DirectionalLight(0xffffff,4); key.position.set(5,8,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key); const fill=new THREE.DirectionalLight(0xffd9bd,1.6); fill.position.set(-6,2,-4); scene.add(fill);
+    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.9; stage.appendChild(renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.minDistance=8; controls.maxDistance=17; controls.target.set(0,0,0); controls.autoRotate=true; controls.autoRotateSpeed=.5;
+    // Soft, neutral room lighting: fill from every direction while retaining subtle form shadows.
+    scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4dc,2.55));
+    const key=new THREE.DirectionalLight(0xffffff,2.35); key.position.set(5,8,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key);
+    const fill=new THREE.DirectionalLight(0xffffff,1.5); fill.position.set(-6,4,5); scene.add(fill);
+    const rim=new THREE.DirectionalLight(0xffffff,1.25); rim.position.set(-4,5,-7); scene.add(rim);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({color:0x3b3027, opacity:.17})); floor.rotation.x=-Math.PI/2; floor.position.y=-2.15; floor.receiveShadow=true; scene.add(floor);
-    const cube = new THREE.Group(); cube.scale.setScalar(.84); cube.rotation.set(-.12,.45,0); scene.add(cube);
-    const colors={R:0xc92722,L:0xe97121,U:0xf4f4e9,D:0xf2d633,F:0x188b57,B:0x1854a2};
+    const cube = new THREE.Group(); cube.scale.setScalar(.756); cube.rotation.set(-.12,.45,0); scene.add(cube);
+    // User-specified Rubik palette. F2L orientation: white cross starts on D (bottom).
+    const colors={R:0xb61a1a,L:0xff5900,U:0xd9bd24,D:0xffffff,F:0x21c925,B:0x0045ad};
     const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
-    // BoxGeometry segment counts must be whole positive integers. Fractional values create
-    // malformed position buffers and result in Three.js's NaN bounding-sphere warning.
-    const cubies=[]; const bodyGeo=new THREE.BoxGeometry(1.19,1.19,1.19,1,1,1); const black=new THREE.MeshStandardMaterial({color:0x11100f, roughness:.27, metalness:.08});
-    const stickerGeo=new THREE.BoxGeometry(.94,.94,.055,1,1,1);
+    // Colors reach the outside edges, while inner tile seams stay open with speed-cube corner cutouts.
+    const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
+    const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
-      const piece=new THREE.Group(); piece.position.set(x*1.25,y*1.25,z*1.25); piece.userData.coord={x,y,z};
+      const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData.coord={x,y,z};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
-      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshStandardMaterial({color:colors[name],roughness:.37,metalness:.02})); s.position.set(nx*.612,ny*.612,nz*.612); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={axis:nx?'x':ny?'y':'z', layer:nx||ny||nz}; piece.add(s); }});
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={axis:nx?'x':ny?'y':'z', layer:nx||ny||nz}; piece.add(s); }});
       cube.add(piece); cubies.push(piece);
     }
     const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, down=null;
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
     function rotateLayer(axis,layer,dir=1){ if(busy)return; busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); const chosen=cubies.filter(p=>p.userData.coord[axis]===layer); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=240;
-      function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.25,c.y*1.25,c.z*1.25); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
+      function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
     function pick(e){const r=renderer.domElement.getBoundingClientRect(); pointer.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true).find(h=>h.object.userData.axis); if(hit){
       // Derive the face from the sticker's current orientation, so clicks stay correct after any move.
       const q=hit.object.getWorldQuaternion(new THREE.Quaternion()); const cubeQ=cube.getWorldQuaternion(new THREE.Quaternion()).invert();
@@ -71,8 +75,11 @@
     }}
     renderer.domElement.addEventListener('pointerdown',e=>down={x:e.clientX,y:e.clientY}); renderer.domElement.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6)pick(e); down=null;});
     document.addEventListener('keydown',e=>{const map={r:['x',1],l:['x',-1],u:['y',1],d:['y',-1],f:['z',1],b:['z',-1]}; const key=map[e.key.toLowerCase()]; if(key)rotateLayer(...key,e.shiftKey?-1:1);});
-    document.querySelector('#scramble').onclick=async()=>{if(busy)return; const choices=[['x',-1],['x',1],['y',-1],['y',1],['z',-1],['z',1]]; for(let i=0;i<18;i++){const c=choices[Math.floor(Math.random()*choices.length)]; rotateLayer(c[0],c[1],Math.random()>.5?1:-1); await new Promise(r=>setTimeout(r,270));}};
-    document.querySelector('#reset').onclick=()=>location.reload();
+    // Each setup sequence closes its side turn, preserving the completed D-layer white cross.
+    const f2lCases=[[['y',1,1],['x',1,1],['y',1,-1],['x',1,-1]],[['y',1,-1],['x',-1,-1],['y',1,1],['x',-1,1]],[['y',1,1],['z',1,1],['y',1,-1],['z',1,-1]],[['y',1,-1],['z',-1,-1],['y',1,1],['z',-1,1]]];
+    const scrambleButton=document.querySelector('#scramble'), resetButton=document.querySelector('#reset');
+    if(scrambleButton) scrambleButton.onclick=async()=>{if(busy)return; const setups=2+Math.floor(Math.random()*3); for(let i=0;i<setups;i++){for(const move of f2lCases[Math.floor(Math.random()*f2lCases.length)]){rotateLayer(...move); await new Promise(r=>setTimeout(r,270));}} stateEl.textContent='WHITE CROSS ↓';};
+    if(resetButton) resetButton.onclick=()=>location.reload();
     addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
     renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
   </script>
