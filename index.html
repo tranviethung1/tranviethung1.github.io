@@ -1,372 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubik's Cube 3D</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
-        
-        .container {
-            text-align: center;
-        }
-        
-        h1 {
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        #canvas {
-            display: block;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .controls {
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        button {
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(1.05);
-        }
-        
-        button:active {
-            transform: scale(0.95);
-        }
-        
-        .info {
-            margin-top: 15px;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .info-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RUBIK / 03</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
+    :root { --ink:#121212; --cream:#f4f0e8; --accent:#ff4b2b; --line:rgba(18,18,18,.18); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; overflow:hidden; color:var(--ink); background:var(--cream); font-family:'DM Mono',monospace; }
+    #stage { position:fixed; inset:0; cursor:grab; } #stage:active { cursor:grabbing; }
+    canvas { display:block; width:100%; height:100%; outline:none; }
+    .grain { pointer-events:none; position:fixed; inset:0; opacity:.2; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
+    header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px; pointer-events:none; }
+    .brand { font-family:Syne,sans-serif; font-weight:800; font-size:clamp(27px,4vw,50px); line-height:.8; letter-spacing:-.08em; } .brand span { color:var(--accent); }
+    .meta { text-align:right; font-size:10px; letter-spacing:.1em; line-height:1.65; opacity:.7; }
+    .panel { position:fixed; z-index:3; left:32px; bottom:30px; width:252px; padding:16px; background:rgba(244,240,232,.9); border:1px solid var(--line); backdrop-filter:blur(9px); box-shadow:8px 8px 0 rgba(18,18,18,.07); }
+    .panel h1 { font-family:Syne,sans-serif; margin:0 0 12px; font-size:15px; letter-spacing:-.04em; } .panel p { margin:0; font-size:10px; line-height:1.65; opacity:.73; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:15px; }
+    button { min-height:38px; color:var(--ink); border:1px solid var(--ink); background:transparent; font:500 10px 'DM Mono',monospace; letter-spacing:.04em; cursor:pointer; transition:background .18s,color .18s,transform .18s; }
+    button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(2px,2px); }
+    .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:10px; letter-spacing:.1em; text-align:right; line-height:1.7; } .status b { color:var(--accent); }
+    .hint { position:fixed; z-index:2; left:50%; bottom:38px; transform:translateX(-50%); font-size:10px; letter-spacing:.09em; white-space:nowrap; opacity:.66; }
+    @media (max-width:650px) { header { padding:21px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:100px; bottom:auto; } .hint { display:none; } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎲 Rubik's Cube 3D</h1>
-        <canvas id="canvas"></canvas>
-        
-        <div class="controls">
-            <div style="width: 100%; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('U')">U (Trên)</button>
-                    <button onclick="rotateFace('U_prime')">U' (Trên ngược)</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('D')">D (Dưới)</button>
-                    <button onclick="rotateFace('D_prime')">D' (Dưới ngược)</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('L')">L (Trái)</button>
-                    <button onclick="rotateFace('L_prime')">L' (Trái ngược)</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('R')">R (Phải)</button>
-                    <button onclick="rotateFace('R_prime')">R' (Phải ngược)</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('F')">F (Trước)</button>
-                    <button onclick="rotateFace('F_prime')">F' (Trước ngược)</button>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="rotateFace('B')">B (Sau)</button>
-                    <button onclick="rotateFace('B_prime')">B' (Sau ngược)</button>
-                </div>
-                <button onclick="resetCube()" style="margin-top: 10px; width: 100%; background: rgba(255, 0, 0, 0.3); border-color: #ff6b6b;">Reset</button>
-            </div>
-        </div>
-        
-        <div class="info">
-            <div class="info-title">Hướng dẫn:</div>
-            <div>🖱️ Kéo chuột để xoay khối</div>
-            <div>📱 Chạm và kéo trên thiết bị di động</div>
-            <div>⌨️ Nhấn các nút để xoay các mặt</div>
-        </div>
-    </div>
+  <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 có thể tương tác"></main>
+  <div class="grain"></div>
+  <header><div class="brand">RUBIK<span>:</span>03</div><div class="meta">INTERACTIVE OBJECT<br>THREE.JS / WEBGL<br>2026 EDITION</div></header>
+  <section class="panel" aria-label="Hướng dẫn điều khiển"><h1>XOAY. QUAN SÁT. GIẢI.</h1><p>Kéo để ngắm khối. Nhấp vào một mặt màu để xoay lớp đó. Dùng <b>Shift + nhấp</b> để xoay ngược chiều.</p><div class="actions"><button id="scramble">XÁO TRỘN</button><button id="reset">KHÔI PHỤC</button></div></section>
+  <div class="hint">NHẤP MẶT MÀU ĐỂ XOAY &nbsp; / &nbsp; KÉO ĐỂ QUAN SÁT</div>
+  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">READY</span></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        // Màu sắc chuẩn của Rubik Cube
-        const COLORS = {
-            white: 0xFFFFFF,   // Trắng
-            yellow: 0xFFFF00,  // Vàng
-            blue: 0x0051BA,    // Xanh dương
-            green: 0x009B48,   // Xanh lá
-            red: 0xC41E3A,     // Đỏ
-            orange: 0xFF5800   // Cam
-        };
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // Cấu hình scene
-        const canvas = document.getElementById('canvas');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-        
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setSize(window.innerWidth - 40, window.innerHeight - 300);
-        renderer.shadowMap.enabled = true;
-
-        // Lighting
-        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
-        light1.position.set(5, 5, 5);
-        light1.castShadow = true;
-        scene.add(light1);
-
-        const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
-        light2.position.set(-5, -5, -5);
-        scene.add(light2);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
-        // Tạo Rubik Cube
-        let cubeGroup = new THREE.Group();
-        scene.add(cubeGroup);
-
-        const CUBE_SIZE = 1;
-        const SMALL_CUBE_SIZE = 0.3;
-        const GAP = 0.05;
-
-        // Tạo 27 small cubes (3x3x3)
-        const smallCubes = [];
-
-        for (let x = -1; x <= 1; x++) {
-            for (let y = -1; y <= 1; y++) {
-                for (let z = -1; z <= 1; z++) {
-                    const cubeGeometry = new THREE.BoxGeometry(SMALL_CUBE_SIZE, SMALL_CUBE_SIZE, SMALL_CUBE_SIZE);
-                    
-                    // Định nghĩa màu cho mỗi mặt
-                    const materials = [
-                        new THREE.MeshStandardMaterial({ color: z === 1 ? COLORS.blue : 0x222222 }),      // Right
-                        new THREE.MeshStandardMaterial({ color: z === -1 ? COLORS.green : 0x222222 }),    // Left
-                        new THREE.MeshStandardMaterial({ color: y === 1 ? COLORS.white : 0x222222 }),     // Top
-                        new THREE.MeshStandardMaterial({ color: y === -1 ? COLORS.yellow : 0x222222 }),   // Bottom
-                        new THREE.MeshStandardMaterial({ color: x === 1 ? COLORS.red : 0x222222 }),       // Front
-                        new THREE.MeshStandardMaterial({ color: x === -1 ? COLORS.orange : 0x222222 })    // Back
-                    ];
-
-                    const cube = new THREE.Mesh(cubeGeometry, materials);
-                    cube.position.set(
-                        (x * (SMALL_CUBE_SIZE + GAP)),
-                        (y * (SMALL_CUBE_SIZE + GAP)),
-                        (z * (SMALL_CUBE_SIZE + GAP))
-                    );
-                    cube.castShadow = true;
-                    cube.receiveShadow = true;
-                    cube.userData = { originalPosition: cube.position.clone(), x, y, z };
-                    
-                    cubeGroup.add(cube);
-                    smallCubes.push(cube);
-                }
-            }
-        }
-
-        // Mouse controls
-        let mouseDown = false;
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetRotationX = 0;
-        let targetRotationY = 0;
-
-        document.addEventListener('mousedown', (e) => {
-            mouseDown = true;
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (mouseDown && !isRotating) {
-                const deltaX = e.clientX - mouseX;
-                const deltaY = e.clientY - mouseY;
-                
-                targetRotationY += deltaX * 0.005;
-                targetRotationX += deltaY * 0.005;
-                
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            mouseDown = false;
-        });
-
-        // Touch controls
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!isRotating) {
-                const deltaX = e.touches[0].clientX - touchStartX;
-                const deltaY = e.touches[0].clientY - touchStartY;
-                
-                targetRotationY += deltaX * 0.005;
-                targetRotationX += deltaY * 0.005;
-                
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            }
-        });
-
-        // Hàm xoay mặt
-        let isRotating = false;
-
-        function rotateFace(face) {
-            if (isRotating) return;
-            isRotating = true;
-
-            const faceGroup = new THREE.Group();
-            const cubesToRotate = [];
-
-            // Xác định các khối cần xoay
-            switch(face) {
-                case 'U':
-                case 'U_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.y === 1);
-                    break;
-                case 'D':
-                case 'D_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.y === -1);
-                    break;
-                case 'L':
-                case 'L_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.x === -1);
-                    break;
-                case 'R':
-                case 'R_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.x === 1);
-                    break;
-                case 'F':
-                case 'F_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.z === 1);
-                    break;
-                case 'B':
-                case 'B_prime':
-                    cubesToRotate = smallCubes.filter(c => c.userData.z === -1);
-                    break;
-            }
-
-            cubesToRotate.forEach(cube => {
-                faceGroup.add(cube);
-            });
-            cubeGroup.add(faceGroup);
-
-            // Xoay
-            const rotations = 90 * (Math.PI / 180);
-            const direction = face.includes('_prime') ? -1 : 1;
-            let currentRotation = 0;
-            const targetRotation = rotations * direction;
-            const speed = 0.1;
-
-            const animate = () => {
-                if (Math.abs(targetRotation - currentRotation) > speed) {
-                    currentRotation += speed * direction;
-                    
-                    if (face.startsWith('U')) faceGroup.rotateZ(speed * direction);
-                    else if (face.startsWith('D')) faceGroup.rotateZ(-speed * direction);
-                    else if (face.startsWith('L')) faceGroup.rotateX(-speed * direction);
-                    else if (face.startsWith('R')) faceGroup.rotateX(speed * direction);
-                    else if (face.startsWith('F')) faceGroup.rotateY(speed * direction);
-                    else if (face.startsWith('B')) faceGroup.rotateY(-speed * direction);
-                    
-                    requestAnimationFrame(animate);
-                } else {
-                    // Cập nhật vị trí của các khối
-                    faceGroup.children.forEach(cube => {
-                        const worldPos = new THREE.Vector3();
-                        cube.getWorldPosition(worldPos);
-                        cube.position.copy(worldPos);
-                        cubeGroup.remove(cube);
-                        cubeGroup.add(cube);
-                    });
-                    
-                    cubeGroup.remove(faceGroup);
-                    isRotating = false;
-                }
-            };
-
-            animate();
-        }
-
-        function resetCube() {
-            smallCubes.forEach(cube => {
-                cube.position.copy(cube.userData.originalPosition);
-                cube.rotation.set(0, 0, 0);
-            });
-            cubeGroup.rotation.set(0, 0, 0);
-        }
-
-        // Render loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Smooth camera rotation
-            cubeGroup.rotation.x += (targetRotationX - cubeGroup.rotation.x) * 0.1;
-            cubeGroup.rotation.y += (targetRotationY - cubeGroup.rotation.y) * 0.1;
-
-            renderer.render(scene, camera);
-        }
-
-        // Xử lý resize
-        window.addEventListener('resize', () => {
-            const width = window.innerWidth - 40;
-            const height = window.innerHeight - 300;
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
-        });
-
-        animate();
-
-        // Expose functions to global scope
-        window.rotateFace = rotateFace;
-        window.resetCube = resetCube;
-    </script>
+    const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
+    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(7.2, 6.1, 8.4);
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.1; stage.appendChild(renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.minDistance=7; controls.maxDistance=15; controls.target.set(0,0,0); controls.autoRotate=true; controls.autoRotateSpeed=.5;
+    scene.add(new THREE.HemisphereLight(0xffffff,0x564d43,2.3)); const key=new THREE.DirectionalLight(0xffffff,4); key.position.set(5,8,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key); const fill=new THREE.DirectionalLight(0xffd9bd,1.6); fill.position.set(-6,2,-4); scene.add(fill);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({color:0x3b3027, opacity:.17})); floor.rotation.x=-Math.PI/2; floor.position.y=-2.15; floor.receiveShadow=true; scene.add(floor);
+    const cube = new THREE.Group(); cube.scale.setScalar(.84); cube.rotation.set(-.12,.45,0); scene.add(cube);
+    const colors={R:0xc92722,L:0xe97121,U:0xf4f4e9,D:0xf2d633,F:0x188b57,B:0x1854a2};
+    const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
+    // BoxGeometry segment counts must be whole positive integers. Fractional values create
+    // malformed position buffers and result in Three.js's NaN bounding-sphere warning.
+    const cubies=[]; const bodyGeo=new THREE.BoxGeometry(1.19,1.19,1.19,1,1,1); const black=new THREE.MeshStandardMaterial({color:0x11100f, roughness:.27, metalness:.08});
+    const stickerGeo=new THREE.BoxGeometry(.94,.94,.055,1,1,1);
+    for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
+      const piece=new THREE.Group(); piece.position.set(x*1.25,y*1.25,z*1.25); piece.userData.coord={x,y,z};
+      const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshStandardMaterial({color:colors[name],roughness:.37,metalness:.02})); s.position.set(nx*.612,ny*.612,nz*.612); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={axis:nx?'x':ny?'y':'z', layer:nx||ny||nz}; piece.add(s); }});
+      cube.add(piece); cubies.push(piece);
+    }
+    const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, down=null;
+    const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
+    function rotateLayer(axis,layer,dir=1){ if(busy)return; busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); const chosen=cubies.filter(p=>p.userData.coord[axis]===layer); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=240;
+      function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.25,c.y*1.25,c.z*1.25); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
+    function pick(e){const r=renderer.domElement.getBoundingClientRect(); pointer.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true).find(h=>h.object.userData.axis); if(hit){
+      // Derive the face from the sticker's current orientation, so clicks stay correct after any move.
+      const q=hit.object.getWorldQuaternion(new THREE.Quaternion()); const cubeQ=cube.getWorldQuaternion(new THREE.Quaternion()).invert();
+      const normal=new THREE.Vector3(0,0,1).applyQuaternion(q).applyQuaternion(cubeQ); const values={x:normal.x,y:normal.y,z:normal.z};
+      const axis=Object.keys(values).reduce((best,key)=>Math.abs(values[key])>Math.abs(values[best])?key:best,'x'); const layer=Math.sign(values[axis]);
+      rotateLayer(axis,layer,e.shiftKey?-1:1);
+    }}
+    renderer.domElement.addEventListener('pointerdown',e=>down={x:e.clientX,y:e.clientY}); renderer.domElement.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6)pick(e); down=null;});
+    document.addEventListener('keydown',e=>{const map={r:['x',1],l:['x',-1],u:['y',1],d:['y',-1],f:['z',1],b:['z',-1]}; const key=map[e.key.toLowerCase()]; if(key)rotateLayer(...key,e.shiftKey?-1:1);});
+    document.querySelector('#scramble').onclick=async()=>{if(busy)return; const choices=[['x',-1],['x',1],['y',-1],['y',1],['z',-1],['z',1]]; for(let i=0;i<18;i++){const c=choices[Math.floor(Math.random()*choices.length)]; rotateLayer(c[0],c[1],Math.random()>.5?1:-1); await new Promise(r=>setTimeout(r,270));}};
+    document.querySelector('#reset').onclick=()=>location.reload();
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+    renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
+  </script>
 </body>
 </html>
