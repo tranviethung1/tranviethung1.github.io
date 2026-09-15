@@ -64,10 +64,12 @@
     const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
     const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
     const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02}); let f2lPractice=false;
+    // The grid begins at the white–red–blue corner (D/R/B): 1 → 9 across the bottom face.
+    function createBottomLabel(number){const canvas=document.createElement('canvas'); canvas.width=canvas.height=128; const context=canvas.getContext('2d'); context.clearRect(0,0,128,128); context.fillStyle='#121212'; context.font='700 76px Syne, sans-serif'; context.textAlign='center'; context.textBaseline='middle'; context.fillText(number,64,68); const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; const label=new THREE.Mesh(new THREE.PlaneGeometry(.54,.54),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide})); label.position.z=.05; label.renderOrder=2; return label;}
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
       const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData={coord:{x,y,z},homeCoord:{x,y,z},containsYellow:y===1};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
-      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; if(name==='D') s.add(createBottomLabel((z+1)*3+(1-x)+1)); piece.add(s); }});
       cube.add(piece); cubies.push(piece);
     }
     // Preserve visual home orientation so a corner twisted in its own slot remains selectable.

@@ -8,6 +8,7 @@ Trang web là mô phỏng Rubik 3×3 tương tác bằng Three.js, ưu tiên luy
 
 - Hiển thị Rubik 3×3 theo mẫu ảnh tham chiếu: màu phải tràn sát các cạnh ngoài của khối, không có viền sticker màu đen tại biên ngoài. Ngược lại, giữa các sticker trên cùng một mặt phải có khe hở nhỏ rõ ràng; các góc sticker bo/cắt mạnh để tạo các khoảng khuyết đặc trưng của speed-cube như ảnh tham chiếu. Cubie đặt khít, bề mặt sticker bóng nhẹ, ánh sáng và bóng đổ tự nhiên.
 - Dùng bảng màu theo người dùng cung cấp: trắng `#FFFFFF`, đỏ `#B61A1A`, cam `#FF5900`, xanh lá `#21C925`, xanh dương `#0045AD`; vàng được làm dịu thành `#D9BD24` để không gây chói. Với orientation F2L, trắng ở mặt `D` (đáy) và vàng ở mặt `U` (trên).
+- Mỗi sticker ở mặt đáy (trắng) hiển thị cố định một số từ `1` đến `9` ngay trên sticker. Đánh số theo lưới, bắt đầu ở góc trắng–đỏ–xanh dương là `1`, tiếp tục theo hàng đến `9`. Số đi cùng cubie khi xoay.
 - Dùng ánh sáng phòng trung tính, dịu và tỏa đều từ nhiều hướng để tất cả các mặt Rubik đều dễ nhìn, nhưng không chói hoặc bão hòa quá mức. Giữ màu sắc trung thực cùng bóng đổ mềm, nhẹ để thể hiện khối.
 - Cho phép kéo để quan sát. Không xoay lớp Rubik bằng cách nhấp sticker/mặt màu.
 - Xoay lớp Rubik bằng các phím `R`, `L`, `U`, `D`, `F`, `B`; giữ `Shift` để xoay ngược.
