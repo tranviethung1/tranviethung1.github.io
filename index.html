@@ -25,7 +25,8 @@
     .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .practice-controls button.is-active { background:var(--ink); color:var(--cream); }
     .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 18px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:5px 5px 0 rgba(18,18,18,.18); } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:79px; transform:translateX(-50%); display:flex; gap:7px; padding:8px; background:rgba(244,240,232,.94); border:1px solid var(--line); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:34px; min-height:34px; padding:0; border:2px solid transparent; color:#fff; font:700 19px Syne,sans-serif; } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
     .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:38px; padding:0; font-size:19px; line-height:1; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .settings-panel { position:fixed; z-index:4; right:32px; top:74px; width:235px; padding:14px; background:rgba(244,240,232,.94); border:1px solid var(--line); box-shadow:6px 6px 0 rgba(18,18,18,.07); backdrop-filter:blur(9px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 12px Syne,sans-serif; } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:9px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; } .settings-row input { width:110px; accent-color:var(--accent); }
-    @media (max-width:650px) { header { padding:21px; } #stage canvas { transform:scale(.9); transform-origin:center; } .practice-controls { right:62px; top:70px; } .practice-controls button { padding:0 9px; font-size:9px; } .settings-toggle { right:18px; top:70px; } .settings-panel { right:18px; top:116px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:130px; bottom:auto; } .hint { display:none; } }
+    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:7px; width:188px; max-height:70vh; overflow:auto; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:8px; background:rgba(244,240,232,.9); border:1px solid var(--ink); backdrop-filter:blur(9px); box-shadow:4px 4px 0 rgba(18,18,18,.07); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); background:#fff; } .formula-panel .formula-id { font:700 10px Syne,sans-serif; letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:6px; border-top:1px solid var(--line); } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; } .formula-panel .slot-tabs button { min-height:28px; padding:0; font:700 9px Syne,sans-serif; background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:var(--cream); } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; } .formula-panel .case-options .opt-list button { min-height:32px; padding:6px 8px; text-align:left; white-space:normal; line-height:1.35; font-size:9px; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
+    @media (max-width:650px) { header { padding:21px; } #stage canvas { transform:scale(.9); transform-origin:center; } .practice-controls { right:62px; top:70px; } .practice-controls button { padding:0 9px; font-size:9px; } .settings-toggle { right:18px; top:70px; } .settings-panel { right:18px; top:116px; } .formula-panel { right:18px; width:150px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:130px; bottom:auto; } .hint { display:none; } }
   </style>
 </head>
 <body>
@@ -34,7 +35,8 @@
   <header><div class="brand">RUBIK<span>:</span>03</div></header>
   <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">LUYỆN F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button></nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
-  <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
+  <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
+  <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
   <div class="hint">KÉO ĐỂ QUAN SÁT &nbsp; / &nbsp; DÙNG PHÍM R L U D F B ĐỂ XOAY</div>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
   <output id="solve-result" class="solve-result" hidden></output><button id="solve-f2l" class="solve-f2l" type="button" hidden>GIẢI F2L</button>
@@ -58,20 +60,52 @@
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({color:0x3b3027, opacity:.17})); floor.rotation.x=-Math.PI/2; floor.position.y=-2.15; floor.receiveShadow=true; scene.add(floor);
     const cube = new THREE.Group(); cube.scale.setScalar(.756); cube.rotation.set(-.12,.45,0); scene.add(cube);
     // User-specified Rubik palette. F2L orientation: white cross starts on D (bottom).
-    const colors={R:0xb61a1a,L:0xff5900,U:0xd9bd24,D:0xffffff,F:0x21c925,B:0x0045ad};
+    const colors={R:0xff5900,L:0xb61a1a,U:0xd9bd24,D:0xffffff,F:0x21c925,B:0x0045ad};
     const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
     // Colors reach the outside edges, while inner tile seams stay open with speed-cube corner cutouts.
     const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
     const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
     const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02}); let f2lPractice=false;
-    // The grid begins at the white–red–blue corner (D/R/B): 1 → 9 across the bottom face.
-    function createBottomLabel(number){const canvas=document.createElement('canvas'); canvas.width=canvas.height=128; const context=canvas.getContext('2d'); context.clearRect(0,0,128,128); context.fillStyle='#121212'; context.font='700 76px Syne, sans-serif'; context.textAlign='center'; context.textBaseline='middle'; context.fillText(number,64,68); const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; const label=new THREE.Mesh(new THREE.PlaneGeometry(.54,.54),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide})); label.position.z=.05; label.renderOrder=2; return label;}
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
       const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData={coord:{x,y,z},homeCoord:{x,y,z},containsYellow:y===1};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
-      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; if(name==='D') s.add(createBottomLabel((z+1)*3+(1-x)+1)); piece.add(s); }});
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
       cube.add(piece); cubies.push(piece);
     }
+    // Fixed face coordinates on the cube group (not parented to stickers)—they stay put when layers turn.
+    // High-contrast glyphs: accent fill + white/black strokes so labels stay readable on every sticker color.
+    const coordLabels=[];
+    let hideCoords=false;
+    function createCoordLabel(text, fontPx=72){const canvas=document.createElement('canvas'); canvas.width=canvas.height=128; const context=canvas.getContext('2d'); context.clearRect(0,0,128,128); context.font=`700 ${fontPx}px Syne, sans-serif`; context.textAlign='center'; context.textBaseline='middle'; context.lineJoin='round'; context.lineWidth=14; context.strokeStyle='#121212'; context.strokeText(text,64,68); context.lineWidth=7; context.strokeStyle='#ffffff'; context.strokeText(text,64,68); context.fillStyle='#ff4b2b'; context.fillText(text,64,68); const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; const size=text.length>1?.62:.54; return new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide,depthTest:true}));}
+    function placeCoord(text, pos, outward, up, fontPx){
+      const label=createCoordLabel(text,fontPx);
+      label.position.copy(pos);
+      // Orthonormal basis: plane +Z = outward, +Y follows face "up" so glyphs read upright from outside.
+      const z=outward.clone().normalize();
+      const x=new THREE.Vector3().crossVectors(up, z).normalize();
+      const y=new THREE.Vector3().crossVectors(z, x).normalize();
+      label.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+      label.renderOrder=2;
+      label.visible=!hideCoords;
+      cube.add(label);
+      coordLabels.push(label);
+    }
+    const cell=1.24, out=0.72;
+    const faceCoords=[
+      // D: green toward "up" of face when viewed from outside. W + W1→W8.
+      {name:'D', cells:[[-1,1,'W1'],[0,1,'W2'],[1,1,'W3'],[1,0,'W4'],[1,-1,'W5'],[0,-1,'W6'],[-1,-1,'W7'],[-1,0,'W8'],[0,0,'W']], pos:(a,b)=>new THREE.Vector3(a*cell,-cell-out,b*cell), outward:new THREE.Vector3(0,-1,0), up:new THREE.Vector3(0,0,1)},
+      // U: blue toward "up" of face. Y + Y1→Y8.
+      {name:'U', cells:[[-1,-1,'Y1'],[0,-1,'Y2'],[1,-1,'Y3'],[1,0,'Y4'],[1,1,'Y5'],[0,1,'Y6'],[-1,1,'Y7'],[-1,0,'Y8'],[0,0,'Y']], pos:(a,b)=>new THREE.Vector3(a*cell,cell+out,b*cell), outward:new THREE.Vector3(0,1,0), up:new THREE.Vector3(0,0,-1)},
+      // F: yellow up, red left, orange right. G + G1→G8.
+      {name:'F', cells:[[-1,1,'G1'],[0,1,'G2'],[1,1,'G3'],[1,0,'G4'],[1,-1,'G5'],[0,-1,'G6'],[-1,-1,'G7'],[-1,0,'G8'],[0,0,'G']], pos:(a,b)=>new THREE.Vector3(a*cell,b*cell,cell+out), outward:new THREE.Vector3(0,0,1), up:new THREE.Vector3(0,1,0)},
+      // R (orange): yellow up, green left. O + O1→O8.
+      {name:'R', cells:[[1,1,'O1'],[1,0,'O2'],[1,-1,'O3'],[0,-1,'O4'],[-1,-1,'O5'],[-1,0,'O6'],[-1,1,'O7'],[0,1,'O8'],[0,0,'O']], pos:(a,b)=>new THREE.Vector3(cell+out,a*cell,b*cell), outward:new THREE.Vector3(1,0,0), up:new THREE.Vector3(0,1,0)},
+      // L (red): yellow up, blue left. R + R1→R8. cells keyed (y,z).
+      {name:'L', cells:[[1,-1,'R1'],[1,0,'R2'],[1,1,'R3'],[0,1,'R4'],[-1,1,'R5'],[-1,0,'R6'],[-1,-1,'R7'],[0,-1,'R8'],[0,0,'R']], pos:(a,b)=>new THREE.Vector3(-cell-out,a*cell,b*cell), outward:new THREE.Vector3(-1,0,0), up:new THREE.Vector3(0,1,0)},
+      // B: yellow up, orange left (R face color). B + B1→B8. cells keyed (x,y).
+      {name:'B', cells:[[1,1,'B1'],[0,1,'B2'],[-1,1,'B3'],[-1,0,'B4'],[-1,-1,'B5'],[0,-1,'B6'],[1,-1,'B7'],[1,0,'B8'],[0,0,'B']], pos:(a,b)=>new THREE.Vector3(a*cell,b*cell,-cell-out), outward:new THREE.Vector3(0,0,-1), up:new THREE.Vector3(0,1,0)},
+    ];
+    faceCoords.forEach(face=>face.cells.forEach(([a,b,text])=>placeCoord(text, face.pos(a,b), face.outward, face.up, text.length>1?52:72)));
     // Preserve visual home orientation so a corner twisted in its own slot remains selectable.
     cubies.forEach(piece=>piece.userData.homeQuaternion=piece.quaternion.clone());
     const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, selectedCorner=null, selectedEdge=null, pointerDown=null;
@@ -87,8 +121,10 @@
     function createBrushX(material=pairMarkerMaterial){const mark=new THREE.Group(), strokes=[[-.35,-.31,.32,.35],[-.35,-.28,.34,.31],[-.29,-.35,.36,.29],[-.33,.32,.34,-.34],[-.36,.27,.31,-.35],[-.27,.35,.36,-.28]]; strokes.forEach(([x1,y1,x2,y2],index)=>{const wobble=(index%3-1)*.025; const path=new THREE.CatmullRomCurve3([new THREE.Vector3(x1,y1,.006),new THREE.Vector3(wobble,wobble,.011),new THREE.Vector3(x2,y2,.006)]); const geometry=new THREE.TubeGeometry(path,12,.007+(index%2)*.002,5,false); mark.add(new THREE.Mesh(geometry,material));}); return mark;}
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
     let scrambleMoveDuration=60;
-    function rotateLayer(axis,layer,dir=1){ if(busy)return; busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); const chosen=cubies.filter(p=>p.userData.coord[axis]===layer); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
-      function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
+    function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
+      return new Promise(resolve=>{function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; resolve(); }} requestAnimationFrame(tick);});}
+    function rotateLayer(axis,layer,dir=1){return rotatePieces(cubies.filter(p=>p.userData.coord[axis]===layer),axis,dir);}
+    function rotateCube(axis,dir=1){return rotatePieces(cubies.slice(),axis,dir);}
     function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LCorner=h.y===-1&&Math.abs(h.x)===1&&Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const twisted=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LCorner&&(displaced||twisted);}
     // The matching F2L edge shares the corner's two non-white home-face directions.
     function getPairedF2LEdge(corner){const h=corner.userData.homeCoord; return cubies.find(piece=>{const edge=piece.userData.homeCoord; return edge.y===0&&edge.x===h.x&&edge.z===h.z;});}
@@ -99,22 +135,90 @@
     function selectCorner(event){const rect=renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true)[0]; const piece=hit&&cubies.find(candidate=>candidate.children.includes(hit.object)); if(!piece||!isUnsolvedF2LCorner(piece)) return; clearF2LSelection(); selectedCorner=piece; selectedEdge=getPairedF2LEdge(piece); selectedOutline.position.copy(piece.position); selectedOutline.quaternion.copy(piece.quaternion); selectedOutline.visible=true; if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion); pairedEdgeOutline.visible=true;} showPairMarkers(selectedCorner,selectedEdge); solveButton.hidden=false; stateEl.textContent='F2L CORNER + EDGE SELECTED';}
     solveButton.onclick=()=>{const colors=[['ĐỎ','#B61A1A'],['XANH LÁ','#21C925'],['XANH DA TRỜI','#0045AD'],['CAM','#FF5900']]; solveResult.innerHTML=colors.map(([name,color])=>`<button class="color-choice" type="button" data-color="${name}" aria-label="Chọn màu ${name}" style="background:${color}"></button>`).join(''); solveResult.querySelectorAll('.color-choice').forEach(choice=>choice.onclick=()=>{solveResult.querySelectorAll('.color-choice').forEach(button=>{button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');}); choice.classList.add('is-selected'); choice.textContent='✓'; choice.setAttribute('aria-pressed','true');}); solveResult.hidden=false;};
     renderer.domElement.addEventListener('pointerdown',event=>pointerDown={x:event.clientX,y:event.clientY}); renderer.domElement.addEventListener('pointerup',event=>{if(pointerDown&&Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y)<6)selectCorner(event); pointerDown=null;});
-    document.addEventListener('keydown',e=>{const map={r:['x',1],l:['x',-1],u:['y',1],d:['y',-1],f:['z',1],b:['z',-1]}; const key=map[e.key.toLowerCase()]; if(key){clearF2LSelection(); rotateLayer(...key,e.shiftKey?-1:1);}});
-    const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble'), xrayButton=document.querySelector('#xray-markers'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
+    // Clockwise when facing each face (standard cubing). Facing +axis faces ⇒ negative rotation about that axis; facing −axis faces ⇒ positive.
+    // M follows L; E follows D; S follows F. Cube rotations x/y/z turn the whole cube.
+    const moveMap={R:['layer','x',1,-1],'R′':['layer','x',1,1],L:['layer','x',-1,1],'L′':['layer','x',-1,-1],U:['layer','y',1,-1],'U′':['layer','y',1,1],D:['layer','y',-1,1],'D′':['layer','y',-1,-1],F:['layer','z',1,-1],'F′':['layer','z',1,1],B:['layer','z',-1,1],'B′':['layer','z',-1,-1],M:['layer','x',0,1],'M′':['layer','x',0,-1],E:['layer','y',0,1],'E′':['layer','y',0,-1],S:['layer','z',0,-1],'S′':['layer','z',0,1],x:['cube','x',-1],'x′':['cube','x',1],y:['cube','y',-1],'y′':['cube','y',1],z:['cube','z',-1],'z′':['cube','z',1]};
+    const wideExpand={r:['R','M′'],'r′':['R′','M'],l:['L','M'],'l′':['L′','M′'],u:['U','E′'],'u′':['U′','E'],d:['D','E'],'d′':['D′','E′'],f:['F','S'],'f′':['F′','S′'],b:['B','S′'],'b′':['B′','S']};
+    document.addEventListener('keydown',e=>{const faces={r:'R',l:'L',u:'U',d:'D',f:'F',b:'B'}; const face=faces[e.key.toLowerCase()]; if(!face||e.target.closest('input,textarea'))return; clearF2LSelection(); runMoves([e.shiftKey?`${face}′`:face]);});
+    const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble'), xrayButton=document.querySelector('#xray-markers'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
+    const persistSetting=(key,value)=>{document.cookie=`${key}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem(key,value);};
+    const readSetting=key=>document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`))?.[1]??localStorage.getItem(key);
     settingsToggle.onclick=()=>{const open=settingsPanel.hidden; settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open));};
-    xrayButton.onclick=()=>{setMarkerXray(!showOccludedMarkers); xrayButton.classList.toggle('is-active',showOccludedMarkers); xrayButton.setAttribute('aria-pressed',String(showOccludedMarkers)); xrayButton.textContent=showOccludedMarkers?'BẬT':'TẮT';};
-    speedInput.oninput=()=>{const settings={1:['CHẬM',180,360],2:['NHANH',55,240],3:['RẤT NHANH',0,60]}[speedInput.value]; speedValue.textContent=settings[0]; scrambleDelay=settings[1]; scrambleMoveDuration=settings[2];};
-    const waitForIdle=()=>new Promise(resolve=>{const check=()=>busy?setTimeout(check,20):resolve(); check();});
+    function applyXray(enabled){setMarkerXray(enabled); xrayButton.classList.toggle('is-active',showOccludedMarkers); xrayButton.setAttribute('aria-pressed',String(showOccludedMarkers)); xrayButton.textContent=showOccludedMarkers?'BẬT':'TẮT'; persistSetting('rubik-xray-markers',showOccludedMarkers?'1':'0');}
+    xrayButton.onclick=()=>applyXray(!showOccludedMarkers);
+    function applyHideCoords(enabled){hideCoords=enabled; coordLabels.forEach(label=>label.visible=!hideCoords); hideCoordsButton.classList.toggle('is-active',hideCoords); hideCoordsButton.setAttribute('aria-pressed',String(hideCoords)); hideCoordsButton.textContent=hideCoords?'BẬT':'TẮT'; persistSetting('rubik-hide-coords',hideCoords?'1':'0');}
+    hideCoordsButton.onclick=()=>applyHideCoords(!hideCoords);
     let scrambleDelay=0;
-    async function runMoves(moves,delay=scrambleDelay){for(const move of moves){rotateLayer(...moveMap[move]); await waitForIdle(); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
-    const moveMap={R:['x',1,1],'R′':['x',1,-1],L:['x',-1,-1],'L′':['x',-1,1],U:['y',1,1],'U′':['y',1,-1],F:['z',1,1],'F′':['z',1,-1],B:['z',-1,-1],'B′':['z',-1,1]};
+    const speedLevels={1:['CHẬM',520,900],2:['NHANH',55,240],3:['RẤT NHANH',0,60]};
+    function applyScrambleSpeed(level){const value=String(Math.min(3,Math.max(1,Number(level)||3))); const settings=speedLevels[value]; speedInput.value=value; speedValue.textContent=settings[0]; scrambleDelay=settings[1]; scrambleMoveDuration=settings[2]; persistSetting('rubik-scramble-speed',value);}
+    speedInput.oninput=()=>applyScrambleSpeed(speedInput.value);
+    if(readSetting('rubik-xray-markers')==='1')applyXray(true);
+    if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
+    const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
+    const normalizeMove=move=>move.replace(/['’]/g,'′');
+    function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; const once=wideExpand[base]||[base]; const steps=once.map(normalizeMove); return twice?[...steps,...steps]:steps;}
+    const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
+    async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
+    function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); moves=0; updateMoves();}
+    // Case cards open FR/FL/BL/BR tabs with SETUP + solutions per slot.
+    const f2lSlotOrder=['FR','FL','BL','BR'];
+    const f2lSetups=[{
+      id:'F2L -1',
+      preview:'previews/f2l-1-r.png',
+      slots:{
+        FR:{setup:'F R′ F′ R', solutions:['U R U′ R′','R′ F R F′','y′ r′ U′ R U M′','y U F′ L F L2 U L']},
+        FL:{setup:'F R′ F′ R U', solutions:['U′ L′ U L','L F′ L′ F','y l U L′ U′ M','y′ U′ F R′ F′ R2 U′ R']},
+        BL:{setup:'F R′ F′ R U2', solutions:['U L U′ L′','L′ f U f′','U2 L U2 L′','U′ r U B′ U′ B r′']},
+        BR:{setup:'F R′ F′ R U′', solutions:['U f R′ f′','r′ U′ R U M′','d L U′ L′','y′ U L U′ L′']}
+      }
+    }];
+    const formulaPanel=document.querySelector('#formula-panel');
+    let openCaseId=null, openSlot='FR';
+    function renderFormulaButtons(){
+      formulaPanel.innerHTML='';
+      f2lSetups.forEach(entry=>{
+        const card=document.createElement('div');
+        card.className=`case-card${openCaseId===entry.id?' is-open':''}`;
+        const main=document.createElement('button');
+        main.type='button'; main.className='case-main'; main.title='Mở setup & công thức giải';
+        if(entry.preview){const img=document.createElement('img'); img.className='preview'; img.src=entry.preview; img.alt=`Preview ${entry.id}`; img.loading='lazy'; main.appendChild(img);}
+        const label=document.createElement('span'); label.className='formula-id'; label.textContent=entry.id; main.appendChild(label);
+        main.onclick=()=>{openCaseId=openCaseId===entry.id?null:entry.id; if(openCaseId) openSlot=f2lSlotOrder.find(s=>entry.slots?.[s])||'FR'; renderFormulaButtons();};
+        card.appendChild(main);
+        const options=document.createElement('div'); options.className='case-options';
+        const tabs=document.createElement('div'); tabs.className='slot-tabs'; tabs.setAttribute('role','tablist');
+        f2lSlotOrder.forEach(slot=>{
+          const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot; tab.className=openSlot===slot?'is-active':'';
+          tab.setAttribute('aria-selected',String(openSlot===slot));
+          tab.onclick=()=>{openSlot=slot; renderFormulaButtons();};
+          tabs.appendChild(tab);
+        });
+        options.appendChild(tabs);
+        const slotData=entry.slots?.[openSlot]||{setup:'',solutions:[]};
+        const list=document.createElement('div'); list.className='opt-list';
+        const setupBtn=document.createElement('button'); setupBtn.type='button'; setupBtn.className='opt-setup';
+        setupBtn.textContent=`SETUP · ${slotData.setup||'—'}`;
+        setupBtn.disabled=!slotData.setup;
+        setupBtn.onclick=async()=>{if(busy||!slotData.setup)return; resetToSolved(); await runMoves(parseMoves(slotData.setup)); stateEl.textContent=`SETUP · ${entry.id} · ${openSlot}`;};
+        list.appendChild(setupBtn);
+        (slotData.solutions||[]).forEach((alg,index)=>{
+          const btn=document.createElement('button'); btn.type='button';
+          btn.textContent=`GIẢI ${index+1} · ${alg}`; btn.title=alg;
+          btn.onclick=async()=>{if(busy)return; await runMoves(parseMoves(alg)); stateEl.textContent=`SOLVE · ${entry.id} · ${openSlot} · ${index+1}`;};
+          list.appendChild(btn);
+        });
+        options.appendChild(list);
+        card.appendChild(options);
+        formulaPanel.appendChild(card);
+      });
+    }
+    renderFormulaButtons();
     // Every macro restores the D-layer cross; a fresh randomized chain prevents repeating the same easy setup.
     const f2lMacros=[['R','U','R′'],['R','U′','R′'],['L','U','L′'],['L','U′','L′'],['F','U','F′'],['F','U′','F′'],['B','U','B′'],['B','U′','B′']];
     function randomF2LScramble(){const count=5+Math.floor(Math.random()*5), result=[]; let previous=-1; while(result.length<count*3){let index=Math.floor(Math.random()*f2lMacros.length); if(index===previous)continue; result.push(...f2lMacros[index]); previous=index;} return result;}
-    function setF2LPractice(enabled){f2lPractice=enabled; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; document.cookie=`rubik-f2l-practice=${f2lPractice?'1':'0'}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem('rubik-f2l-practice',f2lPractice?'1':'0');}
+    function setF2LPractice(enabled){f2lPractice=enabled; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; persistSetting('rubik-f2l-practice',f2lPractice?'1':'0');}
     practiceButton.onclick=()=>setF2LPractice(!f2lPractice);
-    const savedF2L=document.cookie.match(/(?:^|;\s*)rubik-f2l-practice=(1|0)/)?.[1]??localStorage.getItem('rubik-f2l-practice');
-    if(savedF2L==='1')setF2LPractice(true);
+    if(readSetting('rubik-f2l-practice')==='1')setF2LPractice(true);
     scrambleButton.onclick=async()=>{if(busy)return; clearF2LSelection(); await runMoves(randomF2LScramble()); stateEl.textContent='F2L RANDOMIZED · SELECT A CORNER';};
     addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
     renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
