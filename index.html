@@ -22,14 +22,18 @@
     button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(2px,2px); }
     .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:10px; letter-spacing:.1em; text-align:right; line-height:1.7; } .status b { color:var(--accent); }
     .hint { position:fixed; z-index:2; left:50%; bottom:38px; transform:translateX(-50%); font-size:10px; letter-spacing:.09em; white-space:nowrap; opacity:.66; }
-    @media (max-width:650px) { header { padding:21px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:100px; bottom:auto; } .hint { display:none; } }
+    .practice-controls { position:fixed; z-index:3; right:32px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .practice-controls button.is-active { background:var(--ink); color:var(--cream); } #learn-solve { display:none; } #learn-solve.is-available { display:block; }
+    .learn-panel { position:fixed; z-index:4; top:82px; right:32px; width:min(350px,calc(100vw - 40px)); padding:20px; background:rgba(244,240,232,.95); border:1px solid var(--line); box-shadow:8px 8px 0 rgba(18,18,18,.07); backdrop-filter:blur(11px); transform:translateX(calc(100% + 44px)); opacity:0; transition:transform .25s ease,opacity .2s ease; } .learn-panel.is-open { transform:translateX(0); opacity:1; } .learn-panel h2 { font:700 21px/1 Syne,sans-serif; letter-spacing:-.06em; margin:0 0 12px; } .learn-panel p { margin:0 0 14px; font-size:10px; line-height:1.65; } .learn-panel ol { margin:0; padding-left:20px; display:grid; gap:10px; } .learn-panel li { padding-bottom:9px; border-bottom:1px solid var(--line); font-size:10px; line-height:1.55; } .learn-panel b { font-family:Syne,sans-serif; font-size:12px; } .notation { display:inline-block; margin-top:4px; padding:3px 5px; background:var(--ink); color:var(--cream); font-size:10px; } .close-learn { position:absolute; right:10px; top:10px; width:28px; min-height:28px; border:0; font-size:18px; }
+    @media (max-width:650px) { header { padding:21px; } .practice-controls { right:18px; top:70px; } .practice-controls button { padding:0 9px; font-size:9px; } .learn-panel { top:116px; right:18px; } .panel { left:18px; bottom:18px; width:225px; } .status { right:18px; top:130px; bottom:auto; } .hint { display:none; } }
   </style>
 </head>
 <body>
   <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 có thể tương tác"></main>
   <div class="grain"></div>
   <header><div class="brand">RUBIK<span>:</span>03</div></header>
-  <div class="hint">NHẤP MẶT MÀU ĐỂ XOAY &nbsp; / &nbsp; KÉO ĐỂ QUAN SÁT</div>
+  <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">LUYỆN F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button><button id="learn-solve" type="button" aria-expanded="false" disabled>HỌC GIẢI</button></nav>
+  <aside id="learn-panel" class="learn-panel" aria-label="Hướng dẫn giải F2L" aria-hidden="true"><button id="close-learn" class="close-learn" type="button" aria-label="Đóng hướng dẫn">×</button><h2>HỌC GIẢI F2L</h2><p>Giữ cross trắng ở đáy. Quan sát một cặp corner–edge có cùng hai màu bên.</p><ol><li><b>Nhận diện cặp</b><br>Tìm corner ở tầng trên và edge mang cùng hai màu cạnh.<span class="notation">U / U'</span></li><li><b>Ghép cặp</b><br>Đưa corner và edge tới cùng một slot bằng các nước U, R hoặc L.<span class="notation">R U R' &nbsp; / &nbsp; L' U' L</span></li><li><b>Chèn vào slot</b><br>Đặt cặp đã ghép ngay trên vị trí cần lắp, rồi thực hiện nước chèn ngắn.<span class="notation">R U' R' &nbsp; / &nbsp; L' U L</span></li><li><b>Lặp lại 4 lần</b><br>Hoàn thiện bốn cặp tầng đầu mà không làm hỏng white cross.</li></ol></aside>
+  <div class="hint">KÉO ĐỂ QUAN SÁT &nbsp; / &nbsp; DÙNG PHÍM R L U D F B ĐỂ XOAY</div>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
 
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
@@ -56,30 +60,31 @@
     // Colors reach the outside edges, while inner tile seams stay open with speed-cube corner cutouts.
     const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
     const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
+    const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02}); let f2lPractice=false;
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
-      const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData.coord={x,y,z};
+      const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData={coord:{x,y,z},homeCoord:{x,y,z},containsYellow:y===1};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
-      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={axis:nx?'x':ny?'y':'z', layer:nx||ny||nz}; piece.add(s); }});
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
       cube.add(piece); cubies.push(piece);
     }
-    const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, down=null;
+    const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, selectedCorner=null, pointerDown=null;
+    const selectedOutline=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.32,1.32,1.32)),new THREE.LineBasicMaterial({color:0xff4b2b})); selectedOutline.visible=false; cube.add(selectedOutline);
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
     function rotateLayer(axis,layer,dir=1){ if(busy)return; busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); const chosen=cubies.filter(p=>p.userData.coord[axis]===layer); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=240;
       function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
-    function pick(e){const r=renderer.domElement.getBoundingClientRect(); pointer.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true).find(h=>h.object.userData.axis); if(hit){
-      // Derive the face from the sticker's current orientation, so clicks stay correct after any move.
-      const q=hit.object.getWorldQuaternion(new THREE.Quaternion()); const cubeQ=cube.getWorldQuaternion(new THREE.Quaternion()).invert();
-      const normal=new THREE.Vector3(0,0,1).applyQuaternion(q).applyQuaternion(cubeQ); const values={x:normal.x,y:normal.y,z:normal.z};
-      const axis=Object.keys(values).reduce((best,key)=>Math.abs(values[key])>Math.abs(values[best])?key:best,'x'); const layer=Math.sign(values[axis]);
-      rotateLayer(axis,layer,e.shiftKey?-1:1);
-    }}
-    renderer.domElement.addEventListener('pointerdown',e=>down={x:e.clientX,y:e.clientY}); renderer.domElement.addEventListener('pointerup',e=>{if(down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6)pick(e); down=null;});
+    function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; return Math.abs(c.x)===1&&Math.abs(c.y)===1&&Math.abs(c.z)===1&&(c.x!==h.x||c.y!==h.y||c.z!==h.z);}
+    function selectCorner(event){const rect=renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true)[0]; const piece=hit&&cubies.find(candidate=>candidate.children.includes(hit.object)); if(!piece||!isUnsolvedF2LCorner(piece)) return; selectedCorner=piece; selectedOutline.position.copy(piece.position); selectedOutline.quaternion.copy(piece.quaternion); selectedOutline.visible=true; learnButton.disabled=false; learnButton.classList.add('is-available'); stateEl.textContent='F2L CORNER SELECTED';}
+    renderer.domElement.addEventListener('pointerdown',event=>pointerDown={x:event.clientX,y:event.clientY}); renderer.domElement.addEventListener('pointerup',event=>{if(pointerDown&&Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y)<6)selectCorner(event); pointerDown=null;});
     document.addEventListener('keydown',e=>{const map={r:['x',1],l:['x',-1],u:['y',1],d:['y',-1],f:['z',1],b:['z',-1]}; const key=map[e.key.toLowerCase()]; if(key)rotateLayer(...key,e.shiftKey?-1:1);});
     // Each setup sequence closes its side turn, preserving the completed D-layer white cross.
     const f2lCases=[[['y',1,1],['x',1,1],['y',1,-1],['x',1,-1]],[['y',1,-1],['x',-1,-1],['y',1,1],['x',-1,1]],[['y',1,1],['z',1,1],['y',1,-1],['z',1,-1]],[['y',1,-1],['z',-1,-1],['y',1,1],['z',-1,1]]];
-    const scrambleButton=document.querySelector('#scramble'), resetButton=document.querySelector('#reset');
-    if(scrambleButton) scrambleButton.onclick=async()=>{if(busy)return; const setups=2+Math.floor(Math.random()*3); for(let i=0;i<setups;i++){for(const move of f2lCases[Math.floor(Math.random()*f2lCases.length)]){rotateLayer(...move); await new Promise(r=>setTimeout(r,270));}} stateEl.textContent='WHITE CROSS ↓';};
-    if(resetButton) resetButton.onclick=()=>location.reload();
+    const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble');
+    const learnButton=document.querySelector('#learn-solve'), learnPanel=document.querySelector('#learn-panel'), closeLearn=document.querySelector('#close-learn');
+    function setLearnPanel(open){learnPanel.classList.toggle('is-open',open); learnPanel.setAttribute('aria-hidden',String(!open)); learnButton.setAttribute('aria-expanded',String(open));}
+    learnButton.onclick=()=>setLearnPanel(!learnPanel.classList.contains('is-open')); closeLearn.onclick=()=>setLearnPanel(false);
+    practiceButton.onclick=()=>{ f2lPractice=!f2lPractice; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; };
+    // These closed sequences change F2L pieces while leaving the full white D-layer cross intact.
+    scrambleButton.onclick=async()=>{if(busy)return; const setups=2+Math.floor(Math.random()*3); for(let i=0;i<setups;i++){for(const move of f2lCases[Math.floor(Math.random()*f2lCases.length)]){rotateLayer(...move); await new Promise(r=>setTimeout(r,270));}} stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓';};
     addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
     renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
   </script>
