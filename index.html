@@ -33,7 +33,7 @@
   <header><div class="brand">RUBIK<span>:</span>03</div></header>
   <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">LUYỆN F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button></nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
-  <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="2" step="1" /></label></section>
+  <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <div class="hint">KÉO ĐỂ QUAN SÁT &nbsp; / &nbsp; DÙNG PHÍM R L U D F B ĐỂ XOAY</div>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
 
@@ -82,7 +82,7 @@
     function setMarkerXray(enabled){showOccludedMarkers=enabled; [pairMarkerMaterial,coolMarkerMaterial].forEach(material=>{material.depthTest=!enabled; material.needsUpdate=true;});}
     function createBrushX(material=pairMarkerMaterial){const mark=new THREE.Group(), strokes=[[-.35,-.31,.32,.35],[-.35,-.28,.34,.31],[-.29,-.35,.36,.29],[-.33,.32,.34,-.34],[-.36,.27,.31,-.35],[-.27,.35,.36,-.28]]; strokes.forEach(([x1,y1,x2,y2],index)=>{const wobble=(index%3-1)*.025; const path=new THREE.CatmullRomCurve3([new THREE.Vector3(x1,y1,.006),new THREE.Vector3(wobble,wobble,.011),new THREE.Vector3(x2,y2,.006)]); const geometry=new THREE.TubeGeometry(path,12,.007+(index%2)*.002,5,false); mark.add(new THREE.Mesh(geometry,material));}); return mark;}
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
-    let scrambleMoveDuration=240;
+    let scrambleMoveDuration=60;
     function rotateLayer(axis,layer,dir=1){ if(busy)return; busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); const chosen=cubies.filter(p=>p.userData.coord[axis]===layer); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
       function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; }} requestAnimationFrame(tick); }
     function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LCorner=h.y===-1&&Math.abs(h.x)===1&&Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const twisted=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LCorner&&(displaced||twisted);}
@@ -99,13 +99,16 @@
     xrayButton.onclick=()=>{setMarkerXray(!showOccludedMarkers); xrayButton.classList.toggle('is-active',showOccludedMarkers); xrayButton.setAttribute('aria-pressed',String(showOccludedMarkers)); xrayButton.textContent=showOccludedMarkers?'BẬT':'TẮT';};
     speedInput.oninput=()=>{const settings={1:['CHẬM',180,360],2:['NHANH',55,240],3:['RẤT NHANH',0,60]}[speedInput.value]; speedValue.textContent=settings[0]; scrambleDelay=settings[1]; scrambleMoveDuration=settings[2];};
     const waitForIdle=()=>new Promise(resolve=>{const check=()=>busy?setTimeout(check,20):resolve(); check();});
-    let scrambleDelay=55;
+    let scrambleDelay=0;
     async function runMoves(moves,delay=scrambleDelay){for(const move of moves){rotateLayer(...moveMap[move]); await waitForIdle(); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
     const moveMap={R:['x',1,1],'R′':['x',1,-1],L:['x',-1,-1],'L′':['x',-1,1],U:['y',1,1],'U′':['y',1,-1],F:['z',1,1],'F′':['z',1,-1],B:['z',-1,-1],'B′':['z',-1,1]};
     // Every macro restores the D-layer cross; a fresh randomized chain prevents repeating the same easy setup.
     const f2lMacros=[['R','U','R′'],['R','U′','R′'],['L','U','L′'],['L','U′','L′'],['F','U','F′'],['F','U′','F′'],['B','U','B′'],['B','U′','B′']];
     function randomF2LScramble(){const count=5+Math.floor(Math.random()*5), result=[]; let previous=-1; while(result.length<count*3){let index=Math.floor(Math.random()*f2lMacros.length); if(index===previous)continue; result.push(...f2lMacros[index]); previous=index;} return result;}
-    practiceButton.onclick=()=>{f2lPractice=!f2lPractice; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓';};
+    function setF2LPractice(enabled){f2lPractice=enabled; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; document.cookie=`rubik-f2l-practice=${f2lPractice?'1':'0'}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem('rubik-f2l-practice',f2lPractice?'1':'0');}
+    practiceButton.onclick=()=>setF2LPractice(!f2lPractice);
+    const savedF2L=document.cookie.match(/(?:^|;\s*)rubik-f2l-practice=(1|0)/)?.[1]??localStorage.getItem('rubik-f2l-practice');
+    if(savedF2L==='1')setF2LPractice(true);
     scrambleButton.onclick=async()=>{if(busy)return; clearF2LSelection(); await runMoves(randomF2LScramble()); stateEl.textContent='F2L RANDOMIZED · SELECT A CORNER';};
     addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
     renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
