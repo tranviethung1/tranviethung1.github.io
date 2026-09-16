@@ -213,8 +213,16 @@
     function createBrushX(material=pairMarkerMaterial){const mark=new THREE.Group(), strokes=[[-.35,-.31,.32,.35],[-.35,-.28,.34,.31],[-.29,-.35,.36,.29],[-.33,.32,.34,-.34],[-.36,.27,.31,-.35],[-.27,.35,.36,-.28]]; strokes.forEach(([x1,y1,x2,y2],index)=>{const wobble=(index%3-1)*.025; const path=new THREE.CatmullRomCurve3([new THREE.Vector3(x1,y1,.006),new THREE.Vector3(wobble,wobble,.011),new THREE.Vector3(x2,y2,.006)]); const geometry=new THREE.TubeGeometry(path,12,.007+(index%2)*.002,5,false); mark.add(new THREE.Mesh(geometry,material));}); return mark;}
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
     let scrambleMoveDuration=60;
+    function finishRotatePieces(pivot,chosen,axis,dir){
+      pivot.rotation[axis]=dir*Math.PI/2;
+      pivot.updateMatrixWorld();
+      chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); });
+      cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY';
+    }
     function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
-      return new Promise(resolve=>{function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; resolve(); }} requestAnimationFrame(tick);});}
+      // Instant path for ?test=1 validation (duration 0): skip rAF so suites finish under timeout.
+      if(duration<=0){ finishRotatePieces(pivot,chosen,axis,dir); return Promise.resolve(); }
+      return new Promise(resolve=>{function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { finishRotatePieces(pivot,chosen,axis,dir); resolve(); }} requestAnimationFrame(tick);});}
     function rotateLayer(axis,layer,dir=1){return rotatePieces(cubies.filter(p=>p.userData.coord[axis]===layer),axis,dir);}
     // Cube rotations reorient the current face frame while the camera stays in place.
     // Thus, after `y`, the orange center occupies the visible F position and the next `F`
@@ -405,6 +413,35 @@
         return home.y===-1 || (home.y===0&&Math.abs(home.x)+Math.abs(home.z)===1);
       }).every(matchesCenters);
     }
+    function f2lMismatchDetails(){
+      const centerColors=new Map();
+      cubies.filter(piece=>Object.values(piece.userData.homeCoord).filter(Boolean).length===1).forEach(piece=>{
+        const sticker=piece.children.find(child=>child.userData.originalMaterial);
+        const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+        centerColors.set(faceFromVector(normal),sticker.userData.face);
+      });
+      const mismatches=[];
+      cubies.filter(piece=>{
+        const home=piece.userData.homeCoord;
+        return home.y===-1 || (home.y===0&&Math.abs(home.x)+Math.abs(home.z)===1);
+      }).forEach(piece=>{
+        piece.children.filter(child=>child.userData.originalMaterial).forEach(sticker=>{
+          const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+          const face=faceFromVector(normal);
+          const expected=centerColors.get(face);
+          if(expected!==sticker.userData.face){
+            mismatches.push({
+              home:piece.userData.homeCoord,
+              coord:piece.userData.coord,
+              sticker:sticker.userData.face,
+              facing:face,
+              center:expected
+            });
+          }
+        });
+      });
+      return {centers:Object.fromEntries(centerColors), mismatches};
+    }
     async function validateF2LCase(caseId){
       const f2lCase=f2lSetups.find(item=>item.id===caseId); if(!f2lCase)throw new Error(`Unknown F2L case: ${caseId}`);
       const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
@@ -423,7 +460,22 @@
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}
       return results;
     }
-    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase};
+    async function diagnoseF2LPair(caseId, slot, solutionIndex, solutionOverride){
+      const f2lCase=f2lSetups.find(item=>item.id===caseId); if(!f2lCase)throw new Error(`Unknown F2L case: ${caseId}`);
+      const slotData=f2lCase.slots[slot]; if(!slotData)throw new Error(`Unknown slot: ${slot}`);
+      const solution=solutionOverride||slotData.solutions[solutionIndex-1]; if(!solution)throw new Error(`Unknown solution: ${solutionIndex}`);
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      try{
+        resetToSetupStart();
+        await runMoves(parseMoves(slotData.setup),0);
+        const afterSetup=f2lMismatchDetails();
+        await runMoves(parseMoves(solution),0);
+        const afterSolve=f2lMismatchDetails();
+        return {caseId,slot,solutionIndex,setup:slotData.setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
+      }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
+    }
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,diagnoseF2LPair};
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
     let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
