@@ -253,6 +253,17 @@
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
     async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
     function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); moves=0; updateMoves();}
+    // SETUP always begins from solved with the green (F) face directly toward the learner.
+    function resetToSetupStart(){
+      resetToSolved();
+      cube.rotation.set(0,0,0);
+      controls.autoRotate=false;
+      controls.target.set(0,0,0);
+      camera.position.set(0,2.7,12);
+      camera.up.set(0,1,0);
+      camera.lookAt(controls.target);
+      controls.update();
+    }
     // Case cards open FR/FL/BL/BR tabs with SETUP + solutions per slot.
     const f2lSlotOrder=['FR','FL','BL','BR'];
     const f2lSetups=[{
@@ -298,7 +309,7 @@
       const token=++algPlayToken;
       markActiveAlgRow(id);
       beginAlgPlayback(id, sequence, isSetup);
-      if(isSetup){ resetToSolved(); algPlayback.index=0; }
+      if(isSetup){ resetToSetupStart(); algPlayback.index=0; }
       while(algPlayback&&algPlayback.id===id&&algPlayback.index<algPlayback.moves.length){
         if(token!==algPlayToken) return;
         await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
@@ -313,7 +324,7 @@
       nextMoveQueue=nextMoveQueue.then(async()=>{
         if(busy) return;
         markActiveAlgRow(id);
-        if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSolved(); }
+        if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSetupStart(); }
         if(algPlayback.index>=algPlayback.moves.length) return;
         const move=algPlayback.moves[algPlayback.index];
         await runMoves([move], stepDelay());
