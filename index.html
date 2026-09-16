@@ -142,6 +142,7 @@
     const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
     const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.9; stage.appendChild(renderer.domElement);
     const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.minDistance=8; controls.maxDistance=17; controls.target.set(0,0,0); controls.autoRotate=true; controls.autoRotateSpeed=.5;
+    const initialCameraPosition=camera.position.clone(), initialCameraTarget=controls.target.clone(), initialCameraUp=camera.up.clone();
     // Soft, neutral room lighting: fill from every direction while retaining subtle form shadows.
     scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4dc,2.55));
     const key=new THREE.DirectionalLight(0xffffff,2.35); key.position.set(5,8,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key);
@@ -149,6 +150,7 @@
     const rim=new THREE.DirectionalLight(0xffffff,1.25); rim.position.set(-4,5,-7); scene.add(rim);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({color:0x3b3027, opacity:.17})); floor.rotation.x=-Math.PI/2; floor.position.y=-2.15; floor.receiveShadow=true; scene.add(floor);
     const cube = new THREE.Group(); cube.scale.setScalar(.756); cube.rotation.set(-.12,.45,0); scene.add(cube);
+    const initialCubeRotation=cube.rotation.clone();
     // User-specified Rubik palette. F2L orientation: white cross starts on D (bottom).
     const colors={R:0xff5900,L:0xb61a1a,U:0xd9bd24,D:0xffffff,F:0x21c925,B:0x0045ad};
     const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
@@ -253,14 +255,14 @@
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
     async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
     function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); moves=0; updateMoves();}
-    // SETUP always begins from solved with the green (F) face directly toward the learner.
+    // SETUP always begins from the exact solved cube and viewing pose present at first load.
     function resetToSetupStart(){
       resetToSolved();
-      cube.rotation.set(0,0,0);
+      cube.rotation.copy(initialCubeRotation);
       controls.autoRotate=false;
-      controls.target.set(0,0,0);
-      camera.position.set(0,2.7,12);
-      camera.up.set(0,1,0);
+      controls.target.copy(initialCameraTarget);
+      camera.position.copy(initialCameraPosition);
+      camera.up.copy(initialCameraUp);
       camera.lookAt(controls.target);
       controls.update();
     }
