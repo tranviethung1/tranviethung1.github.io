@@ -384,15 +384,12 @@
     // Browser-test hook: validation executes the same `runMoves` / Three.js cubie engine
     // used by the visible SETUP and GIẢI controls. F2L formulas must solve the target
     // corner-edge pair; unrelated upper-layer pieces do not need to be solved.
-    const slotCoordinates={FR:{x:1,z:1},FL:{x:-1,z:1},BL:{x:-1,z:-1},BR:{x:1,z:-1}};
     const faceFromVector=vector=>vector.x>.5?'R':vector.x<-.5?'L':vector.y>.5?'U':vector.y<-.5?'D':vector.z>.5?'F':'B';
-    function isTargetF2LPairSolved(slot){
-      const target=slotCoordinates[slot];
-      const corner=cubies.find(piece=>piece.userData.homeCoord.x===target.x&&piece.userData.homeCoord.y===-1&&piece.userData.homeCoord.z===target.z);
-      const edge=cubies.find(piece=>piece.userData.homeCoord.x===target.x&&piece.userData.homeCoord.y===0&&piece.userData.homeCoord.z===target.z);
-      // `y` / `x` / `z` can legitimately reorient every cubie. Map each physical face
-      // to the color of its current center, then require the target pair's stickers to
-      // match those centers. This verifies a solved pair without assuming a fixed frame.
+    function isF2LLayerSolved(){
+      // A case setup begins with the other F2L slots solved. A valid solution must
+      // restore the entire first two layers, not merely any one already-solved pair.
+      // Compare every F2L piece to the colors of the *current* centers so explicit
+      // whole-cube rotations (`x` / `y` / `z`) remain valid.
       const centerColors=new Map();
       cubies.filter(piece=>Object.values(piece.userData.homeCoord).filter(Boolean).length===1).forEach(piece=>{
         const sticker=piece.children.find(child=>child.userData.originalMaterial);
@@ -403,7 +400,10 @@
         const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
         return centerColors.get(faceFromVector(normal))===sticker.userData.face;
       });
-      return Boolean(corner&&edge&&matchesCenters(corner)&&matchesCenters(edge));
+      return cubies.filter(piece=>{
+        const home=piece.userData.homeCoord;
+        return home.y===-1 || (home.y===0&&Math.abs(home.x)+Math.abs(home.z)===1);
+      }).every(matchesCenters);
     }
     async function validateF2LCase(caseId){
       const f2lCase=f2lSetups.find(item=>item.id===caseId); if(!f2lCase)throw new Error(`Unknown F2L case: ${caseId}`);
@@ -417,7 +417,7 @@
             resetToSetupStart();
             await runMoves(parseMoves(setup),0);
             await runMoves(parseMoves(solutions[index]),0);
-            results.push({slot,solution:index+1,passed:isTargetF2LPairSolved(slot)});
+            results.push({slot,solution:index+1,passed:isF2LLayerSolved()});
           }
         }
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}

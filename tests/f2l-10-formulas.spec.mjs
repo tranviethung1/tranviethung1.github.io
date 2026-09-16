@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('F2L -10 formula validation', () => {
-  test('each SETUP → GIẢI n solves the target F2L pair', async ({ page }) => {
+  test('each SETUP → GIẢI n restores the F2L layer', async ({ page }) => {
     const browserErrors = [];
     page.on('pageerror', error => browserErrors.push(error.message));
     await page.goto('/?test=1');

@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "test:f2l": "playwright test",
-    "test:f2l-10": "playwright test tests/f2l-10-formulas.spec.mjs"
+    "test:f2l-10": "playwright test tests/f2l-10-formulas.spec.mjs",
+    "test:f2l-2": "playwright test tests/f2l-2-formulas.spec.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0"
