@@ -4,36 +4,76 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>RUBIK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js" defer></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
-    :root { --ink:#121212; --cream:#f4f0e8; --accent:#ff4b2b; --line:rgba(18,18,18,.18); }
+    :root {
+      --ink:#121212;
+      --cream:#f4f0e8;
+      --accent:#ff4b2b;
+      --line:rgba(18,18,18,.18);
+      --glass:rgba(244,240,232,.84);
+      --glass-strong:rgba(244,240,232,.94);
+      --shadow:0 10px 28px rgba(18,18,18,.08);
+      --radius:14px;
+      --font-ui:'Space Grotesk',system-ui,sans-serif;
+      --font-display:Syne,system-ui,sans-serif;
+      --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    }
     * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; overflow:hidden; color:var(--ink); background:var(--cream); font-family:'DM Mono',monospace; }
+    html { color-scheme:light; }
+    body {
+      margin:0; min-height:100vh; overflow:hidden; color:var(--ink);
+      background:var(--cream);
+      font-family:var(--font-ui);
+      -webkit-font-smoothing:antialiased;
+    }
     #stage { position:fixed; inset:0; z-index:0; cursor:grab; } #stage:active { cursor:grabbing; }
     canvas { display:block; width:100%; height:100%; outline:none; }
-    .grain { pointer-events:none; position:fixed; inset:0; opacity:.2; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
+    .grain { pointer-events:none; position:fixed; inset:0; opacity:.18; z-index:1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
+    @media (prefers-reduced-motion:reduce) {
+      * { scroll-behavior:auto !important; }
+    }
     header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px; pointer-events:none; }
-    .brand { font-family:Syne,sans-serif; font-weight:800; font-size:clamp(27px,4vw,50px); line-height:.8; letter-spacing:-.08em; } .brand span { color:var(--accent); }
+    .brand { font-family:var(--font-display); font-weight:800; font-size:clamp(28px,4.2vw,52px); line-height:.8; letter-spacing:-.08em; } .brand span { color:var(--accent); }
     .meta { text-align:right; font-size:10px; letter-spacing:.1em; line-height:1.65; opacity:.7; }
-    .panel { position:fixed; z-index:3; left:32px; bottom:30px; width:252px; padding:16px; background:rgba(244,240,232,.9); border:1px solid var(--line); backdrop-filter:blur(9px); box-shadow:8px 8px 0 rgba(18,18,18,.07); }
-    .panel h1 { font-family:Syne,sans-serif; margin:0 0 12px; font-size:15px; letter-spacing:-.04em; } .panel p { margin:0; font-size:10px; line-height:1.65; opacity:.73; }
+    .panel { position:fixed; z-index:3; left:32px; bottom:30px; width:252px; padding:16px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(16px) saturate(1.2); box-shadow:var(--shadow); }
+    .panel h1 { font-family:var(--font-display); margin:0 0 12px; font-size:15px; letter-spacing:-.04em; } .panel p { margin:0; font-size:10px; line-height:1.65; opacity:.73; }
     .actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:15px; }
-    button { min-height:38px; color:var(--ink); border:1px solid var(--ink); background:transparent; font:500 10px 'DM Mono',monospace; letter-spacing:.04em; cursor:pointer; transition:background .18s,color .18s,transform .18s; }
-    button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(2px,2px); }
+    button { min-height:38px; color:var(--ink); border:1px solid var(--ink); border-radius:10px; background:transparent; font:600 11px var(--font-ui); letter-spacing:.02em; cursor:pointer; transition:background .18s,color .18s,transform .18s,box-shadow .18s,border-color .18s; }
+    button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(1px,1px) scale(.98); }
     /* Keep label contrast: later button background rules must not leave cream text on cream fill. */
     .practice-controls button:hover, .practice-controls button:focus-visible,
     .settings-toggle:hover, .settings-toggle:focus-visible,
+    .reset-cube:hover, .reset-cube:focus-visible,
     .settings-row button:hover, .settings-row button:focus-visible,
     .formula-panel .slot-tabs button:hover, .formula-panel .slot-tabs button:focus-visible,
     .formula-panel .case-options .opt-list button:hover, .formula-panel .case-options .opt-list button:focus-visible,
     .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
-    .solve-f2l:hover, .solve-f2l:focus-visible { background:var(--ink); color:var(--cream); }
-    .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:10px; letter-spacing:.1em; text-align:right; line-height:1.7; } .status b { color:var(--accent); }
-    .hint { position:fixed; z-index:2; left:50%; bottom:38px; transform:translateX(-50%); font-size:10px; letter-spacing:.09em; white-space:nowrap; opacity:.66; }
-    .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
-    .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 18px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:5px 5px 0 rgba(18,18,18,.18); } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:79px; transform:translateX(-50%); display:flex; gap:7px; padding:8px; background:rgba(244,240,232,.94); border:1px solid var(--line); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:34px; min-height:34px; padding:0; border:2px solid transparent; color:#fff; font:700 19px Syne,sans-serif; } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
-    .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:38px; padding:0; font-size:19px; line-height:1; background:rgba(244,240,232,.84); backdrop-filter:blur(9px); } .settings-panel { position:fixed; z-index:4; right:32px; top:74px; width:235px; padding:14px; background:rgba(244,240,232,.94); border:1px solid var(--line); box-shadow:6px 6px 0 rgba(18,18,18,.07); backdrop-filter:blur(9px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 12px Syne,sans-serif; } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:9px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; } .settings-row input { width:110px; accent-color:var(--accent); }
-    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:7px; width:300px; max-height:70vh; overflow:auto; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:rgba(244,240,232,.9); border:1px solid var(--ink); backdrop-filter:blur(9px); box-shadow:4px 4px 0 rgba(18,18,18,.07); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); background:#fff; } .formula-panel .formula-id { font:700 10px Syne,sans-serif; letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:6px; border-top:1px solid var(--line); } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; } .formula-panel .slot-tabs button { min-height:32px; padding:0; font:700 10px Syne,sans-serif; background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 38px + 2 * 5px); overflow-y:auto; overscroll-behavior:contain; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; background:rgba(244,240,232,.96); } .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:2px; } .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; } .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; font:700 14px Syne,sans-serif; line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; } .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
+    .solve-f2l:hover, .solve-f2l:focus-visible,
+    .move-pad-toggle:hover, .move-pad-toggle:focus-visible,
+    .move-pad-keys button:hover, .move-pad-keys button:focus-visible { background:var(--ink); color:var(--cream); }
+    .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:11px; letter-spacing:.08em; text-align:right; line-height:1.7; font-weight:600; } .status b { color:var(--accent); font-family:var(--font-mono); font-size:14px; }
+    .move-pad-toggle { position:fixed; z-index:4; left:32px; bottom:32px; width:42px; min-width:42px; min-height:42px; padding:0; border:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:var(--shadow); touch-action:none; cursor:grab; user-select:none; }
+    .move-pad-toggle:active { cursor:grabbing; }
+    .move-pad-toggle.is-active { background:var(--ink); color:#fff; box-shadow:0 10px 24px rgba(16,20,24,.22); }
+    .move-pad-toggle.is-dragging { cursor:grabbing; opacity:.92; }
+    .move-pad { position:fixed; z-index:3; left:32px; bottom:84px; display:flex; flex-direction:column; gap:3px; padding:7px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(16px) saturate(1.15); box-shadow:var(--shadow); max-width:min(240px,calc(100vw - 64px)); }
+    .move-pad[hidden] { display:none; }
+    .move-pad.is-animating { display:flex !important; }
+    .move-pad-collapse { display:none; }
+    .move-pad-keys { display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .move-pad .move-row { display:flex; flex-wrap:wrap; gap:3px; }
+    .move-pad-keys button { min-width:28px; min-height:28px; padding:0 4px; border-radius:7px; font:600 11px var(--font-mono); letter-spacing:0; background:rgba(244,240,232,.96); }
+    .hint { display:none; }
+    .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; border-radius:12px; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
+    .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:84px; transform:translateX(-50%); display:flex; gap:8px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:36px; min-height:36px; padding:0; border:2px solid transparent; border-radius:10px; color:#fff; font:700 18px var(--font-display); } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
+    .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
+    .reset-cube { position:fixed; z-index:4; right:32px; top:78px; width:42px; min-height:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
+    .settings-panel { position:fixed; z-index:4; right:32px; top:128px; width:250px; padding:14px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 13px var(--font-display); } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:10px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; border-radius:8px; } .settings-row input { width:110px; accent-color:var(--accent); }
+    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; } .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-card.is-open > .case-main { display:none; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; } .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; } .formula-panel .slot-tabs button { min-height:32px; padding:0; border-radius:8px; font:700 10px var(--font-display); background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 38px + 2 * 5px); overflow-y:auto; overscroll-behavior:contain; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); } .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; } .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; } .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; } .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; } .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
     @media (max-width:720px) {
       header { padding:10px 12px; }
       .brand { font-size:22px; }
@@ -42,7 +82,8 @@
       .practice-controls button { padding:0 8px; min-height:34px; font-size:8px; letter-spacing:0; background:rgba(244,240,232,.92); }
       .practice-controls button.is-active { color:#fff; }
       .settings-toggle { top:10px; right:10px; width:34px; min-height:34px; font-size:16px; }
-      .settings-panel { left:10px; right:10px; top:52px; width:auto; max-height:min(70vh,420px); overflow:auto; }
+      .reset-cube { top:52px; right:10px; width:34px; min-height:34px; font-size:16px; }
+      .settings-panel { left:10px; right:10px; top:94px; width:auto; max-height:min(70vh,420px); overflow:auto; }
       .formula-panel {
         z-index:5;
         top:auto; right:0; left:0; bottom:0; transform:none;
@@ -50,14 +91,14 @@
         flex-direction:row; align-items:stretch; gap:8px;
         padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
         overflow-x:auto; overflow-y:auto;
-        background:#f4f0e8;
-        border-top:1px solid var(--ink);
-        box-shadow:0 -8px 24px rgba(18,18,18,.1);
+        background:var(--cream);
+        border-top:1px solid var(--line);
+        box-shadow:0 -12px 32px rgba(16,20,24,.12);
         -webkit-overflow-scrolling:touch;
       }
       .formula-panel .case-card {
         flex:0 0 auto; width:92px; max-height:100%; overflow:hidden;
-        padding:7px; box-shadow:none; background:#f4f0e8;
+        padding:7px; box-shadow:none; background:var(--cream);
       }
       .formula-panel:has(.case-card.is-open) {
         flex-direction:column; overflow-x:hidden; overflow-y:hidden;
@@ -90,19 +131,12 @@
         width:100%; max-width:76px; max-height:76px; height:auto;
         aspect-ratio:1; margin:0 auto; object-fit:contain;
       }
-      .formula-panel .case-card.is-open .case-main {
-        display:grid; grid-template-columns:56px minmax(0,1fr); align-items:center; gap:8px;
-        overflow:hidden; flex:0 0 auto;
-      }
-      .formula-panel .case-card.is-open .preview {
-        width:56px; height:56px; max-width:56px; max-height:56px; margin:0;
-      }
       .formula-panel .case-card.is-open .case-options {
-        position:relative; z-index:2; background:#f4f0e8; isolation:isolate;
+        position:relative; z-index:2; background:var(--cream); isolation:isolate;
         display:flex; flex-direction:column; min-height:0; gap:5px;
       }
       .formula-panel .slot-tabs { gap:4px; position:relative; z-index:3; flex:0 0 auto; }
-      .formula-panel .slot-tabs button { min-height:36px; font-size:11px; color:var(--ink); background:#f4f0e8; }
+      .formula-panel .slot-tabs button { min-height:36px; font-size:11px; color:var(--ink); background:var(--cream); }
       .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; }
       .formula-panel .case-options .opt-list {
         position:relative; z-index:2;
@@ -112,10 +146,50 @@
       .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
       .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
       .status { left:12px; right:auto; top:52px; bottom:auto; text-align:left; font-size:9px; }
+      .move-pad-toggle {
+        left:10px; bottom:calc(142px + env(safe-area-inset-bottom,0px));
+        z-index:6; width:40px; min-width:40px; min-height:40px; font-size:17px; padding:0;
+        box-shadow:4px 4px 0 rgba(18,18,18,.1);
+      }
+      .move-pad-toggle.is-active { display:none; }
+      .move-pad {
+        left:0; right:0; bottom:calc(132px + env(safe-area-inset-bottom,0px));
+        z-index:6; width:100%; max-width:none;
+        max-height:min(36vh, 240px); overflow:hidden;
+        display:flex; flex-direction:column; align-items:stretch; gap:4px;
+        padding:0 8px 8px;
+        border-radius:14px 14px 0 0;
+        border-left:0; border-right:0; border-bottom:0;
+        box-shadow:0 -8px 24px rgba(18,18,18,.1);
+        transition:transform .2s ease, opacity .2s ease;
+      }
+      .move-pad.is-animating { display:flex !important; }
+      .move-pad.is-sheet-dragging { transition:none; }
+      .move-pad-collapse {
+        display:flex; justify-content:center; align-items:center;
+        order:0; width:100%; min-height:20px; padding:8px 0 6px; margin:0;
+        flex:0 0 auto; border:0; border-radius:0; background:transparent;
+        cursor:grab; touch-action:none;
+      }
+      .move-pad-collapse:hover, .move-pad-collapse:focus-visible {
+        background:transparent; color:inherit; outline:none;
+      }
+      .move-pad-collapse::before {
+        content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35);
+      }
+      .move-pad-keys {
+        order:1; flex:1; min-width:0; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+        display:grid; grid-template-columns:repeat(9, minmax(0,1fr));
+        gap:3px; align-content:start;
+      }
+      .move-pad-keys .move-row { display:contents; }
+      .move-pad-keys button {
+        min-width:0; width:100%; min-height:28px; padding:0;
+        font-size:10px; border-radius:6px; touch-action:manipulation;
+      }
       .solve-f2l { bottom:calc(280px + env(safe-area-inset-bottom,0px)); min-height:40px; }
       .solve-result { bottom:calc(328px + env(safe-area-inset-bottom,0px)); }
       .panel { left:12px; bottom:calc(280px + env(safe-area-inset-bottom,0px)); width:min(240px,70vw); }
-      .hint { display:none; }
     }
   </style>
 </head>
@@ -125,9 +199,11 @@
   <header><div class="brand">RUB<span>I</span>K</div></header>
   <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">LUYỆN F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button></nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
+  <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
-  <div class="hint">KÉO ĐỂ QUAN SÁT &nbsp; / &nbsp; DÙNG PHÍM R L U D F B ĐỂ XOAY</div>
+  <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
+  <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
   <output id="solve-result" class="solve-result" hidden></output><button id="solve-f2l" class="solve-f2l" type="button" hidden>GIẢI F2L</button>
 
@@ -198,6 +274,9 @@
       {name:'B', cells:[[1,1,'B1'],[0,1,'B2'],[-1,1,'B3'],[-1,0,'B4'],[-1,-1,'B5'],[0,-1,'B6'],[1,-1,'B7'],[1,0,'B8'],[0,0,'B']], pos:(a,b)=>new THREE.Vector3(a*cell,b*cell,-cell-out), outward:new THREE.Vector3(0,0,-1), up:new THREE.Vector3(0,1,0)},
     ];
     faceCoords.forEach(face=>face.cells.forEach(([a,b,text])=>placeCoord(text, face.pos(a,b), face.outward, face.up, text.length>1?52:72)));
+    // Coord labels track whole-cube x/y/z with centers; restore these on resetToSolved.
+    coordLabels.forEach(label=>{label.userData.homePosition=label.position.clone(); label.userData.homeQuaternion=label.quaternion.clone();});
+    function resetCoordLabels(){coordLabels.forEach(label=>{label.position.copy(label.userData.homePosition); label.quaternion.copy(label.userData.homeQuaternion);});}
     // Preserve visual home orientation so a corner twisted in its own slot remains selectable.
     cubies.forEach(piece=>piece.userData.homeQuaternion=piece.quaternion.clone());
     const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, selectedCorner=null, selectedEdge=null, pointerDown=null;
@@ -216,7 +295,12 @@
     function finishRotatePieces(pivot,chosen,axis,dir){
       pivot.rotation[axis]=dir*Math.PI/2;
       pivot.updateMatrixWorld();
-      chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); });
+      chosen.forEach(p=>{
+        cube.attach(p);
+        // Coord labels ride along on cube rotations only; they have no layer coord grid.
+        if(!p.userData.coord) return;
+        const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2);
+      });
       cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY';
     }
     function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
@@ -227,7 +311,8 @@
     // Cube rotations reorient the current face frame while the camera stays in place.
     // Thus, after `y`, the orange center occupies the visible F position and the next `F`
     // turns that orange face (the move direction is always read from its current center).
-    function rotateCube(axis,dir=1){return rotatePieces(cubies.slice(),axis,dir);}
+    // Coord labels travel with x/y/z so the visible grid stays locked to center colors.
+    function rotateCube(axis,dir=1){return rotatePieces([...cubies,...coordLabels],axis,dir);}
     function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LCorner=h.y===-1&&Math.abs(h.x)===1&&Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const twisted=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LCorner&&(displaced||twisted);}
     // The matching F2L edge shares the corner's two non-white home-face directions.
     function getPairedF2LEdge(corner){const h=corner.userData.homeCoord; return cubies.find(piece=>{const edge=piece.userData.homeCoord; return edge.y===0&&edge.x===h.x&&edge.z===h.z;});}
@@ -239,14 +324,89 @@
     const rememberSetupCase=status=>{const match=status.match(/^SETUP · (F2L -\d+) · (FR|FL|BL|BR)$/); knownF2LCase=match?`${match[1]} · ${match[2]}`:null;};
     function clearF2LSelection(){selectedCorner=null; selectedEdge=null; selectedOutline.visible=false; pairedEdgeOutline.visible=false; pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0; solveButton.hidden=true; solveResult.hidden=true;}
     function selectCorner(event){const rect=renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true)[0]; const piece=hit&&cubies.find(candidate=>candidate.children.includes(hit.object)); if(!piece||!isUnsolvedF2LCorner(piece)) return; clearF2LSelection(); selectedCorner=piece; selectedEdge=getPairedF2LEdge(piece); selectedOutline.position.copy(piece.position); selectedOutline.quaternion.copy(piece.quaternion); selectedOutline.visible=true; if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion); pairedEdgeOutline.visible=true;} showPairMarkers(selectedCorner,selectedEdge); solveButton.hidden=false; stateEl.textContent='F2L CORNER + EDGE SELECTED';}
-    solveButton.onclick=()=>{const colors=[['ĐỎ','#B61A1A'],['XANH LÁ','#21C925'],['XANH DA TRỜI','#0045AD'],['CAM','#FF5900']]; solveResult.innerHTML=colors.map(([name,color])=>`<button class="color-choice" type="button" data-color="${name}" aria-label="Chọn màu ${name}" style="background:${color}"></button>`).join(''); solveResult.querySelectorAll('.color-choice').forEach(choice=>choice.onclick=()=>{solveResult.querySelectorAll('.color-choice').forEach(button=>{button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');}); choice.classList.add('is-selected'); choice.textContent='✓'; choice.setAttribute('aria-pressed','true'); alert(knownF2LCase?`Đây là ${knownF2LCase}.`:'Chưa nhận diện được case F2L. Hãy chạy hoàn tất SETUP của F2L -1, -2 hoặc -3 trước khi kiểm tra.');}); solveResult.hidden=false;};
+    // Side colors around U, clockwise: F → R → B → L. Chosen color becomes Front for slot naming.
+    const colorNameToHomeFace={'ĐỎ':'L','CAM':'R','XANH LÁ':'F','XANH DA TRỜI':'B'};
+    const f2lSideCycle=['F','R','B','L'];
+    function pairHomeSideFaces(corner){
+      const h=corner.userData.homeCoord, faces=[];
+      if(h.x===1) faces.push('R'); if(h.x===-1) faces.push('L');
+      if(h.z===1) faces.push('F'); if(h.z===-1) faces.push('B');
+      return faces;
+    }
+    function slotRelativeToFront(frontFace, pairFaces){
+      const i=f2lSideCycle.indexOf(frontFace);
+      if(i<0||pairFaces.length!==2) return null;
+      const right=f2lSideCycle[(i+1)%4], back=f2lSideCycle[(i+2)%4], left=f2lSideCycle[(i+3)%4];
+      const set=new Set(pairFaces);
+      if(set.has(frontFace)&&set.has(right)) return 'FR';
+      if(set.has(frontFace)&&set.has(left)) return 'FL';
+      if(set.has(back)&&set.has(left)) return 'BL';
+      if(set.has(back)&&set.has(right)) return 'BR';
+      return null;
+    }
+    function detectSelectedPairSlot(frontColorName){
+      if(!selectedCorner) return null;
+      const frontFace=colorNameToHomeFace[frontColorName];
+      if(!frontFace) return null;
+      return slotRelativeToFront(frontFace, pairHomeSideFaces(selectedCorner));
+    }
+    const homeFaceCoord={U:{x:0,y:1,z:0},D:{x:0,y:-1,z:0},F:{x:0,y:0,z:1},B:{x:0,y:0,z:-1},R:{x:1,y:0,z:0},L:{x:-1,y:0,z:0}};
+    function currentFacingOfHomeFace(homeFace){
+      const home=homeFaceCoord[homeFace];
+      const piece=cubies.find(p=>{const h=p.userData.homeCoord; return h.x===home.x&&h.y===home.y&&h.z===home.z;});
+      if(!piece) return null;
+      const c=piece.userData.coord;
+      if(c.z===1) return 'F'; if(c.z===-1) return 'B'; if(c.x===1) return 'R'; if(c.x===-1) return 'L'; if(c.y===1) return 'U'; if(c.y===-1) return 'D';
+      return null;
+    }
+    // Keep white on D: only y turns bring a side color to Front.
+    function yMovesToBringHomeFaceToFront(homeFace){
+      const facing=currentFacingOfHomeFace(homeFace);
+      return ({F:[],R:['y'],L:['y′'],B:['y2']})[facing]||null;
+    }
+    function refreshSelectionOutlines(){
+      if(selectedCorner){selectedOutline.position.copy(selectedCorner.position); selectedOutline.quaternion.copy(selectedCorner.quaternion);}
+      if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion);}
+    }
+    solveButton.onclick=()=>{
+      const colors=[['ĐỎ','#B61A1A','L'],['XANH LÁ','#21C925','F'],['XANH DA TRỜI','#0045AD','B'],['CAM','#FF5900','R']];
+      solveResult.innerHTML=colors.map(([name,color,face])=>`<button class="color-choice" type="button" data-color="${name}" data-face="${face}" aria-label="Chọn màu ${name} làm mặt gốc" style="background:${color}"></button>`).join('');
+      solveResult.querySelectorAll('.color-choice').forEach(choice=>choice.onclick=async()=>{
+        solveResult.querySelectorAll('.color-choice').forEach(button=>{button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');});
+        choice.classList.add('is-selected'); choice.textContent='✓'; choice.setAttribute('aria-pressed','true');
+        const frontName=choice.dataset.color;
+        const frontFace=choice.dataset.face;
+        const slot=detectSelectedPairSlot(frontName);
+        if(!slot){
+          alert('Chưa chọn cặp F2L hoặc không xác định được slot với màu mặt gốc này.');
+          return;
+        }
+        const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+        if(!yMoves){
+          alert('Không thể đưa màu này ra mặt trước khi giữ trắng ở đáy (cần xoay x/z).');
+          return;
+        }
+        try{
+          if(yMoves.length) await runMoves(yMoves);
+        }catch{
+          alert('Đang xoay Rubik — thử chọn lại màu sau khi xong.');
+          return;
+        }
+        refreshSelectionOutlines();
+        const casePart=knownF2LCase?knownF2LCase.split(' · ')[0]:null;
+        stateEl.textContent=casePart?`${casePart} · ${slot} · gốc ${frontName}`:`SLOT ${slot} · gốc ${frontName}`;
+        alert(casePart
+          ?`Mặt gốc ${frontName} → cặp đang chọn thuộc ${slot} (case ${casePart}).`
+          :`Mặt gốc ${frontName} → cặp đang chọn thuộc slot ${slot}.`);
+      });
+      solveResult.hidden=false;
+    };
     renderer.domElement.addEventListener('pointerdown',event=>pointerDown={x:event.clientX,y:event.clientY}); renderer.domElement.addEventListener('pointerup',event=>{if(pointerDown&&Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y)<6)selectCorner(event); pointerDown=null;});
     // Clockwise when facing each face (standard cubing). Facing +axis faces ⇒ negative rotation about that axis; facing −axis faces ⇒ positive.
     // M follows L; E follows D; S follows F. Cube rotations x/y/z turn the whole cube.
-    const moveMap={R:['layer','x',1,-1],'R′':['layer','x',1,1],L:['layer','x',-1,1],'L′':['layer','x',-1,-1],U:['layer','y',1,-1],'U′':['layer','y',1,1],D:['layer','y',-1,1],'D′':['layer','y',-1,-1],F:['layer','z',1,-1],'F′':['layer','z',1,1],B:['layer','z',-1,1],'B′':['layer','z',-1,-1],M:['layer','x',0,1],'M′':['layer','x',0,-1],E:['layer','y',0,1],'E′':['layer','y',0,-1],S:['layer','z',0,-1],'S′':['layer','z',0,1],x:['cube','x',-1],'x′':['cube','x',1],y:['cube','y',-1],'y′':['cube','y',1],z:['cube','z',-1],'z′':['cube','z',1]};
-    const wideExpand={r:['R','M′'],'r′':['R′','M'],l:['L','M'],'l′':['L′','M′'],u:['U','E′'],'u′':['U′','E'],d:['D','E'],'d′':['D′','E′'],f:['F','S'],'f′':['F′','S′'],b:['B','S′'],'b′':['B′','S']};
-    document.addEventListener('keydown',e=>{const faces={r:'R',l:'L',u:'U',d:'D',f:'F',b:'B'}; const face=faces[e.key.toLowerCase()]; if(!face||e.target.closest('input,textarea'))return; knownF2LCase=null; clearF2LSelection(); runMoves([e.shiftKey?`${face}′`:face]);});
-    const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble'), xrayButton=document.querySelector('#xray-markers'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
+    // Wide r/l/u/d/f/b turn two layers in one move (same dir as R/L/…); do not expand to R+M′ or the Next step only turns the outer face.
+    const moveMap={R:['layer','x',1,-1],'R′':['layer','x',1,1],L:['layer','x',-1,1],'L′':['layer','x',-1,-1],U:['layer','y',1,-1],'U′':['layer','y',1,1],D:['layer','y',-1,1],'D′':['layer','y',-1,-1],F:['layer','z',1,-1],'F′':['layer','z',1,1],B:['layer','z',-1,1],'B′':['layer','z',-1,-1],M:['layer','x',0,1],'M′':['layer','x',0,-1],E:['layer','y',0,1],'E′':['layer','y',0,-1],S:['layer','z',0,-1],'S′':['layer','z',0,1],r:['wide','x',1,-1],'r′':['wide','x',1,1],l:['wide','x',-1,1],'l′':['wide','x',-1,-1],u:['wide','y',1,-1],'u′':['wide','y',1,1],d:['wide','y',-1,1],'d′':['wide','y',-1,-1],f:['wide','z',1,-1],'f′':['wide','z',1,1],b:['wide','z',-1,1],'b′':['wide','z',-1,-1],x:['cube','x',-1],'x′':['cube','x',1],y:['cube','y',-1],'y′':['cube','y',1],z:['cube','z',-1],'z′':['cube','z',1]};
+    const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble'), xrayButton=document.querySelector('#xray-markers'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), resetButton=document.querySelector('#reset-cube'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
     const persistSetting=(key,value)=>{document.cookie=`${key}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem(key,value);};
     const readSetting=key=>document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`))?.[1]??localStorage.getItem(key);
     settingsToggle.onclick=()=>{const open=settingsPanel.hidden; settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open));};
@@ -262,10 +422,12 @@
     if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
     const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
     const normalizeMove=move=>move.replace(/['’]/g,'′');
-    function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; const once=wideExpand[base]||[base]; const steps=once.map(normalizeMove); return twice?[...steps,...steps]:steps;}
+    function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; if(!moveMap[base]) throw new Error(`Unknown move: ${token}`); return twice?[base,base]:[base];}
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
-    async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
-    function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); moves=0; updateMoves();}
+    // Wide: two layers on the face side (e.g. r = x≥0) in the same direction as the capital face move.
+    function rotateWide(axis,side,dir=1){return rotatePieces(cubies.filter(p=>side>0?p.userData.coord[axis]>=0:p.userData.coord[axis]<=0),axis,dir);}
+    async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else if(spec[0]==='wide') await rotateWide(spec[1],spec[2],spec[3]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
+    function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); resetCoordLabels(); moves=0; updateMoves();}
     // SETUP always begins from the exact solved cube and viewing pose present at first load.
     function resetToSetupStart(){
       knownF2LCase=null;
@@ -277,6 +439,7 @@
       camera.up.copy(initialCameraUp);
       camera.lookAt(controls.target);
       controls.update();
+      stateEl.textContent='WHITE CROSS ↓';
     }
     // Case cards open FR/FL/BL/BR tabs with SETUP + solutions per slot.
     const f2lSlotOrder=['FR','FL','BL','BR'];
@@ -389,6 +552,175 @@
         BR:{setup:'R U R′ U2 R U R′ U′ R U R′ y′', solutions:['U R′ U2 R U′ f R f′','f R′ U R2 U′ R2 f′','U R′ U2 R d′ R U R′','y R U′ R′ U R U R′ U′ R U2 R′','U R′ U2 R U′ y R U R′']}
       }
     }];
+    // Move pad: only notation tokens that appear in current SETUP/GIẢI formulas.
+    const movePadOrder=['U','U′','U2','D','D′','d','d′','L','L′','L2','l','l′','R','R′','R2','r','r′','F','F′','F2','f','f′','f2','B','B′','M','M′','S','S′','x′','y','y′','y2','z'];
+    const usedMoveTokens=(()=>{
+      const set=new Set();
+      f2lSetups.forEach(f2lCase=>Object.values(f2lCase.slots).forEach(slot=>{
+        [slot.setup,...slot.solutions].forEach(sequence=>sequence.trim().split(/\s+/).filter(Boolean).forEach(token=>set.add(normalizeMove(token))));
+      }));
+      return movePadOrder.filter(token=>set.has(token)).concat([...set].filter(token=>!movePadOrder.includes(token)).sort());
+    })();
+    const movePad=document.querySelector('#move-pad');
+    const movePadToggle=document.querySelector('#move-pad-toggle');
+    const movePadCollapse=document.createElement('button');
+    movePadCollapse.type='button';
+    movePadCollapse.className='move-pad-collapse';
+    movePadCollapse.setAttribute('aria-label','Kéo xuống để thu gọn bàn phím');
+    movePadCollapse.title='Kéo xuống để thu gọn';
+    const movePadKeys=document.createElement('div');
+    movePadKeys.className='move-pad-keys';
+    movePad.append(movePadCollapse, movePadKeys);
+    const movePadRowSize=7;
+    for(let i=0;i<usedMoveTokens.length;i+=movePadRowSize){
+      const rowEl=document.createElement('div');
+      rowEl.className='move-row';
+      usedMoveTokens.slice(i,i+movePadRowSize).forEach(move=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.textContent=move;
+        btn.dataset.move=move;
+        btn.setAttribute('aria-label',`Xoay ${move}`);
+        btn.onclick=()=>{if(busy)return; knownF2LCase=null; clearF2LSelection(); runMoves(parseMoves(move));};
+        rowEl.appendChild(btn);
+      });
+      movePadKeys.appendChild(rowEl);
+    }
+    function setMovePadOpen(open){
+      const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+      const mobile=matchMedia('(max-width:720px)').matches;
+      if(open){
+        movePad.hidden=false;
+        movePad.classList.add('is-animating');
+        if(mobile) movePadToggle.hidden=true;
+        if(window.anime&&!reduce){
+          anime.remove(movePad);
+          anime({targets:movePad, opacity:[0,1], translateY:[18,0], duration:320, easing:'easeOutCubic', complete:()=>movePad.classList.remove('is-animating')});
+          anime({targets:movePadKeys.querySelectorAll('button'), opacity:[0,1], scale:[.86,1], delay:anime.stagger(12,{start:40}), duration:280, easing:'easeOutBack'});
+        } else {
+          movePad.classList.remove('is-animating');
+        }
+      } else if(window.anime&&!reduce){
+        movePad.classList.add('is-animating');
+        anime.remove(movePad);
+        anime({targets:movePad, opacity:[1,0], translateY:[0,12], duration:200, easing:'easeInCubic', complete:()=>{
+          movePad.hidden=true; movePad.classList.remove('is-animating'); movePad.style.opacity=''; movePad.style.transform='';
+          movePadToggle.hidden=false;
+        }});
+      } else {
+        movePad.hidden=true;
+        movePadToggle.hidden=false;
+      }
+      movePadToggle.setAttribute('aria-expanded',String(open));
+      movePadToggle.setAttribute('aria-label',open?'Đóng bảng xoay Rubik':'Mở bảng xoay Rubik');
+      movePadToggle.classList.toggle('is-active',open);
+    }
+    movePadToggle.onclick=()=>{
+      if(movePadToggle.dataset.dragged==='1'){ delete movePadToggle.dataset.dragged; return; }
+      setMovePadOpen(movePad.hidden);
+    };
+    function enableMovePadSwipeDismiss(){
+      let startY=0, startX=0, dragging=false, dy=0, moved=false;
+      const applyShift=(y, opacity)=>{
+        movePad.style.transform=`translateY(${y}px)`;
+        movePad.style.opacity=opacity;
+      };
+      const clearShift=()=>{
+        movePad.style.transform='';
+        movePad.style.opacity='';
+      };
+      const onStart=event=>{
+        if(!matchMedia('(max-width:720px)').matches||movePad.hidden) return;
+        const point=event.touches?event.touches[0]:event;
+        startY=point.clientY; startX=point.clientX; dragging=true; dy=0; moved=false;
+        movePad.classList.add('is-sheet-dragging');
+      };
+      const onMove=event=>{
+        if(!dragging) return;
+        const point=event.touches?event.touches[0]:event;
+        const deltaY=point.clientY-startY, deltaX=point.clientX-startX;
+        if(Math.abs(deltaX)>Math.abs(deltaY)&&dy<8) return;
+        dy=Math.max(0, deltaY);
+        if(dy>6) moved=true;
+        applyShift(dy, String(Math.max(.35, 1-dy/220)));
+        if(event.cancelable) event.preventDefault();
+      };
+      const onEnd=()=>{
+        if(!dragging) return;
+        dragging=false; movePad.classList.remove('is-sheet-dragging');
+        if(dy>72){
+          applyShift(Math.max(dy,180), '0');
+          setTimeout(()=>{ clearShift(); setMovePadOpen(false); }, 160);
+        } else {
+          clearShift();
+        }
+        dy=0;
+      };
+      movePadCollapse.addEventListener('touchstart', onStart, {passive:true});
+      movePadCollapse.addEventListener('touchmove', onMove, {passive:false});
+      movePadCollapse.addEventListener('touchend', onEnd);
+      movePadCollapse.addEventListener('touchcancel', onEnd);
+      movePadCollapse.addEventListener('click', event=>{
+        if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; return; }
+        setMovePadOpen(false);
+      });
+    }
+    enableMovePadSwipeDismiss();
+    function clampKbdPos(left, top){
+      const w=movePadToggle.offsetWidth||42, h=movePadToggle.offsetHeight||42;
+      const maxL=Math.max(0, innerWidth-w), maxT=Math.max(0, innerHeight-h);
+      return {left:Math.min(maxL, Math.max(0, left)), top:Math.min(maxT, Math.max(0, top))};
+    }
+    function applyKbdPos(left, top){
+      const pos=clampKbdPos(left, top);
+      movePadToggle.style.left=`${pos.left}px`;
+      movePadToggle.style.top=`${pos.top}px`;
+      movePadToggle.style.right='auto';
+      movePadToggle.style.bottom='auto';
+      return pos;
+    }
+    function persistKbdPos(left, top){
+      const pos=clampKbdPos(left, top);
+      persistSetting('rubik-kbd-pos', `${Math.round(pos.left)},${Math.round(pos.top)}`);
+      return pos;
+    }
+    const savedKbdPos=readSetting('rubik-kbd-pos');
+    if(savedKbdPos){
+      const [left, top]=savedKbdPos.split(',').map(Number);
+      if(Number.isFinite(left)&&Number.isFinite(top)) applyKbdPos(left, top);
+    }
+    let kbdDrag=null;
+    movePadToggle.addEventListener('pointerdown',event=>{
+      if(event.button!==0||movePadToggle.hidden) return;
+      const rect=movePadToggle.getBoundingClientRect();
+      kbdDrag={pointerId:event.pointerId, startX:event.clientX, startY:event.clientY, left:rect.left, top:rect.top, moved:false};
+      movePadToggle.setPointerCapture(event.pointerId);
+    });
+    movePadToggle.addEventListener('pointermove',event=>{
+      if(!kbdDrag||event.pointerId!==kbdDrag.pointerId) return;
+      const dx=event.clientX-kbdDrag.startX, dy=event.clientY-kbdDrag.startY;
+      if(!kbdDrag.moved&&Math.hypot(dx,dy)<6) return;
+      kbdDrag.moved=true;
+      movePadToggle.classList.add('is-dragging');
+      applyKbdPos(kbdDrag.left+dx, kbdDrag.top+dy);
+    });
+    const endKbdDrag=event=>{
+      if(!kbdDrag||event.pointerId!==kbdDrag.pointerId) return;
+      movePadToggle.classList.remove('is-dragging');
+      if(kbdDrag.moved){
+        const rect=movePadToggle.getBoundingClientRect();
+        persistKbdPos(rect.left, rect.top);
+        movePadToggle.dataset.dragged='1';
+      }
+      kbdDrag=null;
+    };
+    movePadToggle.addEventListener('pointerup', endKbdDrag);
+    movePadToggle.addEventListener('pointercancel', endKbdDrag);
+    addEventListener('resize',()=>{
+      if(!movePadToggle.style.left) return;
+      const left=parseFloat(movePadToggle.style.left), top=parseFloat(movePadToggle.style.top);
+      if(Number.isFinite(left)&&Number.isFinite(top)) applyKbdPos(left, top);
+    });
     // Browser-test hook: validation executes the same `runMoves` / Three.js cubie engine
     // used by the visible SETUP and GIẢI controls. F2L formulas must solve the target
     // corner-edge pair; unrelated upper-layer pieces do not need to be solved.
@@ -479,6 +811,14 @@
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
     let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
+    resetButton.onclick=()=>{
+      if(busy) return;
+      algPlayback=null;
+      algPlayToken++;
+      activeAlgId=null;
+      formulaPanel.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      resetToSetupStart();
+    };
     const invertToken=move=>{const t=normalizeMove(move); if(t.endsWith('2')) return t; if(t.endsWith('′')) return t.slice(0,-1); return `${t}′`;};
     const stepDelay=()=>Math.max(scrambleDelay, 120);
     function beginAlgPlayback(id, sequence, isSetup){algPlayback={id, moves:parseMoves(sequence), index:0, isSetup}; activeAlgId=id; updateMoveStepHighlight();}
@@ -551,7 +891,7 @@
         const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
         b.disabled=!sequence; b.onclick=()=>fn(id, sequence, isSetup, status); return b;
       };
-      controls.appendChild(mk('opt-prev','‹','Prev / lùi 1 nước',algPrev));
+      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',algPrev));
       controls.appendChild(mk('opt-play','▶','Play / chạy hết',algPlayAll));
       controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',algNext));
       row.appendChild(btn); row.appendChild(controls);
@@ -603,14 +943,6 @@
       handle.addEventListener('touchmove', onMove, {passive:false});
       handle.addEventListener('touchend', onEnd);
       handle.addEventListener('touchcancel', onEnd);
-      const main=card.querySelector('.case-main');
-      if(main){
-        main.addEventListener('touchstart', onStart, {passive:true});
-        main.addEventListener('touchmove', onMove, {passive:false});
-        main.addEventListener('touchend', onEnd);
-        main.addEventListener('touchcancel', onEnd);
-        main.addEventListener('click', event=>{ if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; } }, true);
-      }
     }
     // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
     function selectF2LSlot(slot){
@@ -681,6 +1013,14 @@
       });
     }
     renderFormulaButtons();
+    function playUiEntrance(){
+      if(!window.anime||matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+      anime({targets:'.brand', opacity:[0,1], translateY:[-16,0], duration:700, easing:'easeOutExpo'});
+      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
+      anime({targets:'.formula-panel .case-card', opacity:[0,1], translateX:[24,0], delay:anime.stagger(45,{start:180}), duration:520, easing:'easeOutCubic'});
+    }
+    if(document.readyState==='complete') playUiEntrance();
+    else addEventListener('load', playUiEntrance, {once:true});
     // Every macro restores the D-layer cross; a fresh randomized chain prevents repeating the same easy setup.
     const f2lMacros=[['R','U','R′'],['R','U′','R′'],['L','U','L′'],['L','U′','L′'],['F','U','F′'],['F','U′','F′'],['B','U','B′'],['B','U′','B′']];
     function randomF2LScramble(){const count=5+Math.floor(Math.random()*5), result=[]; let previous=-1; while(result.length<count*3){let index=Math.floor(Math.random()*f2lMacros.length); if(index===previous)continue; result.push(...f2lMacros[index]); previous=index;} return result;}
