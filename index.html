@@ -409,7 +409,10 @@
     const practiceButton=document.querySelector('#f2l-practice'), scrambleButton=document.querySelector('#f2l-scramble'), xrayButton=document.querySelector('#xray-markers'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), resetButton=document.querySelector('#reset-cube'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
     const persistSetting=(key,value)=>{document.cookie=`${key}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem(key,value);};
     const readSetting=key=>document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`))?.[1]??localStorage.getItem(key);
-    settingsToggle.onclick=()=>{const open=settingsPanel.hidden; settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open));};
+    function setSettingsOpen(open){settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open)); settingsToggle.setAttribute('aria-label',open?'Đóng cài đặt':'Mở cài đặt');}
+    settingsToggle.onclick=()=>setSettingsOpen(settingsPanel.hidden);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden) setSettingsOpen(false);});
+    window.addEventListener('blur',()=>setSettingsOpen(false));
     function applyXray(enabled){setMarkerXray(enabled); xrayButton.classList.toggle('is-active',showOccludedMarkers); xrayButton.setAttribute('aria-pressed',String(showOccludedMarkers)); xrayButton.textContent=showOccludedMarkers?'BẬT':'TẮT'; persistSetting('rubik-xray-markers',showOccludedMarkers?'1':'0');}
     xrayButton.onclick=()=>applyXray(!showOccludedMarkers);
     function applyHideCoords(enabled){hideCoords=enabled; coordLabels.forEach(label=>label.visible=!hideCoords); hideCoordsButton.classList.toggle('is-active',hideCoords); hideCoordsButton.setAttribute('aria-pressed',String(hideCoords)); hideCoordsButton.textContent=hideCoords?'BẬT':'TẮT'; persistSetting('rubik-hide-coords',hideCoords?'1':'0');}
