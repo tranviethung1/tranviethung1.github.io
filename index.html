@@ -54,7 +54,27 @@
     .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
     .solve-f2l:hover, .solve-f2l:focus-visible,
     .move-pad-toggle:hover, .move-pad-toggle:focus-visible,
-    .move-pad-keys button:hover, .move-pad-keys button:focus-visible { background:var(--ink); color:var(--cream); }
+    .move-pad-keys button:hover, .move-pad-keys button:focus-visible,
+    .mobile-dock button:hover, .mobile-dock button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    .formula-panel .case-options .opt-controls button:hover,
+    .formula-panel .case-options .opt-controls button:focus-visible {
+      outline:none;
+      box-shadow:inset 0 0 0 2px rgba(18,18,18,.22);
+    }
+    .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
+    .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible {
+      outline:none;
+      background:var(--ink);
+      color:#fff;
+      box-shadow:inset 0 0 0 2px rgba(244,240,232,.88);
+    }
+    .formula-panel .case-options .opt-label:focus-visible {
+      outline:none;
+      box-shadow:inset 0 0 0 2px rgba(18,18,18,.28);
+    }
+    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible {
+      box-shadow:inset 0 0 0 2px rgba(244,240,232,.88);
+    }
     .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:11px; letter-spacing:.08em; text-align:right; line-height:1.7; font-weight:600; } .status b { color:var(--accent); font-family:var(--font-mono); font-size:14px; }
     .move-pad-toggle { position:fixed; z-index:4; left:32px; bottom:32px; width:42px; min-width:42px; min-height:42px; padding:0; border:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:var(--shadow); touch-action:none; cursor:grab; user-select:none; }
     .move-pad-toggle:active { cursor:grabbing; }
@@ -73,7 +93,8 @@
     .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
     .reset-cube { position:fixed; z-index:4; right:32px; top:78px; width:42px; min-height:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
     .settings-panel { position:fixed; z-index:4; right:32px; top:128px; width:250px; padding:14px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 13px var(--font-display); } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:10px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; border-radius:8px; } .settings-row input { width:110px; accent-color:var(--accent); }
-    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; } .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); } .formula-panel .case-card.is-open { outline:2px solid var(--accent); outline-offset:2px; } .formula-panel .case-card.is-viewed:not(.is-open) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); } .formula-panel .case-card.is-viewed .formula-id { color:var(--accent); } .formula-panel .case-card.is-viewed .formula-id::after { content:' ✓'; font-weight:800; } .formula-panel .case-card.is-open > .case-main { display:none; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; } .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; } .formula-panel .slot-tabs button { min-height:32px; padding:0; border-radius:8px; font:700 10px var(--font-display); background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 38px + 2 * 5px); overflow-y:auto; overscroll-behavior:contain; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); } .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; } .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; } .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; } .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; } .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
+    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; } .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); } .formula-panel .case-card.is-open { outline:none; } .formula-panel .case-card.is-active:not(.is-open) { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); } .formula-panel .case-card.is-viewed:not(.is-open):not(.is-active) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); } .formula-panel .case-card.is-viewed .formula-id { color:var(--accent); } .formula-panel .case-card.is-active:not(.is-open) .formula-id { color:var(--ink); } .formula-panel .case-card.is-viewed .formula-id::after { content:' ✓'; font-weight:800; } .formula-panel .case-card.is-open > .case-main { display:none; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; } .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; } .formula-panel .slot-tabs button { min-height:32px; padding:0; border-radius:8px; font:700 10px var(--font-display); background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 40px + 2 * 5px + 16px); overflow-y:auto; overscroll-behavior:contain; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); } .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; } .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; } .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; } .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; }     .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
+    .mobile-dock { display:none; }
     @media (max-width:720px) {
       header { padding:10px 12px; }
       .brand { font-size:22px; }
@@ -84,45 +105,84 @@
       .settings-toggle { top:10px; right:10px; width:34px; min-height:34px; font-size:16px; }
       .reset-cube { top:52px; right:10px; width:34px; min-height:34px; font-size:16px; }
       .settings-panel { left:10px; right:10px; top:94px; width:auto; max-height:min(70vh,420px); overflow:auto; }
+      .mobile-dock {
+        display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:auto; gap:0;
+        position:fixed; left:0; right:0; bottom:0; z-index:7;
+        padding:0 0 env(safe-area-inset-bottom,0px);
+        background:var(--cream);
+        border-top:1px solid var(--line);
+        box-shadow:0 -10px 28px rgba(16,20,24,.1);
+      }
+      .mobile-dock button {
+        width:100%; min-height:44px; border:0; border-radius:0;
+        border-right:1px solid var(--line);
+        background:transparent; font:700 11px var(--font-display); letter-spacing:.02em;
+      }
+      .mobile-dock button:last-child { border-right:0; }
+      .mobile-dock button.is-active { background:var(--ink); color:#fff; }
+      .mobile-dock #dock-keyboard { font-size:18px; letter-spacing:0; }
+      .dock-sheet {
+        display:none; position:fixed; z-index:5; left:0; right:0;
+        bottom:calc(44px + env(safe-area-inset-bottom,0px));
+        max-height:min(36vh,240px); padding:14px 16px;
+        background:var(--cream); border-top:1px solid var(--line);
+        box-shadow:0 -12px 32px rgba(16,20,24,.12);
+      }
+      .dock-sheet.is-dock-open { display:block; }
+      .dock-sheet h2 { margin:0 0 6px; font:700 13px var(--font-display); letter-spacing:.02em; }
+      .dock-sheet p { margin:0; font-size:11px; line-height:1.5; opacity:.7; }
       .formula-panel {
         z-index:5;
-        top:auto; right:0; left:0; bottom:0; transform:none;
-        width:100%; max-height:132px; min-height:0;
-        flex-direction:row; align-items:stretch; gap:8px;
-        padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
-        overflow-x:auto; overflow-y:auto;
+        top:auto; right:0; left:0; bottom:calc(44px + env(safe-area-inset-bottom,0px)); transform:none;
+        width:100%; max-height:156px; min-height:0;
+        flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:0;
+        padding:0 0 5px;
+        overflow:hidden;
         background:var(--cream);
         border-top:1px solid var(--line);
         box-shadow:0 -12px 32px rgba(16,20,24,.12);
-        -webkit-overflow-scrolling:touch;
+        transition:transform .2s ease, opacity .2s ease;
+        will-change:transform;
       }
+      .formula-panel:not(.is-dock-open) { display:none; }
+      .formula-panel > .case-strip {
+        display:flex; flex-direction:row; align-items:stretch; gap:8px;
+        width:100%; min-width:0; min-height:0; flex:1 1 auto;
+        padding:0 10px;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none; -ms-overflow-style:none;
+      }
+      .formula-panel > .case-strip::-webkit-scrollbar { display:none; width:0; height:0; }
       .formula-panel .case-card {
         flex:0 0 auto; width:92px; max-height:100%; overflow:hidden;
         padding:7px; box-shadow:none; background:var(--cream);
       }
       .formula-panel:has(.case-card.is-open) {
-        flex-direction:column; overflow-x:hidden; overflow-y:hidden;
-        max-height:none; height:auto; gap:0;
-        padding-top:0;
-        transition:transform .2s ease, opacity .2s ease;
-        will-change:transform;
+        max-height:none; height:auto; gap:0; overflow:hidden;
       }
+      .formula-panel:has(> .case-card.is-open) > .case-strip { display:none; }
       .formula-panel:has(.case-card.is-open) .case-card:not(.is-open) { display:none; }
       .formula-panel > .case-drag {
         display:flex; justify-content:center; align-items:center;
-        width:100%; min-height:20px; padding:8px 0 6px; margin:0;
-        border:0; background:transparent; flex:0 0 auto;
+        flex:0 0 auto; width:100%; min-height:20px; padding:8px 0 6px; margin:0;
+        border:0; background:transparent;
         cursor:grab; touch-action:none; z-index:6;
       }
       .formula-panel > .case-drag::before {
         content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35);
+      }
+      .formula-panel > .case-drag:hover, .formula-panel > .case-drag:focus-visible {
+        background:transparent; color:inherit; outline:none;
       }
       .formula-panel .case-card.is-open {
         width:100%; max-width:none;
         max-height:none; overflow:hidden;
         display:flex; flex-direction:column;
         touch-action:pan-y;
-        outline:2px solid var(--accent); outline-offset:0;
+        outline:none; border-color:transparent;
+        padding:0 10px 0;
+        border-radius:0; border:0; box-shadow:none;
       }
       .formula-panel.is-sheet-dragging { transition:none; }
       .formula-panel.is-sheet-dismissing { pointer-events:none; }
@@ -134,26 +194,25 @@
       .formula-panel .case-card.is-open .case-options {
         position:relative; z-index:2; background:var(--cream); isolation:isolate;
         display:flex; flex-direction:column; min-height:0; gap:5px;
+        padding-bottom:0;
       }
       .formula-panel .slot-tabs { gap:4px; position:relative; z-index:3; flex:0 0 auto; }
       .formula-panel .slot-tabs button { min-height:36px; font-size:11px; color:var(--ink); background:var(--cream); }
       .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; }
       .formula-panel .case-options .opt-list {
         position:relative; z-index:2;
-        max-height:calc(3 * 40px + 2 * 5px);
+        max-height:calc(3 * 40px + 2 * 5px + 18px);
         overflow-y:auto; -webkit-overflow-scrolling:touch;
+        scrollbar-width:none; -ms-overflow-style:none;
+        padding-bottom:0; margin-bottom:0;
       }
+      .formula-panel .case-options .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
       .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
       .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
       .status { left:12px; right:auto; top:52px; bottom:auto; text-align:left; font-size:9px; }
-      .move-pad-toggle {
-        left:10px; bottom:calc(142px + env(safe-area-inset-bottom,0px));
-        z-index:6; width:40px; min-width:40px; min-height:40px; font-size:17px; padding:0;
-        box-shadow:4px 4px 0 rgba(18,18,18,.1);
-      }
-      .move-pad-toggle.is-active { display:none; }
+      .move-pad-toggle { display:none !important; }
       .move-pad {
-        left:0; right:0; bottom:calc(132px + env(safe-area-inset-bottom,0px));
+        left:0; right:0; bottom:calc(44px + env(safe-area-inset-bottom,0px));
         z-index:6; width:100%; max-width:none;
         max-height:min(36vh, 240px); overflow:hidden;
         display:flex; flex-direction:column; align-items:stretch; gap:4px;
@@ -187,9 +246,9 @@
         min-width:0; width:100%; min-height:28px; padding:0;
         font-size:10px; border-radius:6px; touch-action:manipulation;
       }
-      .solve-f2l { bottom:calc(280px + env(safe-area-inset-bottom,0px)); min-height:40px; }
-      .solve-result { bottom:calc(328px + env(safe-area-inset-bottom,0px)); }
-      .panel { left:12px; bottom:calc(280px + env(safe-area-inset-bottom,0px)); width:min(240px,70vw); }
+      .solve-f2l { bottom:calc(60px + env(safe-area-inset-bottom,0px)); min-height:40px; }
+      .solve-result { bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
+      .panel { left:12px; bottom:calc(160px + env(safe-area-inset-bottom,0px)); width:min(240px,70vw); }
     }
   </style>
 </head>
@@ -202,6 +261,14 @@
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
+  <section id="dock-sheet-basic" class="dock-sheet" aria-label="Cơ bản" hidden><h2>CƠ BẢN</h2><p>Nội dung F2L cơ bản sẽ nằm ở đây.</p></section>
+  <section id="dock-sheet-keyhole" class="dock-sheet" aria-label="Keyhole" hidden><h2>KEYHOLE</h2><p>Nội dung Keyhole sẽ nằm ở đây.</p></section>
+  <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
+    <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
+    <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Các trường hợp F2L">4 hướng</button>
+    <button id="dock-basic" type="button" aria-pressed="false" aria-controls="dock-sheet-basic" title="F2L cơ bản">Cơ bản</button>
+    <button id="dock-keyhole" type="button" aria-pressed="false" aria-controls="dock-sheet-keyhole" title="Keyhole">Keyhole</button>
+  </nav>
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
   <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
@@ -233,7 +300,7 @@
     // Colors reach the outside edges, while inner tile seams stay open with speed-cube corner cutouts.
     const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
     const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
-    const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02}); let f2lPractice=false;
+    const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x3A3F46,roughness:.3,metalness:.02}); let f2lPractice=false;
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
       const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24); piece.userData={coord:{x,y,z},homeCoord:{x,y,z},containsYellow:y===1};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
@@ -589,34 +656,42 @@
       });
       movePadKeys.appendChild(rowEl);
     }
-    function setMovePadOpen(open){
+    function setMovePadOpen(open, {instant=false}={}){
       const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
       const mobile=matchMedia('(max-width:720px)').matches;
       if(open){
         movePad.hidden=false;
         movePad.classList.add('is-animating');
         if(mobile) movePadToggle.hidden=true;
-        if(window.anime&&!reduce){
+        if(window.anime&&!reduce&&!instant){
           anime.remove(movePad);
           anime({targets:movePad, opacity:[0,1], translateY:[18,0], duration:320, easing:'easeOutCubic', complete:()=>movePad.classList.remove('is-animating')});
           anime({targets:movePadKeys.querySelectorAll('button'), opacity:[0,1], scale:[.86,1], delay:anime.stagger(12,{start:40}), duration:280, easing:'easeOutBack'});
         } else {
+          if(window.anime) anime.remove(movePad);
           movePad.classList.remove('is-animating');
+          movePad.style.opacity=''; movePad.style.transform='';
         }
-      } else if(window.anime&&!reduce){
-        movePad.classList.add('is-animating');
-        anime.remove(movePad);
-        anime({targets:movePad, opacity:[1,0], translateY:[0,12], duration:200, easing:'easeInCubic', complete:()=>{
-          movePad.hidden=true; movePad.classList.remove('is-animating'); movePad.style.opacity=''; movePad.style.transform='';
-          movePadToggle.hidden=false;
-        }});
       } else {
-        movePad.hidden=true;
-        movePadToggle.hidden=false;
+        if(window.anime) anime.remove(movePad);
+        const finishClose=()=>{
+          movePad.hidden=true;
+          movePad.classList.remove('is-animating','is-sheet-dragging');
+          movePad.style.opacity=''; movePad.style.transform='';
+          if(!mobile) movePadToggle.hidden=false;
+          syncMobileDockFromSheets();
+        };
+        if(!instant&&window.anime&&!reduce&&!movePad.hidden){
+          movePad.classList.add('is-animating');
+          anime({targets:movePad, opacity:[1,0], translateY:[0,24], duration:180, easing:'easeInCubic', complete:finishClose});
+        } else {
+          finishClose();
+        }
       }
       movePadToggle.setAttribute('aria-expanded',String(open));
       movePadToggle.setAttribute('aria-label',open?'Đóng bảng xoay Rubik':'Mở bảng xoay Rubik');
       movePadToggle.classList.toggle('is-active',open);
+      if(open) syncMobileDockFromSheets();
     }
     movePadToggle.onclick=()=>{
       if(movePadToggle.dataset.dragged==='1'){ delete movePadToggle.dataset.dragged; return; }
@@ -651,9 +726,9 @@
       const onEnd=()=>{
         if(!dragging) return;
         dragging=false; movePad.classList.remove('is-sheet-dragging');
-        if(dy>72){
-          applyShift(Math.max(dy,180), '0');
-          setTimeout(()=>{ clearShift(); setMovePadOpen(false); }, 160);
+        if(dy>56){
+          applyShift(Math.max(dy,220), '0');
+          setTimeout(()=>setMovePadOpen(false, {instant:true}), 120);
         } else {
           clearShift();
         }
@@ -665,7 +740,7 @@
       movePadCollapse.addEventListener('touchcancel', onEnd);
       movePadCollapse.addEventListener('click', event=>{
         if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; return; }
-        setMovePadOpen(false);
+        setMovePadOpen(false, {instant:true});
       });
     }
     enableMovePadSwipeDismiss();
@@ -812,7 +887,81 @@
     }
     if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,diagnoseF2LPair};
     const formulaPanel=document.querySelector('#formula-panel');
-    let openCaseId=null, openSlot='FR';
+    const dockKeyboard=document.querySelector('#dock-keyboard');
+    const dockCases=document.querySelector('#dock-cases');
+    const dockBasic=document.querySelector('#dock-basic');
+    const dockKeyhole=document.querySelector('#dock-keyhole');
+    const dockSheetBasic=document.querySelector('#dock-sheet-basic');
+    const dockSheetKeyhole=document.querySelector('#dock-sheet-keyhole');
+    const dockButtons={keyboard:dockKeyboard, cases:dockCases, basic:dockBasic, keyhole:dockKeyhole};
+    let mobileDockSheet=null;
+    function closeMovePadInstant(){
+      if(window.anime) anime.remove(movePad);
+      movePad.hidden=true;
+      movePad.classList.remove('is-animating');
+      movePad.style.opacity=''; movePad.style.transform='';
+      movePadToggle.classList.remove('is-active');
+      movePadToggle.setAttribute('aria-expanded','false');
+    }
+    function setDockPanels(openSheet){
+      formulaPanel.classList.toggle('is-dock-open', openSheet==='cases');
+      dockSheetBasic.classList.toggle('is-dock-open', openSheet==='basic');
+      dockSheetKeyhole.classList.toggle('is-dock-open', openSheet==='keyhole');
+      dockSheetBasic.hidden=openSheet!=='basic';
+      dockSheetKeyhole.hidden=openSheet!=='keyhole';
+    }
+    function syncMobileDockFromSheets(){
+      if(!matchMedia('(max-width:720px)').matches) return;
+      const keyboardOpen=!movePad.hidden;
+      const openSheet=keyboardOpen?'keyboard'
+        :formulaPanel.classList.contains('is-dock-open')?'cases'
+        :dockSheetBasic.classList.contains('is-dock-open')?'basic'
+        :dockSheetKeyhole.classList.contains('is-dock-open')?'keyhole'
+        :null;
+      mobileDockSheet=openSheet;
+      Object.entries(dockButtons).forEach(([id, btn])=>{
+        const on=openSheet===id;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', String(on));
+      });
+    }
+    function setMobileDockSheet(sheet){
+      if(!matchMedia('(max-width:720px)').matches) return;
+      const next=mobileDockSheet===sheet?null:sheet;
+      if(next==='keyboard'){
+        setDockPanels(null);
+        setMovePadOpen(true);
+      } else if(next==='cases'||next==='basic'||next==='keyhole'){
+        closeMovePadInstant();
+        setDockPanels(next);
+        syncMobileDockFromSheets();
+        if(next==='cases') scrollActiveCaseIntoView();
+      } else {
+        closeMovePadInstant();
+        setDockPanels(null);
+        syncMobileDockFromSheets();
+      }
+    }
+    dockKeyboard.onclick=()=>setMobileDockSheet('keyboard');
+    dockCases.onclick=()=>setMobileDockSheet('cases');
+    dockBasic.onclick=()=>setMobileDockSheet('basic');
+    dockKeyhole.onclick=()=>setMobileDockSheet('keyhole');
+    if(matchMedia('(max-width:720px)').matches) movePadToggle.hidden=true;
+    addEventListener('resize',()=>{
+      if(!matchMedia('(max-width:720px)').matches){
+        setDockPanels(null);
+        mobileDockSheet=null;
+        Object.values(dockButtons).forEach(btn=>{
+          btn.classList.remove('is-active');
+          btn.setAttribute('aria-pressed','false');
+        });
+        movePadToggle.hidden=false;
+      } else {
+        movePadToggle.hidden=true;
+        syncMobileDockFromSheets();
+      }
+    });
+    let openCaseId=null, openSlot='FR', activeCaseId=null;
     const viewedF2LCases=new Set((readSetting('rubik-f2l-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
     function markF2LCaseViewed(caseId){
       if(!caseId||viewedF2LCases.has(caseId)) return;
@@ -898,7 +1047,7 @@
       const controls=document.createElement('div'); controls.className='opt-controls';
       const mk=(cls, text, title, fn)=>{
         const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
-        b.disabled=!sequence; b.onclick=()=>fn(id, sequence, isSetup, status); return b;
+        b.disabled=!sequence; b.onclick=()=>{ fn(id, sequence, isSetup, status); b.blur(); }; return b;
       };
       controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',algPrev));
       controls.appendChild(mk('opt-play','▶','Play / chạy hết',algPlayAll));
@@ -907,10 +1056,38 @@
       return row;
     }
     const isMobileUi=()=>matchMedia('(max-width:720px)').matches;
-    function closeOpenCase(){openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null; renderFormulaButtons();}
-    function enableCaseSwipeDismiss(card){
-      if(!isMobileUi()||!card.classList.contains('is-open')) return;
-      const handle=formulaPanel.querySelector(':scope > .case-drag')||formulaPanel.querySelector('.case-drag');
+    function scrollActiveCaseIntoView(){
+      if(!activeCaseId||openCaseId) return;
+      const card=formulaPanel.querySelector(`.case-card[data-case-id="${CSS.escape(activeCaseId)}"]`);
+      const strip=formulaPanel.querySelector('.case-strip');
+      if(!card) return;
+      requestAnimationFrame(()=>{
+        if(strip){
+          const left=card.offsetLeft-(strip.clientWidth-card.offsetWidth)/2;
+          strip.scrollTo({left:Math.max(0,left), behavior:'smooth'});
+        } else {
+          card.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+        }
+      });
+    }
+    function closeOpenCase(){
+      if(openCaseId) activeCaseId=openCaseId;
+      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      renderFormulaButtons();
+      scrollActiveCaseIntoView();
+    }
+    function closeCasesDockPanel(){
+      formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
+      formulaPanel.style.transform=''; formulaPanel.style.opacity='';
+      if(openCaseId) activeCaseId=openCaseId;
+      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      setDockPanels(null);
+      syncMobileDockFromSheets();
+      renderFormulaButtons();
+    }
+    function enableFormulaPanelSwipeDismiss(){
+      if(!isMobileUi()) return;
+      const handle=formulaPanel.querySelector(':scope > .case-drag');
       if(!handle) return;
       let startY=0, startX=0, dragging=false, dy=0, moved=false;
       const applyShift=(y, opacity)=>{
@@ -942,7 +1119,10 @@
         if(dy>72){
           formulaPanel.classList.add('is-sheet-dismissing');
           applyShift(Math.max(dy,180), '0');
-          setTimeout(closeOpenCase, 180);
+          setTimeout(()=>{
+            if(openCaseId) closeOpenCase();
+            else closeCasesDockPanel();
+          }, 180);
         } else {
           clearShift();
         }
@@ -952,6 +1132,11 @@
       handle.addEventListener('touchmove', onMove, {passive:false});
       handle.addEventListener('touchend', onEnd);
       handle.addEventListener('touchcancel', onEnd);
+      handle.addEventListener('click', event=>{
+        if(moved){ event.preventDefault(); moved=false; return; }
+        if(openCaseId) closeOpenCase();
+        else closeCasesDockPanel();
+      });
     }
     // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
     function selectF2LSlot(slot){
@@ -972,17 +1157,26 @@
       formulaPanel.innerHTML='';
       formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
       formulaPanel.style.transform=''; formulaPanel.style.opacity='';
-      if(openCaseId&&isMobileUi()){
+      if(isMobileUi()){
         const drag=document.createElement('button');
         drag.type='button'; drag.className='case-drag'; drag.setAttribute('aria-label','Kéo xuống để đóng');
         drag.title='Kéo xuống để đóng';
         formulaPanel.appendChild(drag);
       }
+      const caseListParent=(!openCaseId&&isMobileUi())?(()=>{
+        const strip=document.createElement('div');
+        strip.className='case-strip';
+        formulaPanel.appendChild(strip);
+        return strip;
+      })():formulaPanel;
       f2lSetups.forEach(entry=>{
         const card=document.createElement('div');
         const viewed=viewedF2LCases.has(entry.id);
-        card.className=`case-card${openCaseId===entry.id?' is-open':''}${viewed?' is-viewed':''}`;
+        const isActive=activeCaseId===entry.id&&openCaseId!==entry.id;
+        card.className=`case-card${openCaseId===entry.id?' is-open':''}${viewed?' is-viewed':''}${isActive?' is-active':''}`;
+        card.dataset.caseId=entry.id;
         if(viewed) card.setAttribute('data-viewed','true');
+        if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button');
         main.type='button'; main.className='case-main'; main.title='Mở setup & công thức giải';
         if(entry.preview){const img=document.createElement('img'); img.className='preview'; img.src=entry.preview; img.alt=`Preview ${entry.id}`; img.loading='lazy'; main.appendChild(img);}
@@ -990,11 +1184,13 @@
         main.onclick=()=>{
           const opening=openCaseId!==entry.id;
           openCaseId=opening?entry.id:null;
+          activeCaseId=entry.id;
           if(opening){
             openSlot=f2lSlotOrder.find(s=>entry.slots?.[s])||'FR';
             markF2LCaseViewed(entry.id);
           }
           renderFormulaButtons();
+          if(!opening) scrollActiveCaseIntoView();
         };
         card.appendChild(main);
         const options=document.createElement('div'); options.className='case-options';
@@ -1027,9 +1223,9 @@
         });
         options.appendChild(list);
         card.appendChild(options);
-        formulaPanel.appendChild(card);
-        enableCaseSwipeDismiss(card);
+        caseListParent.appendChild(card);
       });
+      enableFormulaPanelSwipeDismiss();
     }
     renderFormulaButtons();
     function playUiEntrance(){
