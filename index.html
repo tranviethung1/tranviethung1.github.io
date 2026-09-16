@@ -264,6 +264,15 @@
         BL:{setup:'F R′ F′ R y2', solutions:['U L U′ L′','U2 L U2 L′','L′ f U f′','U′ r U B′ U′ B r′','y2 U R U′ R′']},
         BR:{setup:'F R′ F′ R y′', solutions:['U f R′ f′','r′ U′ R U M′','U2 R2 F R F′ R','d L U′ L′','y′ U L U′ L′']}
       }
+    },{
+      id:'F2L -2',
+      preview:'previews/f2l-2.png',
+      slots:{
+        FR:{setup:'R′ F R F′', solutions:['F R′ F′ R','y′ U′ R′ U R','U′ F′ U F','y U′ L′ U L','r U R′ U′ M']},
+        FL:{setup:'R′ F R F′ y', solutions:['U′ L′ U L','L F′ L′ F','r U′ r′ F','U r′ U F U F′ r','U2 L′ U2 L']},
+        BL:{setup:'R′ F R F′ y2', solutions:['U′ f′ L f','l U L′ U M′','d′ R′ U R','y′ U′ L′ U L','B L′ B′ L']},
+        BR:{setup:'', solutions:[]}
+      }
     }];
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
