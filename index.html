@@ -214,6 +214,9 @@
     function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
       return new Promise(resolve=>{function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { pivot.updateMatrixWorld(); chosen.forEach(p=>{cube.attach(p); const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2); }); cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent='READY'; resolve(); }} requestAnimationFrame(tick);});}
     function rotateLayer(axis,layer,dir=1){return rotatePieces(cubies.filter(p=>p.userData.coord[axis]===layer),axis,dir);}
+    // Cube rotations reorient the current face frame while the camera stays in place.
+    // Thus, after `y`, the orange center occupies the visible F position and the next `F`
+    // turns that orange face (the move direction is always read from its current center).
     function rotateCube(axis,dir=1){return rotatePieces(cubies.slice(),axis,dir);}
     function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LCorner=h.y===-1&&Math.abs(h.x)===1&&Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const twisted=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LCorner&&(displaced||twisted);}
     // The matching F2L edge shares the corner's two non-white home-face directions.
@@ -257,14 +260,14 @@
       preview:'previews/f2l-1-r.png',
       slots:{
         FR:{setup:'F R′ F′ R', solutions:['U R U′ R′','R′ F R F′','y′ r′ U′ R U M′','y U F′ L F L2 U L']},
-        FL:{setup:'F R′ F′ R U', solutions:['U′ L′ U L','L F′ L′ F','y l U L′ U′ M','y′ U′ F R′ F′ R2 U′ R']},
-        BL:{setup:'F R′ F′ R U2', solutions:['U L U′ L′','L′ f U f′','U2 L U2 L′','U′ r U B′ U′ B r′']},
-        BR:{setup:'F R′ F′ R U′', solutions:['U f R′ f′','r′ U′ R U M′','d L U′ L′','y′ U L U′ L′']}
+        FL:{setup:'F R′ F′ R y', solutions:['F′ r U r′','d R U′ R′','F′ L F L′','y′ U R U′ R′','U F U′ F′']},
+        BL:{setup:'F R′ F′ R y2', solutions:['U L U′ L′','U2 L U2 L′','L′ f U f′','U′ r U B′ U′ B r′','y2 U R U′ R′']},
+        BR:{setup:'F R′ F′ R y′', solutions:['U f R′ f′','r′ U′ R U M′','d L U′ L′','y′ U L U′ L′']}
       }
     }];
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
-    let algPlayback=null, algPlayToken=0, activeAlgId=null;
+    let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
     const invertToken=move=>{const t=normalizeMove(move); if(t.endsWith('2')) return t; if(t.endsWith('′')) return t.slice(0,-1); return `${t}′`;};
     const stepDelay=()=>Math.max(scrambleDelay, 120);
     function beginAlgPlayback(id, sequence, isSetup){algPlayback={id, moves:parseMoves(sequence), index:0, isSetup}; activeAlgId=id;}
@@ -288,13 +291,18 @@
       if(token===algPlayToken) stateEl.textContent=status;
     }
     async function algNext(id, sequence, isSetup, status){
-      if(busy) return;
-      markActiveAlgRow(id);
-      if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSolved(); }
-      if(algPlayback.index>=algPlayback.moves.length) return;
-      await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
-      algPlayback.index++;
-      stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+      // Serialize rapid Next taps: a cube rotation must finish before the following face move.
+      nextMoveQueue=nextMoveQueue.then(async()=>{
+        if(busy) return;
+        markActiveAlgRow(id);
+        if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSolved(); }
+        if(algPlayback.index>=algPlayback.moves.length) return;
+        const move=algPlayback.moves[algPlayback.index];
+        await runMoves([move], stepDelay());
+        algPlayback.index++;
+        stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+      }).catch(error=>{console.error('Không thể chạy nước tiếp theo:',error);});
+      return nextMoveQueue;
     }
     async function algPrev(id, sequence, isSetup, status){
       if(busy) return;
@@ -378,6 +386,21 @@
         main.addEventListener('click', event=>{ if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; } }, true);
       }
     }
+    // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
+    function selectF2LSlot(slot){
+      const cameraPosition=camera.position.clone(), cameraQuaternion=camera.quaternion.clone();
+      const cameraTarget=controls.target.clone(), cubeRotation=cube.rotation.clone();
+      openSlot=slot;
+      algPlayback=null;
+      algPlayToken++;
+      activeAlgId=null;
+      renderFormulaButtons();
+      camera.position.copy(cameraPosition);
+      camera.quaternion.copy(cameraQuaternion);
+      controls.target.copy(cameraTarget);
+      cube.rotation.copy(cubeRotation);
+      controls.update();
+    }
     function renderFormulaButtons(){
       formulaPanel.innerHTML='';
       formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
@@ -402,7 +425,7 @@
         f2lSlotOrder.forEach(slot=>{
           const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot; tab.className=openSlot===slot?'is-active':'';
           tab.setAttribute('aria-selected',String(openSlot===slot));
-          tab.onclick=()=>{openSlot=slot; algPlayback=null; algPlayToken++; activeAlgId=null; renderFormulaButtons();};
+          tab.onclick=()=>selectF2LSlot(slot);
           tabs.appendChild(tab);
         });
         options.appendChild(tabs);
