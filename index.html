@@ -362,7 +362,68 @@
         BL:{setup:'R U′ R′ U R U R′ U y2', solutions:['U′ L U L′ U L U L′','U2 L U′ L′ U L U L′','L U′ L′ U L U L′ U2 L U L′','y2 U′ R U R′ U R U R′']},
         BR:{setup:'R U′ R′ U R U R′ U y′', solutions:['U R′ U R U′ f R f′','R2 U′ F′ U F R2','y U′ R U R′ U R U R′','d′ R U R′ U R U R′','U R′ U R y′ U L U L′']}
       }
+    },{
+      id:'F2L -11',
+      preview:'previews/f2l-11.png',
+      slots:{
+        FR:{setup:'F′ U F U′ R U2 R′ U', solutions:['U′ R U2 R′ U F′ U F′','y′ R U2 R2 U′ R2 U′ R′','U′ R U2 R′ d R′ U′ R','F′ U L′ U2 L U2 F','R U2 R′ U′ r U r′ U2 r U r′']},
+        FL:{setup:'F′ U F U′ R U2 R′ U y', solutions:['L′ U L U′ L′ U L U2 L′ U L','L U2 L2 U′ L2 U′ L′','F U R U′ R′ U R U′ R′ U F′','U′ F U2 F′ U r′ F r','L′ U L U′ L′ U L U L′ U2 L']},
+        BL:{setup:'F′ U F U′ R U2 R′ U y2', solutions:['U′ L U2 L′ U f′ L′ f','U′ L U2 L′ d L′ U′ L','L U2 L′ U′ L U2 L′','y R U2 R2 U′ R2 U′ R′','y R′ U R U′ R′ U R U′ R′ U2 R']},
+        BR:{setup:'F′ U F U′ R U2 R′ U y′', solutions:['R′ U R U′ R′ U R U2 R′ U R','R U2 R2 U′ R2 U′ R′','R′ U R U′ R′ U R U R′ U2 R','d′ R U2 R′ U F′ U′ F','y R U2 R′ U F′ U′ F U′ F′ U F']}
+      }
+    },{
+      id:'F2L -12',
+      preview:'previews/f2l-12.png',
+      slots:{
+        FR:{setup:'R U R′ U2 R U R′ U′ R U R′', solutions:['R U′ R′ U R U′ R′ U2 R U′ R′','R′ U2 R2 U R2 U R','U R U′ R′ U R U R′ U′ R U R′','R′ D′ R U2 R′ D R2 U R′','y′ U R′ U2 R U′ y R U R′']},
+        FL:{setup:'R U R′ U2 R U R′ U′ R U R′ y', solutions:['U L′ U2 L U F U F′','U L′ U2 L d′ L U L′','L′ U2 L U′ L′ U2 L','y′ R′ U2 R2 U R2 U R','F U′ R U2 R′ U2 F′']},
+        BL:{setup:'R U R′ U2 R U R′ U′ R U R′ y2', solutions:['L′ U2 L2 U L2 U L','d L′ U2 L U′ F U F′','U2 R′ U2 R U2 L U L′ U2 R′ U R','L U′ L′ U L U′ L′ U2 L U′ L′','L′ U′ L U′ L′ U′ L U2 L′']},
+        BR:{setup:'R U R′ U2 R U R′ U′ R U R′ y′', solutions:['U R′ U2 R U′ f R f′','f R′ U R2 U′ R2 f′','U R′ U2 R d′ R U R′','y R U′ R′ U R U R′ U′ R U2 R′','U R′ U2 R U′ y R U R′']}
+      }
     }];
+    // Browser-test hook: validation executes the same `runMoves` / Three.js cubie engine
+    // used by the visible SETUP and GIẢI controls. F2L formulas must solve the target
+    // corner-edge pair; unrelated upper-layer pieces do not need to be solved.
+    const slotCoordinates={FR:{x:1,z:1},FL:{x:-1,z:1},BL:{x:-1,z:-1},BR:{x:1,z:-1}};
+    const faceFromVector=vector=>vector.x>.5?'R':vector.x<-.5?'L':vector.y>.5?'U':vector.y<-.5?'D':vector.z>.5?'F':'B';
+    function isTargetF2LPairSolved(slot){
+      const target=slotCoordinates[slot];
+      const corner=cubies.find(piece=>piece.userData.homeCoord.x===target.x&&piece.userData.homeCoord.y===-1&&piece.userData.homeCoord.z===target.z);
+      const edge=cubies.find(piece=>piece.userData.homeCoord.x===target.x&&piece.userData.homeCoord.y===0&&piece.userData.homeCoord.z===target.z);
+      // `y` / `x` / `z` can legitimately reorient every cubie. Map each physical face
+      // to the color of its current center, then require the target pair's stickers to
+      // match those centers. This verifies a solved pair without assuming a fixed frame.
+      const centerColors=new Map();
+      cubies.filter(piece=>Object.values(piece.userData.homeCoord).filter(Boolean).length===1).forEach(piece=>{
+        const sticker=piece.children.find(child=>child.userData.originalMaterial);
+        const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+        centerColors.set(faceFromVector(normal),sticker.userData.face);
+      });
+      const matchesCenters=piece=>piece.children.filter(child=>child.userData.originalMaterial).every(sticker=>{
+        const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+        return centerColors.get(faceFromVector(normal))===sticker.userData.face;
+      });
+      return Boolean(corner&&edge&&matchesCenters(corner)&&matchesCenters(edge));
+    }
+    async function validateF2LCase(caseId){
+      const f2lCase=f2lSetups.find(item=>item.id===caseId); if(!f2lCase)throw new Error(`Unknown F2L case: ${caseId}`);
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      const results=[];
+      try{
+        for(const slot of f2lSlotOrder){
+          const {setup,solutions}=f2lCase.slots[slot];
+          for(let index=0;index<solutions.length;index++){
+            resetToSetupStart();
+            await runMoves(parseMoves(setup),0);
+            await runMoves(parseMoves(solutions[index]),0);
+            results.push({slot,solution:index+1,passed:isTargetF2LPairSolved(slot)});
+          }
+        }
+      }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}
+      return results;
+    }
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase};
     const formulaPanel=document.querySelector('#formula-panel');
     let openCaseId=null, openSlot='FR';
     let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();

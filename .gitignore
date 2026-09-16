@@ -1,0 +1,10 @@
+# Installed dependencies
+node_modules/
+
+# Playwright generated artifacts
+test-results/
+playwright-report/
+blob-report/
+
+# Source screenshots used only to transcribe F2L cases
+images/
