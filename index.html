@@ -502,7 +502,8 @@
     if(readSetting('rubik-xray-markers')==='1')applyXray(true);
     if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
     const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
-    const normalizeMove=move=>move.replace(/['’]/g,'′');
+    // Acubemy uses both lowercase (`f`) and official uppercase-wide (`Fw`) notation. Treat them identically.
+    const normalizeMove=move=>move.replace(/['’]/g,'′').replace(/^([RUFLDB])w/,(_,face)=>face.toLowerCase());
     function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; if(!moveMap[base]) throw new Error(`Unknown move: ${token}`); return twice?[base,base]:[base];}
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
     // Wide: two layers on the face side (e.g. r = x≥0) in the same direction as the capital face move.
