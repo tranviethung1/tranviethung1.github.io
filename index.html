@@ -129,6 +129,14 @@
         box-shadow:0 -12px 32px rgba(16,20,24,.12);
       }
       .dock-sheet.is-dock-open { display:block; }
+      /* Mirror the 4-hướng case strip: AF2L cards scroll horizontally. */
+      .advanced-methods { display:flex; flex-direction:row; align-items:stretch; gap:8px; min-width:0; max-height:calc(min(36vh,240px) - 22px); overflow-x:auto; overflow-y:hidden; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; }
+      .advanced-methods::-webkit-scrollbar { display:none; width:0; height:0; }
+      .advanced-method { flex:0 0 92px; max-height:100%; overflow:hidden; }
+      .advanced-method.is-open { flex:0 0 100%; max-height:none; overflow:visible; }
+      .advanced-method.is-viewed:not(.is-open) { border-color:var(--accent); box-shadow:inset 0 0 0 1px rgba(255,75,43,.45); }
+      .advanced-method.is-viewed:not(.is-open) b { color:var(--accent); }
+      .advanced-method.is-viewed:not(.is-open) b::after { content:' ✓'; font-weight:800; }
       .sheet-drag { display:flex; align-items:center; justify-content:center; width:100%; min-height:20px; margin:-8px 0 0px; padding:7px 0; border:0; background:transparent; touch-action:none; }
       .sheet-drag::before { content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35); }
       .sheet-drag:hover,.sheet-drag:focus-visible { background:transparent; color:inherit; outline:none; }
@@ -1314,24 +1322,151 @@
       preview:'previews/af2l-1.svg',
       slots:{
         FR:{setup:'M F M′',solutions:['L′ U′ L U R U′ R′','M F′ M′','L′ R U′ R′ L','R L′ U′ L R′']},
-        FL:{setup:'M F M′ y',solutions:['S′ L′ S','L U′ L′ y L U′ L′','y′ L′ U′ L U R U′ R′','L U′ L′ y′ R U′ R′','L U′ L′ F U′ F′']},
-        BL:{setup:'M F M′ y2',solutions:['R′ U′ R U L U′ L′','L R′ U′ R L′','M′ f′ E','y R U′ R2 F′ U′ F R','M′ B′ M']},
-        BR:{setup:'M F M′ y′',solutions:['S R′ S′','R U′ R′ y R U′ R′','R U′ R′ f R′ f′','R U′ R′ U R2 F R F′ R','R U′ R2 F′ U′ F R','F′ U′ F U B U′ B′','y M F′ M′','R U′ R′ r′ U r U′ r′ U′ r','y L′ U′ M′ U R U′ x′','R U′ R′ U R2 F R2 F′','R U′ R′ U′ r′ U′ R U M′','R U′ R2 F′ U′ F R U F′ U′ F','y′ M′ B′ M','y L′ R U′ R′ L']}
+        FL:{setup:'M F M′ y',solutions:['S′ L′ S','y′ M F′ M′','y′ L′ U′ L U R U′ R′','y′ M F′ M′','y′ M F′ M′']},
+        BL:{setup:'M F M′ y2',solutions:['R′ U′ R U L U′ L′','L R′ U′ R L′','M′ f′ E','y2 M F′ M′','M′ B′ M']},
+        BR:{setup:'M F M′ y′',solutions:['S R′ S′','y M F′ M′','y M F′ M′','y M F′ M′','y M F′ M′','F′ U′ F U B U′ B′','y M F′ M′','y M F′ M′','y L′ U′ M′ U R U′ x′','R U′ R′ U R2 F R2 F′','y M F′ M′','R U′ R2 F′ U′ F R U F′ U′ F','y′ M′ B′ M','y L′ R U′ R′ L']}
+      }
+    },{
+      id:'AF2L -2',
+      name:'AF2L - 2',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U2 R′ L U L′',solutions:['L U′ L′ U′ R U′ R′','L U′ L′ U′ R U′ R′','L U′ L′ R U2 R′','L U′ L′ U′ R U′ R′']},
+        FL:{setup:'R U2 R′ L U L′ y',solutions:['y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′']},
+        BL:{setup:'R U2 R′ L U L′ y2',solutions:['R U′ R′ L U2 L′','R U′ R′ L U2 L′','R U′ R′ L U2 L′','R U′ R′ L U2 L′','R U′ R′ L U2 L′','R U′ R′ U′ L U′ L′','R U′ M′ B2 r′']},
+        BR:{setup:'R U2 R′ L U L′ y′',solutions:['y′ R U′ R′ L U2 L′','y′ R U′ R′ L U2 L′','y′ R U′ R′ L U2 L′','y′ R U′ R′ L U2 L′','y′ R U′ R′ L U2 L′','y′ R U′ R′ L U2 L′']}
+      }
+    },{
+      id:'AF2L -3',
+      name:'AF2L - 3',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F R′ F′ R U′ B U B′',solutions:['B U′ B′ U R′ F R F′','B U′ B′ U R′ F R F′']},
+        FL:{setup:'F R′ F′ R U′ B U B′ y',solutions:['R U′ R′ U F′ r U r′','R U′ R′ U F′ L F L′','R U′ R′ U F′ r U r′','R U′ R′ U F′ r U r′','R U′ F R′ U R F′ R′','R U′ R′ U F′ r U r′','R U′ R′ U F′ r U r′','R U′ R′ U2 R′ F R U′ R′ F′ R','R U′ R′ U F′ r U r′','R U′ R′ U2 y′ R U′ R′','l F′ D R′ F R D′ l′','R U′ R′ U′ r2 F r U′ r','R U′ R′ d U R U′ R′','R U′ R′ U2 F U′ F′']},
+        BL:{setup:'F R′ F′ R U′ B U B′ y2',solutions:['y2 B U′ B′ U R′ F R F′','y2 B U′ B′ U R′ F R F′']},
+        BR:{setup:'F R′ F′ R U′ B U B′ y′',solutions:['L U′ L′ y′ U2 L U′ L′','L U′ L′ y′ U2 L U′ L′','L U′ L′ y′ U2 L U′ L′','L U′ L′ y′ U2 L U′ L′','L U′ L′ y′ U′ L U2 L′','L U′ L′ y U2 R U′ R′','L U′ L′ y′ U2 L U′ L′','L U′ L′ d′ R U2 R′']}
+      }
+    },{
+      id:'AF2L -4',
+      name:'AF2L - 4',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'l F′ l′ U2 F U′ F′',solutions:['F U F′ U2 l F l′','F U F′ U2 R U R′','U′ F U′ R U R2 F′ R','y′ R U R′ U2 y R U R′']},
+        FL:{setup:'l F′ l′ U2 F U′ F′ y',solutions:['L U L′ y U2 L U L′','B L′ B′ L U L′ U2 L','L U L′ U2 F U F′','L U L′ y′ U2 R U R′']},
+        BL:{setup:'l F′ l′ U2 F U′ F′ y2',solutions:['y2 F U F′ U2 l F l′']},
+        BR:{setup:'l F′ l′ U2 F U′ F′ y′',solutions:['F R′ F′ R U R′ U2 R','R U R′ U2 f R f′','R U R′ U2 S U′ R′ U R S′','y F U F′ U2 l F l′','R U R′ S′ R′ U2 R S','y F U F′ U2 l F l′','R U R′ d′ U′ R U R′','y F U F′ U2 l F l′','F R′ F′ R U2 R′ U R']}
+      }
+    },{
+      id:'AF2L -5',
+      name:'AF2L - 5',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U′ L U′ L′',solutions:['L U L′ U R U R′']},
+        FL:{setup:'R U′ R′ U′ L U′ L′ y',solutions:['y R U R′ U L U L′','y R U R′ U L U L′','y R U R′ U L U L′']},
+        BL:{setup:'R U′ R′ U′ L U′ L′ y2',solutions:['R U R′ U L U L′','R U R′ U L U L′','R U R′ U L U L′','R U R′ U L U L′']},
+        BR:{setup:'R U′ R′ U′ L U′ L′ y′',solutions:['r U′ r′ F R′ U2 R','L F′ L′ F R′ U2 R','y′ R U R′ U L U L′','y′ R U R′ U L U L′']}
+      }
+    },{
+      id:'AF2L -6',
+      name:'AF2L - 6',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ B U′ B′',solutions:['y R U R′ F U F′','y R U R′ F U F′','f R f′ R U R′']},
+        FL:{setup:'R U′ R′ B U′ B′ y',solutions:['R U R′ F U F′','F R′ F′ R L′ U L','R U R′ b L b′','R U R′ y L U L′']},
+        BL:{setup:'R U′ R′ B U′ B′ y2',solutions:['F U F′ L U L′','F U F′ L U L′','L F′ L′ S′ L f','F U F′ L U L′']},
+        BR:{setup:'R U′ R′ B U′ B′ y′',solutions:['L U L′ f R f′','L U L′ f R f′','L U L′ y′ L U L′','B L′ B′ L R′ U R','y′ U′ L′ U L2 U′ L′ U L U L′','y′ F U F′ L U L′']}
+      }
+    },{
+      id:'AF2L -7',
+      name:'AF2L - 7',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'l F′ l′ U L F′ L′ F U',solutions:['U′ F′ L F L′ U′ l F l′','U′ F′ L F L′ U′ l F l′']},
+        FL:{setup:'l F′ l′ U L F′ L′ F U y',solutions:['y′ U′ F′ L F L′ U′ l F l′','y′ U′ F′ L F L′ U′ l F l′','y′ U′ F′ L F L′ U′ l F l′']},
+        BL:{setup:'l F′ l′ U L F′ L′ F U y2',solutions:['y2 U′ F′ L F L′ U′ l F l′','y2 U′ F′ L F L′ U′ l F l′']},
+        BR:{setup:'l F′ l′ U L F′ L′ F U y′',solutions:['y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′','y U′ F′ L F L′ U′ l F l′']}
+      }
+    },{
+      id:'AF2L -8',
+      name:'AF2L - 8',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U2 B L′ B′ L U',solutions:['U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′']},
+        FL:{setup:'R U′ R′ U2 B L′ B′ L U y',solutions:['U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′']},
+        BL:{setup:'R U′ R′ U2 B L′ B′ L U y2',solutions:['U′ F′ U2 L U L′ F','U′ R′ F R F′ U2 L U L′','U′ F′ U2 L U L′ F','R U′ R′ U L U′ L′ U L U L′','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U′ F U′ L U L′','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U R U′ R′ U R U L U R′ L′','U R U′ R′ U R U R′ L R U R′ L′','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F','U′ F′ U2 L U L′ F']},
+        BR:{setup:'R U′ R′ U2 B L′ B′ L U y′',solutions:['U′ L′ U′ L d′ R U R′','U′ L′ U′ L d′ R U R′','U′ L′ U′ L d′ R U R′','U′ L′ U′ L d′ R U R′','U′ L′ U′ L d′ R U R′','U′ L′ U′ L d′ R U R′','U′ L′ U′ L U′ f R f′']}
+      }
+    },{
+      id:'AF2L -9',
+      name:'AF2L - 9',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U′ R B′ R′ B U',solutions:['U′ B′ R B R′ U R U R′','U′ B′ R B R′ U R U R′']},
+        FL:{setup:'R U′ R′ U′ R B′ R′ B U y',solutions:['y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','R U′ R′ F U′ F′ U F U F′','y′ U′ B′ R B R′ U R U R′','U′ R′ F R F′ d R U R′','U′ R′ F R F′ U F U F′','y′ U′ B′ R B R′ U R U R′','y′ U′ R′ U′ R U2 R U R′']},
+        BL:{setup:'R U′ R′ U′ R B′ R′ B U y2',solutions:['y2 U′ B′ R B R′ U R U R′','y2 U′ B′ R B R′ U R U R′','y′ U′ R′ F R F′ U F U F′','y2 U′ B′ R B R′ U R U R′']},
+        BR:{setup:'R U′ R′ U′ R B′ R′ B U y′',solutions:['y U′ B′ R B R′ U R U R′','y U′ B′ R B R′ U R U R′']}
+      }
+    },{
+      id:'AF2L -10',
+      name:'AF2L - 10',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F2 U′ F′ U',solutions:['U′ F U F2 U′ F','y′ U′ R U R2 U′ R','y U′ L U L2 U′ L','U′ L F2 L′ F2','U′ r U2 r′ F2']},
+        FL:{setup:'F′ U F2 U′ F′ U y',solutions:['U′ L U L2 U′ L']},
+        BL:{setup:'F′ U F2 U′ F′ U y2',solutions:['y U′ R U R2 U′ R','y U′ R U R2 U′ R','y′ U′ L U L2 U′ L']},
+        BR:{setup:'F′ U F2 U′ F′ U y′',solutions:['U′ R U R2 U′ R','U′ R U R2 U′ R','U′ R U R2 U′ R','y U′ L F2 L′ F2','y U′ r U2 r′ F2']}
+      }
+    },{
+      id:'AF2L -11',
+      name:'AF2L - 11',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U R′ L U L′ U',solutions:['U′ L U′ L′ R U′ R′','U′ L U′ L′ R U′ R′']},
+        FL:{setup:'R U R′ L U L′ U y',solutions:['y′ U′ L U′ L′ R U′ R′']},
+        BL:{setup:'R U R′ L U L′ U y2',solutions:['U′ R U′ R′ L U′ L′','U′ R U′ M′ B′ r′','U′ R U′ R′ U L U2 L′']},
+        BR:{setup:'R U R′ L U L′ U y′',solutions:['y U′ L U′ L′ R U′ R′','y U′ L U′ L′ R U′ R′','y U′ L U′ L′ R U′ R′']}
+      }
+    },{
+      id:'AF2L -12',
+      name:'AF2L - 12',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F U2 B U′ B′ U',solutions:['U′ B U B′ U2 F′ U′ F','U′ B U B′ U2 F′ U′ F','U′ B U B′ U2 F′ U′ F']},
+        FL:{setup:'F′ U F U2 B U′ B′ U y',solutions:['y′ U′ B U B′ U2 F′ U′ F','y′ U′ B U B′ U2 F′ U′ F','U′ R U R′ U2 L′ U′ L','F U′ F′ U2 R U′ R′ L′ U′ L','y′ U′ B U B′ U2 F′ U′ F']},
+        BL:{setup:'F′ U F U2 B U′ B′ U y2',solutions:['y2 U′ B U B′ U2 F′ U′ F','y2 U′ B U B′ U2 F′ U′ F','y2 U′ B U B′ U2 F′ U′ F','y′ U′ R U R2 F R U R′ F′ R']},
+        BR:{setup:'F′ U F U2 B U′ B′ U y′',solutions:['y U′ B U B′ U2 F′ U′ F','U′ L U L′ U2 R′ U′ R','y U′ B U B′ U2 F′ U′ F']}
+      }
+    },{
+      id:'AF2L -13',
+      name:'AF2L - 13',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F L F′ L′ F U′',solutions:['d R′ F R F′ R′ U′ R','d R′ F R F′ R′ U′ R','d R′ F R F′ R′ U′ R']},
+        FL:{setup:'F′ U F L F′ L′ F U′ y',solutions:['y′ d R′ F R F′ R′ U′ R','U r′ U L U′ x L′ U′ L','y′ d R′ F R F′ R′ U′ R']},
+        BL:{setup:'F′ U F L F′ L′ F U′ y2',solutions:['y U R′ F R F′ R′ U′ R','y2 d R′ F R F′ R′ U′ R','y2 d R′ F R F′ R′ U′ R']},
+        BR:{setup:'F′ U F L F′ L′ F U′ y′',solutions:['U R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R']}
       }
     }];
-    let openAdvancedMethodId=null, openAdvancedSlot='FR';
+    let openAdvancedMethodId=null, openAdvancedSlot='FR', activeAdvancedMethodId=null;
+    const viewedAdvancedMethods=new Set((readSetting('rubik-af2l-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
+    function markAdvancedMethodViewed(methodId){
+      if(!methodId||viewedAdvancedMethods.has(methodId)) return;
+      viewedAdvancedMethods.add(methodId);
+      persistSetting('rubik-af2l-viewed', [...viewedAdvancedMethods].map(encodeURIComponent).join('|'));
+    }
     function renderAdvancedMethods(){
       const container=document.querySelector('#advanced-methods');
       if(!container) return;
       container.innerHTML='';
       advancedMethods.forEach(method=>{
         const isOpen=openAdvancedMethodId===method.id;
-        const card=document.createElement('article'); card.className=`advanced-method${isOpen?' is-open':''}`;
+        const isViewed=viewedAdvancedMethods.has(method.id);
+        const card=document.createElement('article'); card.className=`advanced-method${isOpen?' is-open':''}${isViewed?' is-viewed':''}`; card.dataset.methodId=method.id;
         const main=document.createElement('button'); main.type='button'; main.className='advanced-method-main'; main.title='Mở setup và công thức giải';
         const image=document.createElement('img'); image.src=method.preview; image.alt=`Preview ${method.name}`;
         const title=document.createElement('b'); title.textContent=method.name;
         main.append(image,title);
-        main.onclick=()=>{ openAdvancedMethodId=isOpen?null:method.id; openAdvancedSlot='FR'; algPlayback=null; algPlayToken++; activeAlgId=null; renderAdvancedMethods(); };
+        main.onclick=()=>{ activeAdvancedMethodId=method.id; markAdvancedMethodViewed(method.id); openAdvancedMethodId=isOpen?null:method.id; openAdvancedSlot='FR'; algPlayback=null; algPlayToken++; activeAlgId=null; renderAdvancedMethods(); };
         const options=document.createElement('div'); options.className='advanced-method-options';
         const tabs=document.createElement('div'); tabs.className='slot-tabs';
         f2lSlotOrder.forEach(slot=>{

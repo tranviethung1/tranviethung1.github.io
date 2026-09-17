@@ -44,7 +44,19 @@
     "test:f2l-39": "playwright test tests/f2l-39-formulas.spec.mjs",
     "test:f2l-40": "playwright test tests/f2l-40-formulas.spec.mjs",
     "test:f2l-41": "playwright test tests/f2l-41-formulas.spec.mjs",
-    "test:af2l-1": "playwright test tests/af2l-1-formulas.spec.mjs"
+    "test:af2l-1": "playwright test tests/af2l-1-formulas.spec.mjs",
+    "test:af2l-2": "playwright test tests/af2l-2-formulas.spec.mjs",
+    "test:af2l-3": "playwright test tests/af2l-3-formulas.spec.mjs",
+    "test:af2l-4": "playwright test tests/af2l-4-formulas.spec.mjs",
+    "test:af2l-5": "playwright test tests/af2l-5-formulas.spec.mjs",
+    "test:af2l-6": "playwright test tests/af2l-6-formulas.spec.mjs",
+    "test:af2l-7": "playwright test tests/af2l-7-formulas.spec.mjs",
+    "test:af2l-8": "playwright test tests/af2l-8-formulas.spec.mjs",
+    "test:af2l-9": "playwright test tests/af2l-9-formulas.spec.mjs",
+    "test:af2l-10": "playwright test tests/af2l-10-formulas.spec.mjs",
+    "test:af2l-11": "playwright test tests/af2l-11-formulas.spec.mjs",
+    "test:af2l-12": "playwright test tests/af2l-12-formulas.spec.mjs",
+    "test:af2l-13": "playwright test tests/af2l-13-formulas.spec.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0"
