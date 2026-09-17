@@ -32,6 +32,7 @@
     }
     #stage { position:fixed; inset:0; z-index:0; cursor:grab; } #stage:active { cursor:grabbing; }
     canvas { display:block; width:100%; height:100%; outline:none; }
+    #stage canvas { transform:translateY(60px); }
     .grain { pointer-events:none; position:fixed; inset:0; opacity:.18; z-index:1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
     @media (prefers-reduced-motion:reduce) {
       * { scroll-behavior:auto !important; }
@@ -98,7 +99,7 @@
     @media (max-width:720px) {
       header { padding:10px 12px; }
       .brand { font-size:22px; }
-      #stage canvas { transform:scale(.78) translateY(-6%); transform-origin:center top; }
+      #stage canvas { transform:scale(.78) translateY(calc(-6% + 60px)); transform-origin:center top; }
       .practice-controls { top:10px; right:48px; left:auto; gap:5px; max-width:calc(100vw - 140px); flex-wrap:wrap; justify-content:flex-end; }
       .practice-controls button { padding:0 8px; min-height:34px; font-size:8px; letter-spacing:0; background:rgba(244,240,232,.92); }
       .practice-controls button.is-active { color:#fff; }
@@ -127,24 +128,37 @@
         max-height:min(36vh,240px); padding:5px 10px 5px;
         background:var(--cream); border-top:1px solid var(--line);
         box-shadow:0 -12px 32px rgba(16,20,24,.12);
+        transition:transform .2s ease, opacity .2s ease;
       }
       .dock-sheet.is-dock-open { display:block; }
+      #dock-sheet-basic:has(.advanced-method.is-open) {
+        max-height:none; height:auto; padding:0; overflow:hidden;
+      }
       /* Mirror the 4-hướng case strip: AF2L cards scroll horizontally. */
       .advanced-methods { display:flex; flex-direction:row; align-items:stretch; gap:8px; min-width:0; max-height:calc(min(36vh,240px) - 22px); overflow-x:auto; overflow-y:hidden; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; }
       .advanced-methods::-webkit-scrollbar { display:none; width:0; height:0; }
+      #dock-sheet-basic:has(.advanced-method.is-open) .advanced-methods {
+        flex-direction:column; overflow:hidden; max-height:none; gap:0;
+      }
       .advanced-method { flex:0 0 92px; max-height:100%; overflow:hidden; }
-      .advanced-method.is-open { flex:0 0 100%; max-height:none; overflow:visible; }
-      .advanced-method.is-viewed:not(.is-open) { border-color:var(--accent); box-shadow:inset 0 0 0 1px rgba(255,75,43,.45); }
+      #dock-sheet-basic:has(.advanced-method.is-open) .advanced-method:not(.is-open) { display:none; }
+      .advanced-method.is-viewed:not(.is-open):not(.is-active) { border-color:var(--accent); box-shadow:inset 0 0 0 1px rgba(255,75,43,.45); }
       .advanced-method.is-viewed:not(.is-open) b { color:var(--accent); }
       .advanced-method.is-viewed:not(.is-open) b::after { content:' ✓'; font-weight:800; }
+      .advanced-method.is-active:not(.is-open) { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+      .advanced-method.is-active:not(.is-open) b { color:var(--ink); }
       .sheet-drag { display:flex; align-items:center; justify-content:center; width:100%; min-height:20px; margin:-8px 0 0px; padding:7px 0; border:0; background:transparent; touch-action:none; }
       .sheet-drag::before { content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35); }
       .sheet-drag:hover,.sheet-drag:focus-visible { background:transparent; color:inherit; outline:none; }
+      #dock-sheet-basic:has(.advanced-method.is-open) .sheet-drag { margin:0; padding:8px 0 6px; }
       .dock-sheet h2 { margin:0 0 6px; font:700 13px var(--font-display); letter-spacing:.02em; }
       .dock-sheet p { margin:0; font-size:11px; line-height:1.5; opacity:.7; }
       .advanced-method { display:flex; flex-direction:column; gap:6px; padding:7px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
-      /* The advanced sheet has 16px side padding; offset it while open to match 4-hướng's 10px detail inset. */
-      .advanced-method.is-open { margin:0 -6px; padding:0; border-color:transparent; }
+      /* Open AF2L like 4-hướng: full detail panel, not expanded beside the strip. */
+      .advanced-method.is-open {
+        flex:1 1 auto; width:100%; max-width:none; max-height:none; overflow:hidden;
+        margin:0; padding:0 10px; border:0; border-radius:0; box-shadow:none; background:var(--cream);
+      }
       .advanced-method-main { display:flex; flex-direction:column; gap:5px; width:100%; padding:0; border:0; background:transparent; text-align:left; }
       .advanced-method-main:hover,.advanced-method-main:focus-visible { background:transparent; color:var(--ink); transform:none; }
       .advanced-method img { display:block; width:100%; max-width:76px; aspect-ratio:1; margin:auto; object-fit:contain; border:1px solid var(--line); border-radius:8px; }
@@ -1146,7 +1160,23 @@
         return {caseId,slot,solutionIndex,setup:slotData.setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
     }
-    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAdvancedMethod,diagnoseF2LPair};
+    async function diagnoseAdvancedMethod(methodId, slot, solutionIndex, solutionOverride, setupOverride){
+      const method=advancedMethods.find(item=>item.id===methodId); if(!method)throw new Error(`Unknown advanced method: ${methodId}`);
+      const slotData=method.slots[slot]; if(!slotData)throw new Error(`Unknown slot: ${slot}`);
+      const setup=setupOverride??slotData.setup;
+      const solution=solutionOverride||slotData.solutions[solutionIndex-1]; if(!solution)throw new Error(`Unknown solution: ${solutionIndex}`);
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      try{
+        resetToSetupStart();
+        await runMoves(parseMoves(setup),0);
+        const afterSetup=f2lMismatchDetails();
+        await runMoves(parseMoves(solution),0);
+        const afterSolve=f2lMismatchDetails();
+        return {methodId,slot,solutionIndex,setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
+      }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
+    }
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAdvancedMethod,diagnoseF2LPair,diagnoseAdvancedMethod};
     const formulaPanel=document.querySelector('#formula-panel');
     const dockKeyboard=document.querySelector('#dock-keyboard');
     const dockCases=document.querySelector('#dock-cases');
@@ -1197,6 +1227,7 @@
         setDockPanels(next);
         syncMobileDockFromSheets();
         if(next==='cases') scrollActiveCaseIntoView();
+        if(next==='basic') scrollActiveAdvancedIntoView();
       } else {
         closeMovePadInstant();
         setDockPanels(null);
@@ -1446,6 +1477,326 @@
         BL:{setup:'F′ U F L F′ L′ F U′ y2',solutions:['y U R′ F R F′ R′ U′ R','y2 d R′ F R F′ R′ U′ R','y2 d R′ F R F′ R′ U′ R']},
         BR:{setup:'F′ U F L F′ L′ F U′ y′',solutions:['U R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R','y d R′ F R F′ R′ U′ R']}
       }
+    },{
+      id:'AF2L -14',
+      name:'AF2L - 14',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b′ R b U B L′ B′ L U′',solutions:['U L′ B L B′ U′ b′ R′ b','y2 U L′ U R U′ R′ L2 U′ L′ y2','y2 U R′ F R F′ U′ y R′ U′ R y2']},
+        FL:{setup:'b′ R b U B L′ B′ L U′ y',solutions:['y′ U L′ B L B′ U′ b′ R′ b','y U L′ U R U′ R′ L2 U′ L′ y′','y U R′ F R F′ U′ y R′ U′ R y′']},
+        BL:{setup:'b′ R b U B L′ B′ L U′ y2',solutions:['U L′ U R U′ R′ L2 U′ L′','U R′ F R F′ U′ y R′ U′ R','y2 U L′ B L B′ U′ b′ R′ b']},
+        BR:{setup:'b′ R b U B L′ B′ L U′ y′',solutions:['y U L′ B L B′ U′ b′ R′ b','y′ U L′ U R U′ R′ L2 U′ L′ y','y′ U R′ F R F′ U′ y R′ U′ R y']}
+      }
+    },{
+      id:'AF2L -15',
+      name:'AF2L - 15',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F U2 R B′ R′ B U′',solutions:['y U R′ F R2 U′ R′ U2 F′','y U R′ F R F′ U2 L′ U′ L','U B′ R B R′ U2 F′ U′ F']},
+        FL:{setup:'F′ U F U2 R B′ R′ B U′ y',solutions:['U R′ F R2 U′ R′ U2 F′','U R′ F R F′ U2 L′ U′ L','y′ U B′ R B R′ U2 F′ U′ F']},
+        BL:{setup:'F′ U F U2 R B′ R′ B U′ y2',solutions:['y2 U B′ R B R′ U2 F′ U′ F','y′ U R′ F R2 U′ R′ U2 F′ y2','y′ U R′ F R F′ U2 L′ U′ L y2']},
+        BR:{setup:'F′ U F U2 R B′ R′ B U′ y′',solutions:['y U B′ R B R′ U2 F′ U′ F','y2 U R′ F R2 U′ R′ U2 F′ y′','y2 U R′ F R F′ U2 L′ U′ L y′']}
+      }
+    },{
+      id:'AF2L -16',
+      name:'AF2L - 16',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'L′ F′ U F L U',solutions:['y′ U′ F′ R′ U′ R F','U′ R′ D′ F′ D R','U′ R′ u′ R′ u R','U′ L′ F′ U′ F L','U′ r′ D′ F′ D r']},
+        FL:{setup:'L′ F′ U F L U y',solutions:['U′ F′ D′ L′ D F','d′ L′ u′ L′ u L','y′ U′ L′ F′ U′ F L']},
+        BL:{setup:'L′ F′ U F L U y2',solutions:['y U′ F′ R′ U′ R F','U′ L′ u′ L′ u L','y′ U′ F′ D′ L′ D F']},
+        BR:{setup:'L′ F′ U F L U y′',solutions:['d′ R′ D′ F′ D R','U′ F′ R′ U′ R F','d′ R′ u′ R′ u R','R U R′ U′ S R′ S′']}
+      }
+    },{
+      id:'AF2L -17',
+      name:'AF2L - 17',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b′ R b U L U′ L′ U',solutions:['U′ L U L′ U′ F′ U′ F','U′ L U L′ y U′ L′ U′ L','U′ L U L′ y′ U′ R′ U′ R','U′ L U L′ U′ b′ R′ b']},
+        FL:{setup:'b′ R b U L U′ L′ U y',solutions:['U′ f R f′ U′ L′ U′ L','y′ U′ L U L′ U′ b′ R′ b','y′ U′ L U L′ U′ F′ U′ F y']},
+        BL:{setup:'b′ R b U L U′ L′ U y2',solutions:['U′ R U R′ y′ U′ L′ U′ L','U′ R U R′ U′ f′ L′ f','U′ R U R′ d′ R′ U′ R','U′ R U R′ U′ y2 F′ U′ F','U′ R U R′ U′ B′ U′ B','U′ R U R′ y U′ R′ U′ R','y2 U′ L U L′ U′ b′ R′ b']},
+        BR:{setup:'b′ R b U L U′ L′ U y′',solutions:['U′ F U F′ U′ R′ U′ R','y U′ L U L′ U′ b′ R′ b','y U′ L U L′ U′ F′ U′ F y′']}
+      }
+    },{
+      id:'AF2L -18',
+      name:'AF2L - 18',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F U R′ U R U',solutions:['U′ R′ U′ R d′ L′ U′ L','U′ R′ U′ R U′ F′ U′ F','U′ R′ U′ R y′ U′ R′ U′ R']},
+        FL:{setup:'F′ U F U R′ U R U y',solutions:['U′ F′ U′ F U′ L′ U′ L','y′ U′ R′ U′ R U′ F′ U′ F','y′ U′ R′ U′ R d′ L′ U′ L y']},
+        BL:{setup:'F′ U F U R′ U R U y2',solutions:['U′ L′ U′ L y′ U′ L′ U′ L','U′ L′ U′ L d′ R′ U′ R','F U R U′ R′ U′ R U′ R′ L U2 L′ F′','y2 U′ R′ U′ R U′ F′ U′ F']},
+        BR:{setup:'F′ U F U R′ U R U y′',solutions:['y U′ R′ U′ R U′ F′ U′ F','y U′ R′ U′ R d′ L′ U′ L y′','y U′ R′ U′ R y′ U′ R′ U′ R y′']}
+      }
+    },{
+      id:'AF2L -19',
+      name:'AF2L - 19',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'l F′ l′ U′ F U′ F′ U′',solutions:['U F U F′ U l F l′','y U L U L′ d R U R′ y′','y U L U L′ U F U F′ y′']},
+        FL:{setup:'l F′ l′ U′ F U′ F′ U′ y',solutions:['U L U L′ d R U R′','U L U L′ U F U F′','y′ U F U F′ U l F l′']},
+        BL:{setup:'l F′ l′ U′ F U′ F′ U′ y2',solutions:['y2 U F U F′ U l F l′','y′ U L U L′ d R U R′ y','y′ U L U L′ U F U F′ y']},
+        BR:{setup:'l F′ l′ U′ F U′ F′ U′ y′',solutions:['U R U R′ U y R U R′','U R U R′ U f R f′','U R U R′ d L U L′','y U F U F′ U l F l′']}
+      }
+    },{
+      id:'AF2L -20',
+      name:'AF2L - 20',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ L U′ L′ U′',solutions:['U L U L′ R U R′','y2 U R U R′ L U L′ y2','y2 U R U M′ B r′ y2']},
+        FL:{setup:'R U′ R′ L U′ L′ U′ y',solutions:['y′ U L U L′ R U R′','y U R U R′ L U L′ y′','y U R U M′ B r′ y′']},
+        BL:{setup:'R U′ R′ L U′ L′ U′ y2',solutions:['U R U R′ L U L′','U R U M′ B r′','y2 U L U L′ R U R′']},
+        BR:{setup:'R U′ R′ L U′ L′ U′ y′',solutions:['y U L U L′ R U R′','y′ U R U R′ L U L′ y','y′ U R U M′ B r′ y']}
+      }
+    },{
+      id:'AF2L -21',
+      name:'AF2L - 21',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'B R U′ R′ B′ U′',solutions:['U F D R D′ F′','d R u R u′ R′','U B R U R′ B′']},
+        FL:{setup:'B R U′ R′ B′ U′ y',solutions:['U R F U F′ R′','U L u L u′ L′','U L D F D′ L′','y′ U B R U R′ B′']},
+        BL:{setup:'B R U′ R′ B′ U′ y2',solutions:['U F L U L′ F′','d L u L u′ L′','y2 U B R U R′ B′']},
+        BR:{setup:'B R U′ R′ B′ U′ y′',solutions:['U R u R u′ R′','y U B R U R′ B′','y U F D R D′ F′ y′']}
+      }
+    },{
+      id:'AF2L -22',
+      name:'AF2L - 22',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U′ F2 U F′',solutions:['F U′ F2 U F','y L U′ L2 U L y′']},
+        FL:{setup:'F′ U′ F2 U F′ y',solutions:['L U′ L2 U L','y′ F U′ F2 U F','y′ F U′ F2 U F y']},
+        BL:{setup:'F′ U′ F2 U F′ y2',solutions:['y2 F U′ F2 U F','y′ L U′ L2 U L y','y2 F U′ F2 U F y2']},
+        BR:{setup:'F′ U′ F2 U F′ y′',solutions:['R U′ R2 U R','y F U′ F2 U F','y F U′ F2 U F y′']}
+      }
+    },{
+      id:'AF2L -23',
+      name:'AF2L - 23',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R B′ U′ B R′',solutions:['R B′ U B R′','y F R′ U R F′ y′','y R′ U R y′ U R U′ R′ y′']},
+        FL:{setup:'R B′ U′ B R′ y',solutions:['F R′ U R F′','R′ U R y′ U R U′ R′','R′ U R y U L U′ L′','y′ R B′ U B R′']},
+        BL:{setup:'R B′ U′ B R′ y2',solutions:['L F′ U F L′','y′ F R′ U R F′','R U′ R′ F′ U F U2 B′ U B','r U′ B U r′','y2 R B′ U B R′']},
+        BR:{setup:'R B′ U′ B R′ y′',solutions:['r′ F U′ R U M′','L′ U L y′ U L U′ L′','L′ U L y U R U′ R′','y R B′ U B R′']}
+      }
+    },{
+      id:'AF2L -24',
+      name:'AF2L - 24',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ B U2 B′ F',solutions:['F′ B U2 B′ F','y M F2 M′ y′','y L′ R U2 R′ L y′']},
+        FL:{setup:'F′ B U2 B′ F y',solutions:['M F2 M′','L′ R U2 R′ L','y′ S R2 S′','y′ F′ B U2 B′ F']},
+        BL:{setup:'F′ B U2 B′ F y2',solutions:['y2 F′ B U2 B′ F','y′ M F2 M′ y','y2 F′ B U2 B′ F y2']},
+        BR:{setup:'F′ B U2 B′ F y′',solutions:['R′ L U2 L′ R','y F′ B U2 B′ F','y F′ B U2 B′ F y′']}
+      }
+    },{
+      id:'AF2L -25',
+      name:'AF2L - 25',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'l F′ l′ U F U F′',solutions:['R′ F R2 U′ R2 F′ R','F R U′ R2 F′ R','F U′ F′ U′ l F l′']},
+        FL:{setup:'l F′ l′ U F U F′ y',solutions:['L U′ L′ d′ L U L′','L U′ L′ U′ F U F′','y′ F U′ F′ U′ l F l′']},
+        BL:{setup:'l F′ l′ U F U F′ y2',solutions:['y R U′ R′ U′ f R f′','y2 F U′ F′ U′ l F l′','y2 R′ F R2 U′ R2 F′ R y2']},
+        BR:{setup:'l F′ l′ U F U F′ y′',solutions:['R U′ R′ U′ f R f′','y F U′ F′ U′ l F l′','y R′ F R2 U′ R2 F′ R y′']}
+      }
+    },{
+      id:'AF2L -26',
+      name:'AF2L - 26',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'L R U2 R′ L′',solutions:['R L U2 L′ R′','L R U2 R′ L′','y R′ L′ U2 L R y′']},
+        FL:{setup:'L R U2 R′ L′ y',solutions:['R′ L′ U2 L R','y′ L R U2 R′ L′','y′ R L U2 L′ R′ y']},
+        BL:{setup:'L R U2 R′ L′ y2',solutions:['L R U2 R′ L′','y L′ R′ U2 R L','y2 R L U2 L′ R′ y2']},
+        BR:{setup:'L R U2 R′ L′ y′',solutions:['L′ R′ U2 R L','y L R U2 R′ L′','y R L U2 L′ R′ y′']}
+      }
+    },{
+      id:'AF2L -27',
+      name:'AF2L - 27',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b U′ b′ R B U′ B′',solutions:['B U B′ R′ b U b′','y R U R′ F′ r U r′ y′','y R U R′ F′ L F L′ y′']},
+        FL:{setup:'b U′ b′ R B U′ B′ y',solutions:['R U R′ F′ r U r′','R U R′ F′ L F L′','R U R′ y′ U R U′ R′','y′ B U B′ R′ b U b′']},
+        BL:{setup:'b U′ b′ R B U′ B′ y2',solutions:['y2 B U B′ R′ b U b′','y′ R U R′ F′ r U r′ y','y′ R U R′ F′ L F L′ y']},
+        BR:{setup:'b U′ b′ R B U′ B′ y′',solutions:['L U L′ U y R U′ R′','L U L′ B′ R B R′','y B U B′ R′ b U b′']}
+      }
+    },{
+      id:'AF2L -28',
+      name:'AF2L - 28',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′',solutions:['D F′ U′ F U D′ F U F2 U′ F']},
+        FL:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′ y',solutions:['y′ D F′ U′ F U D′ F U F2 U′ F','y′ D F′ U′ F U D′ F U F2 U′ F y']},
+        BL:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′ y2',solutions:['y2 D F′ U′ F U D′ F U F2 U′ F']},
+        BR:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′ y′',solutions:['y D F′ U′ F U D′ F U F2 U′ F','y D F′ U′ F U D′ F U F2 U′ F y′']}
+      }
+    },{
+      id:'AF2L -29',
+      name:'AF2L - 29',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b′ R b U L U L′ U L U L′',solutions:['L U′ L′ U′ L U′ L′ d′ L′ U′ L','L U′ L′ U′ L U′ L′ U′ b′ R′ b','y2 R U′ R′ U′ R U′ R′ d′ R′ U′ R y2']},
+        FL:{setup:'b′ R b U L U L′ U L U L′ y',solutions:['y′ L U′ L′ U′ L U′ L′ U′ b′ R′ b','y′ L U′ L′ U′ L U′ L′ d′ L′ U′ L y']},
+        BL:{setup:'b′ R b U L U L′ U L U L′ y2',solutions:['R U′ R′ U′ R U′ R′ d′ R′ U′ R','R U′ R′ U′ R U′ R′ U′ f′ L′ f','y2 L U′ L′ U′ L U′ L′ U′ b′ R′ b']},
+        BR:{setup:'b′ R b U L U L′ U L U L′ y′',solutions:['y L U′ L′ U′ L U′ L′ U′ b′ R′ b','y L U′ L′ U′ L U′ L′ d′ L′ U′ L y′']}
+      }
+    },{
+      id:'AF2L -30',
+      name:'AF2L - 30',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F U2 B U B′ U B U B′',solutions:['B U′ B′ U′ B U′ B′ U2 F′ U′ F','y R U′ R′ U′ R U′ R′ U2 L′ U′ L y′','y M F M′ U L′ U L U′ L′ U L y′']},
+        FL:{setup:'F′ U F U2 B U B′ U B U B′ y',solutions:['R U′ R′ U′ R U′ R′ U2 L′ U′ L','M F M′ U L′ U L U′ L′ U L','y′ B U′ B′ U′ B U′ B′ U2 F′ U′ F']},
+        BL:{setup:'F′ U F U2 B U B′ U B U B′ y2',solutions:['y2 B U′ B′ U′ B U′ B′ U2 F′ U′ F','y′ R U′ R′ U′ R U′ R′ U2 L′ U′ L y','y′ M F M′ U L′ U L U′ L′ U L y']},
+        BR:{setup:'F′ U F U2 B U B′ U B U B′ y′',solutions:['y B U′ B′ U′ B U′ B′ U2 F′ U′ F']}
+      }
+    },{
+      id:'AF2L -31',
+      name:'AF2L - 31',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U′ F U F′ U F U′ F U F′',solutions:['R′ F R U′ R′ F′ R2 U R′ U R U R′','F U′ F′ U F′ U′ F U′ F′ U F','y L U′ L′ U L′ U′ L U′ L′ U L y′']},
+        FL:{setup:'F′ U′ F U F′ U F U′ F U F′ y',solutions:['L U′ L′ U L′ U′ L U′ L′ U L','y′ F U′ F′ U F′ U′ F U′ F′ U F','y′ R′ F R U′ R′ F′ R2 U R′ U R U R′ y']},
+        BL:{setup:'F′ U′ F U F′ U F U′ F U F′ y2',solutions:['y2 F U′ F′ U F′ U′ F U′ F′ U F','y2 R′ F R U′ R′ F′ R2 U R′ U R U R′ y2','y2 F U′ F′ U F′ U′ F U′ F′ U F y2']},
+        BR:{setup:'F′ U′ F U F′ U F U′ F U F′ y′',solutions:['R U R′ U′ R U′ R′ U R′ U′ R','R U′ R′ U R′ U′ R U′ R′ U R','y F U′ F′ U F′ U′ F U′ F′ U F']}
+      }
+    },{
+      id:'AF2L -32',
+      name:'AF2L - 32',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b′ R b U2 R U R′ U′ L U′ L′',solutions:['L U L′ U R U′ R′ U2 b′ R′ b','y2 R U R′ F R U R′ U′ F′ L U2 L′ y2','y2 F′ L′ U2 L2 U L′ U L U L′ F y2']},
+        FL:{setup:'b′ R b U2 R U R′ U′ L U′ L′ y',solutions:['y′ L U L′ U R U′ R′ U2 b′ R′ b','y′ L U L′ U R U′ R′ U2 b′ R′ b y']},
+        BL:{setup:'b′ R b U2 R U R′ U′ L U′ L′ y2',solutions:['R U R′ F R U R′ U′ F′ L U2 L′','F′ L′ U2 L2 U L′ U L U L′ F','y2 L U L′ U R U′ R′ U2 b′ R′ b']},
+        BR:{setup:'b′ R b U2 R U R′ U′ L U′ L′ y′',solutions:['y L U L′ U R U′ R′ U2 b′ R′ b','y L U L′ U R U′ R′ U2 b′ R′ b y′']}
+      }
+    },{
+      id:'AF2L -33',
+      name:'AF2L - 33',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F U B U B′ U B U′ B′',solutions:['B U B′ U′ B U′ B′ U′ F′ U′ F','y R U′ R′ U′ L′ U′ L U′ L′ U L y′','y R U R′ U′ R U′ R′ U′ L′ U′ L y′']},
+        FL:{setup:'F′ U F U B U B′ U B U′ B′ y',solutions:['R U′ R′ U′ L′ U′ L U′ L′ U L','R U R′ U′ R U′ R′ U′ L′ U′ L','y′ B U B′ U′ B U′ B′ U′ F′ U′ F']},
+        BL:{setup:'F′ U F U B U B′ U B U′ B′ y2',solutions:['y2 B U B′ U′ B U′ B′ U′ F′ U′ F','y2 B U B′ U′ B U′ B′ U′ F′ U′ F y2']},
+        BR:{setup:'F′ U F U B U B′ U B U′ B′ y′',solutions:['L U′ L′ U′ R′ U′ R U′ R′ U R','y B U B′ U′ B U′ B′ U′ F′ U′ F','y B U B′ U′ B U′ B′ U′ F′ U′ F y′']}
+      }
+    },{
+      id:'AF2L -34',
+      name:'AF2L - 34',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'L′ F′ U F U F′ U′ F L',solutions:['L′ F′ U F U′ F′ U′ F L','y′ F′ R′ U R U′ R′ U′ R F y','y′ R U R′ U′ R U2 R′ U2 y R U R′ y']},
+        FL:{setup:'L′ F′ U F U F′ U′ F L y',solutions:['y′ L′ F′ U F U′ F′ U′ F L','y′ L′ F′ U F U′ F′ U′ F L y']},
+        BL:{setup:'L′ F′ U F U F′ U′ F L y2',solutions:['y2 L′ F′ U F U′ F′ U′ F L','y2 L′ F′ U F U′ F′ U′ F L y2']},
+        BR:{setup:'L′ F′ U F U F′ U′ F L y′',solutions:['F′ R′ U R U′ R′ U′ R F','R U R′ U′ R U2 R′ U2 y R U R′','R U R′ U′ R U2 R′ U2 f R f′','y L′ F′ U F U′ F′ U′ F L']}
+      }
+    },{
+      id:'AF2L -35',
+      name:'AF2L - 35',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U R U2 R′ L U2 L′',solutions:['L U2 L′ R U2 R′ U′ R U R′','y2 R U2 R′ L U2 L′ U′ L U L′ y2','y′ y L U2 L′ R U2 R′ U′ R U R′ y']},
+        FL:{setup:'R U′ R′ U R U2 R′ L U2 L′ y',solutions:['y R U2 R′ L U2 L′ U′ L U L′','y′ L U2 L′ R U2 R′ U′ R U R′','y′ L U2 L′ R U2 R′ U′ R U R′ y']},
+        BL:{setup:'R U′ R′ U R U2 R′ L U2 L′ y2',solutions:['R U2 R′ L U2 L′ U′ L U L′','y2 L U2 L′ R U2 R′ U′ R U R′','y2 L U2 L′ R U2 R′ U′ R U R′ y2']},
+        BR:{setup:'R U′ R′ U R U2 R′ L U2 L′ y′',solutions:['y L U2 L′ R U2 R′ U′ R U R′','y L U2 L′ R U2 R′ U′ R U R′ y′']}
+      }
+    },{
+      id:'AF2L -36',
+      name:'AF2L - 36',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U R U2 R′ B U′ B′',solutions:['B U B′ R U2 R′ U′ R U R′','y R U R′ F U2 F′ U′ F U F′ y′','y R U R′ L F′ L′ F L′ U L U′ L′ U L y′']},
+        FL:{setup:'R U′ R′ U R U2 R′ B U′ B′ y',solutions:['R U R′ F U2 F′ U′ F U F′','R U R′ L F′ L′ F L′ U L U′ L′ U L','y′ B U B′ R U2 R′ U′ R U R′']},
+        BL:{setup:'R U′ R′ U R U2 R′ B U′ B′ y2',solutions:['y2 B U B′ R U2 R′ U′ R U R′','y2 B U B′ R U2 R′ U′ R U R′ y2']},
+        BR:{setup:'R U′ R′ U R U2 R′ B U′ B′ y′',solutions:['L U L′ y′ L U2 L′ U′ L U L′','y B U B′ R U2 R′ U′ R U R′','y B U B′ R U2 R′ U′ R U R′ y′']}
+      }
+    },{
+      id:'AF2L -37',
+      name:'AF2L - 37',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'l F′ l′ F U F′ U2 F U′ F′',solutions:['F U F′ U2 F U′ F′ l F l′','y′ R U R′ U2 R U′ R′ f R f′ y','y′ y F U F′ U2 F U′ F′ l F l′ y']},
+        FL:{setup:'l F′ l′ F U F′ U2 F U′ F′ y',solutions:['y′ F U F′ U2 F U′ F′ l F l′','y′ F U F′ U2 F U′ F′ l F l′ y']},
+        BL:{setup:'l F′ l′ F U F′ U2 F U′ F′ y2',solutions:['y2 F U F′ U2 F U′ F′ l F l′','y2 F U F′ U2 F U′ F′ l F l′ y2']},
+        BR:{setup:'l F′ l′ F U F′ U2 F U′ F′ y′',solutions:['R U R′ U2 R U′ R′ f R f′','y F U F′ U2 F U′ F′ l F l′','y F U F′ U2 F U′ F′ l F l′ y′']}
+      }
+    },{
+      id:'AF2L -38',
+      name:'AF2L - 38',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U′ R U R′ L U′ L′',solutions:['L U L′ R U′ R′ U R U R′','y2 R U R′ L U′ L′ U L U L′ y2','y′ y L U L′ R U′ R′ U R U R′ y']},
+        FL:{setup:'R U′ R′ U′ R U R′ L U′ L′ y',solutions:['y′ L U L′ R U′ R′ U R U R′','y′ L U L′ R U′ R′ U R U R′ y']},
+        BL:{setup:'R U′ R′ U′ R U R′ L U′ L′ y2',solutions:['R U R′ L U′ L′ U L U L′','y2 L U L′ R U′ R′ U R U R′','y2 L U L′ R U′ R′ U R U R′ y2']},
+        BR:{setup:'R U′ R′ U′ R U R′ L U′ L′ y′',solutions:['y L U L′ R U′ R′ U R U R′','y L U L′ R U′ R′ U R U R′ y′']}
+      }
+    },{
+      id:'AF2L -39',
+      name:'AF2L - 39',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U′ R U R′ U B U′ B′',solutions:['B U B′ U′ R U′ R′ U R U R′','y R U R′ d′ L U′ L′ U L U L′ y′','y R U R′ U′ y′ R U′ R′ U R U R′ y′']},
+        FL:{setup:'R U′ R′ U′ R U R′ U B U′ B′ y',solutions:['R U R′ d′ L U′ L′ U L U L′','R U R′ U′ y′ R U′ R′ U R U R′','R U R′ L′ U L U′ L F′ L′ F L′ U L','R U R′ y U′ L U′ L′ U L U L′','R U R′ F U′ R U R′ U F′ U′ L′ U L','y′ B U B′ U′ R U′ R′ U R U R′']},
+        BL:{setup:'R U′ R′ U′ R U R′ U B U′ B′ y2',solutions:['y2 B U B′ U′ R U′ R′ U R U R′','y2 B U B′ U′ R U′ R′ U R U R′ y2']},
+        BR:{setup:'R U′ R′ U′ R U R′ U B U′ B′ y′',solutions:['L U L′ y′ U′ L U′ L′ U L U L′','y B U B′ U′ R U′ R′ U R U R′','y B U B′ U′ R U′ R′ U R U R′ y′']}
+      }
+    },{
+      id:'AF2L -40',
+      name:'AF2L - 40',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F′ U F2 U2 F′ U′ F U2 F′',solutions:['F U2 F′ U F U2 F2 U′ F','y′ R U R2 U2 R U2 R′ U2 R U2 R′ U′ R y','y′ R U R′ F U R′ F R F′ R′ U′ R F′ y']},
+        FL:{setup:'F′ U F2 U2 F′ U′ F U2 F′ y',solutions:['y′ F U2 F′ U F U2 F2 U′ F','y′ F U2 F′ U F U2 F2 U′ F y']},
+        BL:{setup:'F′ U F2 U2 F′ U′ F U2 F′ y2',solutions:['y2 F U2 F′ U F U2 F2 U′ F','y2 F U2 F′ U F U2 F2 U′ F y2']},
+        BR:{setup:'F′ U F2 U2 F′ U′ F U2 F′ y′',solutions:['R U R2 U2 R U2 R′ U2 R U2 R′ U′ R','R U R′ F U R′ F R F′ R′ U′ R F′','y F U2 F′ U F U2 F2 U′ F']}
+      }
+    },{
+      id:'AF2L -41',
+      name:'AF2L - 41',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'b′ R b U L U2 L′ U′ L U2 L′',solutions:['L U L′ R U2 R′ y′ U R′ U′ R','L U L′ R U2 R′ U F′ U′ F','L U2 L′ U L U2 L′ U′ b′ R′ b']},
+        FL:{setup:'b′ R b U L U2 L′ U′ L U2 L′ y',solutions:['y′ L U2 L′ U L U2 L′ U′ b′ R′ b','y′ L U L′ R U2 R′ y′ U R′ U′ R y','y′ L U L′ R U2 R′ U F′ U′ F y']},
+        BL:{setup:'b′ R b U L U2 L′ U′ L U2 L′ y2',solutions:['R U2 R′ U R U2 R′ d′ R′ U′ R','R U2 R′ U R U2 R′ U′ y R′ U′ R','R U R′ L U2 L′ U f′ L′ f','R U R′ F U R U′ R′ U R U′ R′ F′ U L U L′','y2 L U2 L′ U L U2 L′ U′ b′ R′ b']},
+        BR:{setup:'b′ R b U L U2 L′ U′ L U2 L′ y′',solutions:['y L U2 L′ U L U2 L′ U′ b′ R′ b','y L U L′ R U2 R′ y′ U R′ U′ R y′','y L U L′ R U2 R′ U F′ U′ F y′']}
+      }
+    },{
+      id:'AF2L -42',
+      name:'AF2L - 42',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'F U F2 U F2 U2 F′ U B U2 B′',solutions:['B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y R U2 R′ U2 F U2 F′ U L′ U′ L y′','y′ y B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y']},
+        FL:{setup:'F U F2 U F2 U2 F′ U B U2 B′ y',solutions:['R U2 R′ U2 F U2 F′ U L′ U′ L','y′ B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y′ B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y']},
+        BL:{setup:'F U F2 U F2 U2 F′ U B U2 B′ y2',solutions:['y2 B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y2 B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y2']},
+        BR:{setup:'F U F2 U F2 U2 F′ U B U2 B′ y′',solutions:['y B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y′']}
+      }
+    },{
+      id:'AF2L -43',
+      name:'AF2L - 43',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R2 U R U′',solutions:['U R′ U′ R2 U R′','y U F′ U′ F2 U F′ y′','y U R′ F2 R F2 y′']},
+        FL:{setup:'R U′ R2 U R U′ y',solutions:['U F′ U′ F2 U F′','U F′ U′ F2 U F′','U F′ U′ F2 U F′','U R′ F2 R F2','U R′ F2 R F2','y′ U R′ U′ R2 U R′']},
+        BL:{setup:'R U′ R2 U R U′ y2',solutions:['U L′ U′ L2 U L′','U F′ L2 F L2','U F′ L2 F L2','y2 U R′ U′ R2 U R′']},
+        BR:{setup:'R U′ R2 U R U′ y′',solutions:['U B′ U′ B2 U B′','U B′ U′ B2 U B′','y U R′ U′ R2 U R′']}
+      }
+    },{
+      id:'AF2L -44',
+      name:'AF2L - 44',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U′ B′ U B U′',solutions:['U B′ U′ B U R U R′','y U R′ U′ R U F U F′ y′','y2 U F′ U′ F U L U L′ y2']},
+        FL:{setup:'R U′ R′ U′ B′ U B U′ y',solutions:['U R′ U′ R U F U F′','U R′ U′ R U F U F′','U R′ U′ R U F U F′','y′ U B′ U′ B U R U R′']},
+        BL:{setup:'R U′ R′ U′ B′ U B U′ y2',solutions:['U F′ U′ F U L U L′','y2 U B′ U′ B U R U R′','y2 U B′ U′ B U R U R′ y2']},
+        BR:{setup:'R U′ R′ U′ B′ U B U′ y′',solutions:['U L′ U′ L U B U B′','U L′ U′ L U B U B′','U L′ U′ L U B U B′','U L′ U′ L U B U B′','U L′ U′ L U B U B′','U L′ U′ L U B U B′']}
+      }
+    },{
+      id:'AF2L -45',
+      name:'AF2L - 45',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'R U′ R′ U2 L′ U L U′',solutions:['U L′ U′ L U2 R U R′','F′ U F U2 L′ U L R U R′','y2 U R′ U′ R U2 L U L′ y2']},
+        FL:{setup:'R U′ R′ U2 L′ U L U′ y',solutions:['y′ U L′ U′ L U2 R U R′','y′ U L′ U′ L U2 R U R′ y','y′ F′ U F U2 L′ U L R U R′ y']},
+        BL:{setup:'R U′ R′ U2 L′ U L U′ y2',solutions:['U R′ U′ R U2 L U L′','y2 U L′ U′ L U2 R U R′','y2 U L′ U′ L U2 R U R′ y2']},
+        BR:{setup:'R U′ R′ U2 L′ U L U′ y′',solutions:['U F′ U′ F2 R′ F′ U′ F R F′','y U L′ U′ L U2 R U R′','y U L′ U′ L U2 R U R′ y′']}
+      }
     }];
     let openAdvancedMethodId=null, openAdvancedSlot='FR', activeAdvancedMethodId=null;
     const viewedAdvancedMethods=new Set((readSetting('rubik-af2l-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
@@ -1454,6 +1805,31 @@
       viewedAdvancedMethods.add(methodId);
       persistSetting('rubik-af2l-viewed', [...viewedAdvancedMethods].map(encodeURIComponent).join('|'));
     }
+    function scrollActiveAdvancedIntoView(){
+      if(!activeAdvancedMethodId||openAdvancedMethodId) return;
+      const container=document.querySelector('#advanced-methods');
+      const card=container?.querySelector(`.advanced-method[data-method-id="${CSS.escape(activeAdvancedMethodId)}"]`);
+      if(!container||!card) return;
+      requestAnimationFrame(()=>{
+        const left=card.offsetLeft-(container.clientWidth-card.offsetWidth)/2;
+        container.scrollTo({left:Math.max(0,left), behavior:'smooth'});
+      });
+    }
+    function closeOpenAdvancedMethod(){
+      if(openAdvancedMethodId) activeAdvancedMethodId=openAdvancedMethodId;
+      openAdvancedMethodId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      renderAdvancedMethods();
+      scrollActiveAdvancedIntoView();
+    }
+    function closeAdvancedDockPanel(){
+      const sheet=dockSheetBasic;
+      sheet.style.transform=''; sheet.style.opacity='';
+      if(openAdvancedMethodId) activeAdvancedMethodId=openAdvancedMethodId;
+      openAdvancedMethodId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      renderAdvancedMethods();
+      setDockPanels(null);
+      syncMobileDockFromSheets();
+    }
     function renderAdvancedMethods(){
       const container=document.querySelector('#advanced-methods');
       if(!container) return;
@@ -1461,12 +1837,25 @@
       advancedMethods.forEach(method=>{
         const isOpen=openAdvancedMethodId===method.id;
         const isViewed=viewedAdvancedMethods.has(method.id);
-        const card=document.createElement('article'); card.className=`advanced-method${isOpen?' is-open':''}${isViewed?' is-viewed':''}`; card.dataset.methodId=method.id;
+        const isActive=activeAdvancedMethodId===method.id&&!isOpen;
+        const card=document.createElement('article');
+        card.className=`advanced-method${isOpen?' is-open':''}${isViewed?' is-viewed':''}${isActive?' is-active':''}`;
+        card.dataset.methodId=method.id;
+        if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button'); main.type='button'; main.className='advanced-method-main'; main.title='Mở setup và công thức giải';
         const image=document.createElement('img'); image.src=method.preview; image.alt=`Preview ${method.name}`;
         const title=document.createElement('b'); title.textContent=method.name;
         main.append(image,title);
-        main.onclick=()=>{ activeAdvancedMethodId=method.id; markAdvancedMethodViewed(method.id); openAdvancedMethodId=isOpen?null:method.id; openAdvancedSlot='FR'; algPlayback=null; algPlayToken++; activeAlgId=null; renderAdvancedMethods(); };
+        main.onclick=()=>{
+          const opening=!isOpen;
+          activeAdvancedMethodId=method.id;
+          markAdvancedMethodViewed(method.id);
+          openAdvancedMethodId=opening?method.id:null;
+          if(opening) openAdvancedSlot='FR';
+          algPlayback=null; algPlayToken++; activeAlgId=null;
+          renderAdvancedMethods();
+          if(!opening) scrollActiveAdvancedIntoView();
+        };
         const options=document.createElement('div'); options.className='advanced-method-options';
         const tabs=document.createElement('div'); tabs.className='slot-tabs';
         f2lSlotOrder.forEach(slot=>{
@@ -1583,14 +1972,22 @@
         dragging=false;
         if(dy>72){
           sheet.style.transform=`translateY(${Math.max(dy,180)}px)`; sheet.style.opacity='0';
-          setTimeout(()=>{clear(); openAdvancedMethodId=null; renderAdvancedMethods(); setDockPanels(null); syncMobileDockFromSheets();},180);
+          setTimeout(()=>{
+            clear();
+            if(openAdvancedMethodId) closeOpenAdvancedMethod();
+            else closeAdvancedDockPanel();
+          },180);
         } else clear();
         dy=0;
       };
       handle.addEventListener('touchstart',start,{passive:true});
       handle.addEventListener('touchmove',move,{passive:false});
       handle.addEventListener('touchend',end); handle.addEventListener('touchcancel',end);
-      handle.addEventListener('click',event=>{if(moved){event.preventDefault(); moved=false; return;} openAdvancedMethodId=null; renderAdvancedMethods(); setDockPanels(null); syncMobileDockFromSheets();});
+      handle.addEventListener('click',event=>{
+        if(moved){event.preventDefault(); moved=false; return;}
+        if(openAdvancedMethodId) closeOpenAdvancedMethod();
+        else closeAdvancedDockPanel();
+      });
     }
     enableAdvancedSheetSwipeDismiss();
     // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
