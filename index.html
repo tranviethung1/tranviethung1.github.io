@@ -124,23 +124,41 @@
       .dock-sheet {
         display:none; position:fixed; z-index:5; left:0; right:0;
         bottom:calc(44px + env(safe-area-inset-bottom,0px));
-        max-height:min(36vh,240px); padding:14px 16px;
+        max-height:min(36vh,240px); padding:5px 10px 5px;
         background:var(--cream); border-top:1px solid var(--line);
         box-shadow:0 -12px 32px rgba(16,20,24,.12);
       }
       .dock-sheet.is-dock-open { display:block; }
+      .sheet-drag { display:flex; align-items:center; justify-content:center; width:100%; min-height:20px; margin:-8px 0 0px; padding:7px 0; border:0; background:transparent; touch-action:none; }
+      .sheet-drag::before { content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35); }
+      .sheet-drag:hover,.sheet-drag:focus-visible { background:transparent; color:inherit; outline:none; }
       .dock-sheet h2 { margin:0 0 6px; font:700 13px var(--font-display); letter-spacing:.02em; }
       .dock-sheet p { margin:0; font-size:11px; line-height:1.5; opacity:.7; }
-      .advanced-sheet { max-height:min(58vh,460px); padding:12px; overflow:hidden; }
-      .advanced-toolbar { display:flex; gap:6px; align-items:center; margin-bottom:9px; }
-      .advanced-toolbar select { flex:1; min-width:0; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--cream); color:var(--ink); font:700 12px var(--font-mono); }
-      .advanced-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:8px; }
-      .advanced-tabs button { min-height:32px; padding:5px; font-size:11px; }
-      .advanced-tabs button.is-active { background:var(--ink); color:#fff; }
-      .advanced-setup { padding:8px; margin-bottom:8px; border:1px solid var(--line); border-radius:8px; font:700 11px var(--font-mono); overflow-wrap:anywhere; }
-      .advanced-algorithms { max-height:calc(min(58vh,460px) - 162px); overflow:auto; display:grid; gap:5px; padding-right:2px; }
-      .advanced-algorithms button { display:block; width:100%; padding:9px; text-align:left; font:600 11px/1.4 var(--font-mono); overflow-wrap:anywhere; }
-      .advanced-status { margin:0 0 8px; font-size:11px; opacity:.72; }
+      .advanced-method { display:flex; flex-direction:column; gap:6px; padding:7px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
+      /* The advanced sheet has 16px side padding; offset it while open to match 4-hướng's 10px detail inset. */
+      .advanced-method.is-open { margin:0 -6px; padding:0; border-color:transparent; }
+      .advanced-method-main { display:flex; flex-direction:column; gap:5px; width:100%; padding:0; border:0; background:transparent; text-align:left; }
+      .advanced-method-main:hover,.advanced-method-main:focus-visible { background:transparent; color:var(--ink); transform:none; }
+      .advanced-method img { display:block; width:100%; max-width:76px; aspect-ratio:1; margin:auto; object-fit:contain; border:1px solid var(--line); border-radius:8px; }
+      .advanced-method b { display:block; font:700 11px var(--font-display); }
+      .advanced-method small { display:block; margin-top:2px; font:10px var(--font-mono); opacity:.7; }
+      .advanced-method-options { display:none; flex-direction:column; gap:5px; }
+      .advanced-method.is-open .advanced-method-main { display:none; }
+      .advanced-method.is-open .advanced-method-options { display:flex; }
+      /* Keep AF2L's four slot buttons identical to the 4-hướng case tabs. */
+      .advanced-method .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; position:relative; z-index:3; flex:0 0 auto; }
+      .advanced-method .slot-tabs button { min-height:36px; padding:0; border-radius:8px; font:700 11px var(--font-display); color:var(--ink); background:var(--cream); }
+      .advanced-method .slot-tabs button.is-active { background:var(--ink); color:#fff; }
+      .advanced-method .slot-tabs button:hover,.advanced-method .slot-tabs button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+      .advanced-method .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 40px + 18px); overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; }
+      .advanced-method .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
+      .advanced-method .opt-row { display:flex; gap:4px; align-items:stretch; }
+      .advanced-method .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+      .advanced-method .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
+      .advanced-method .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+      .advanced-method .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
+      .advanced-method .opt-next,.advanced-method .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
+      .advanced-method .opt-row.is-active .opt-label,.advanced-method .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
       .formula-panel {
         z-index:5;
         top:auto; right:0; left:0; bottom:calc(44px + env(safe-area-inset-bottom,0px)); transform:none;
@@ -271,7 +289,7 @@
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
-  <section id="dock-sheet-basic" class="dock-sheet advanced-sheet" aria-label="Nâng cao" hidden><h2>NÂNG CAO · AF2L</h2><div class="advanced-toolbar"><select id="af2l-case-select" aria-label="Chọn trường hợp AF2L"></select></div><div id="af2l-type" class="advanced-status"></div><div id="af2l-tabs" class="advanced-tabs" aria-label="Vị trí AF2L"></div><button id="af2l-setup" type="button" class="advanced-setup" aria-label="Chạy setup AF2L"></button><div id="af2l-algorithms" class="advanced-algorithms" aria-label="Công thức AF2L"></div></section>
+  <section id="dock-sheet-basic" class="dock-sheet" aria-label="Nâng cao" hidden><button id="advanced-sheet-drag" class="sheet-drag" type="button" aria-label="Kéo xuống để đóng" title="Kéo xuống để đóng"></button><div id="advanced-methods" class="advanced-methods" aria-label="Phương pháp F2L nâng cao"></div></section>
   <section id="dock-sheet-keyhole" class="dock-sheet" aria-label="Keyhole" hidden><h2>KEYHOLE</h2><p>Nội dung Keyhole sẽ nằm ở đây.</p></section>
   <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
     <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
@@ -289,7 +307,6 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-    import { af2lCases } from './af2l-data.js';
 
     const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
@@ -502,8 +519,7 @@
     if(readSetting('rubik-xray-markers')==='1')applyXray(true);
     if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
     const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
-    // Acubemy uses both lowercase (`f`) and official uppercase-wide (`Fw`) notation. Treat them identically.
-    const normalizeMove=move=>move.replace(/['’]/g,'′').replace(/^([RUFLDB])w/,(_,face)=>face.toLowerCase());
+    const normalizeMove=move=>move.replace(/['’]/g,'′');
     function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; if(!moveMap[base]) throw new Error(`Unknown move: ${token}`); return twice?[base,base]:[base];}
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
     // Wide: two layers on the face side (e.g. r = x≥0) in the same direction as the capital face move.
@@ -1089,14 +1105,14 @@
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}
       return results;
     }
-    async function validateAF2LCase(caseId){
-      const af2lCase=af2lCases.find(item=>item.id===caseId); if(!af2lCase)throw new Error(`Unknown AF2L case: ${caseId}`);
+    async function validateAdvancedMethod(methodId){
+      const method=advancedMethods.find(item=>item.id===methodId); if(!method)throw new Error(`Unknown advanced method: ${methodId}`);
       const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
       scrambleMoveDuration=0; scrambleDelay=0;
       const results=[];
       try{
         for(const slot of f2lSlotOrder){
-          const {setup,solutions}=af2lCase.slots[slot];
+          const {setup,solutions}=method.slots[slot];
           for(let index=0;index<solutions.length;index++){
             resetToSetupStart();
             await runMoves(parseMoves(setup),0);
@@ -1122,7 +1138,7 @@
         return {caseId,slot,solutionIndex,setup:slotData.setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
     }
-    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAF2LCase,diagnoseF2LPair};
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAdvancedMethod,diagnoseF2LPair};
     const formulaPanel=document.querySelector('#formula-panel');
     const dockKeyboard=document.querySelector('#dock-keyboard');
     const dockCases=document.querySelector('#dock-cases');
@@ -1130,37 +1146,6 @@
     const dockKeyhole=document.querySelector('#dock-keyhole');
     const dockSheetBasic=document.querySelector('#dock-sheet-basic');
     const dockSheetKeyhole=document.querySelector('#dock-sheet-keyhole');
-    const af2lCaseSelect=document.querySelector('#af2l-case-select');
-    const af2lType=document.querySelector('#af2l-type');
-    const af2lTabs=document.querySelector('#af2l-tabs');
-    const af2lSetup=document.querySelector('#af2l-setup');
-    const af2lAlgorithms=document.querySelector('#af2l-algorithms');
-    let activeAF2LCaseId=af2lCases[0]?.id;
-    let activeAF2LSlot='FR';
-    function renderAF2L(){
-      const af2lCase=af2lCases.find(item=>item.id===activeAF2LCaseId)||af2lCases[0];
-      if(!af2lCase)return;
-      activeAF2LCaseId=af2lCase.id;
-      af2lCaseSelect.value=af2lCase.id;
-      af2lType.textContent=af2lCase.type;
-      af2lTabs.replaceChildren(...['FR','FL','BL','BR'].map(slot=>{
-        const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot;
-        tab.classList.toggle('is-active',slot===activeAF2LSlot);
-        tab.onclick=()=>{activeAF2LSlot=slot;renderAF2L();}; return tab;
-      }));
-      const slotData=af2lCase.slots[activeAF2LSlot];
-      af2lSetup.textContent=`SETUP · ${slotData.setup}`;
-      af2lSetup.onclick=()=>{if(busy)return; knownF2LCase=null;clearF2LSelection();resetToSetupStart();runMoves(parseMoves(slotData.setup));};
-      af2lAlgorithms.replaceChildren(...slotData.solutions.map((algorithm,index)=>{
-        const btn=document.createElement('button');btn.type='button';btn.textContent=`GIẢI ${index+1} · ${algorithm}`;
-        btn.onclick=()=>{if(busy)return;knownF2LCase=null;clearF2LSelection();runMoves(parseMoves(algorithm));};return btn;
-      }));
-    }
-    af2lCaseSelect.replaceChildren(...af2lCases.map(af2lCase=>{
-      const option=document.createElement('option');option.value=af2lCase.id;option.textContent=`${af2lCase.id} · ${af2lCase.type}`;return option;
-    }));
-    af2lCaseSelect.onchange=()=>{activeAF2LCaseId=af2lCaseSelect.value;activeAF2LSlot='FR';renderAF2L();};
-    renderAF2L();
     const dockButtons={keyboard:dockKeyboard, cases:dockCases, basic:dockBasic, keyhole:dockKeyhole};
     let mobileDockSheet=null;
     function closeMovePadInstant(){
@@ -1242,7 +1227,7 @@
       algPlayback=null;
       algPlayToken++;
       activeAlgId=null;
-      formulaPanel.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
       resetToSetupStart();
     };
     const invertToken=move=>{const t=normalizeMove(move); if(t.endsWith('2')) return t; if(t.endsWith('′')) return t.slice(0,-1); return `${t}′`;};
@@ -1250,10 +1235,10 @@
     function beginAlgPlayback(id, sequence, isSetup){algPlayback={id, moves:parseMoves(sequence), index:0, isSetup}; activeAlgId=id; updateMoveStepHighlight();}
     function markActiveAlgRow(id){
       activeAlgId=id;
-      formulaPanel.querySelectorAll('.opt-row').forEach(row=>row.classList.toggle('is-active', row.dataset.algId===id));
+      document.querySelectorAll('.opt-row').forEach(row=>row.classList.toggle('is-active', row.dataset.algId===id));
     }
     function updateMoveStepHighlight(){
-      formulaPanel.querySelectorAll('.opt-row').forEach(row=>{
+      document.querySelectorAll('.opt-row').forEach(row=>{
         const isCurrent=algPlayback&&row.dataset.algId===algPlayback.id;
         const highlightedStep=Math.max(0,algPlayback.index-1);
         row.querySelectorAll('.move-step').forEach((step,index)=>step.classList.toggle('is-current',isCurrent&&index===highlightedStep));
@@ -1323,6 +1308,44 @@
       row.appendChild(btn); row.appendChild(controls);
       return row;
     }
+    const advancedMethods=[{
+      id:'AF2L -1',
+      name:'AF2L - 1',
+      preview:'previews/af2l-1.svg',
+      slots:{
+        FR:{setup:'M F M′',solutions:['L′ U′ L U R U′ R′','M F′ M′','L′ R U′ R′ L','R L′ U′ L R′']},
+        FL:{setup:'M F M′ y',solutions:['S′ L′ S','L U′ L′ y L U′ L′','y′ L′ U′ L U R U′ R′','L U′ L′ y′ R U′ R′','L U′ L′ F U′ F′']},
+        BL:{setup:'M F M′ y2',solutions:['R′ U′ R U L U′ L′','L R′ U′ R L′','M′ f′ E','y R U′ R2 F′ U′ F R','M′ B′ M']},
+        BR:{setup:'M F M′ y′',solutions:['S R′ S′','R U′ R′ y R U′ R′','R U′ R′ f R′ f′','R U′ R′ U R2 F R F′ R','R U′ R2 F′ U′ F R','F′ U′ F U B U′ B′','y M F′ M′','R U′ R′ r′ U r U′ r′ U′ r','y L′ U′ M′ U R U′ x′','R U′ R′ U R2 F R2 F′','R U′ R′ U′ r′ U′ R U M′','R U′ R2 F′ U′ F R U F′ U′ F','y′ M′ B′ M','y L′ R U′ R′ L']}
+      }
+    }];
+    let openAdvancedMethodId=null, openAdvancedSlot='FR';
+    function renderAdvancedMethods(){
+      const container=document.querySelector('#advanced-methods');
+      if(!container) return;
+      container.innerHTML='';
+      advancedMethods.forEach(method=>{
+        const isOpen=openAdvancedMethodId===method.id;
+        const card=document.createElement('article'); card.className=`advanced-method${isOpen?' is-open':''}`;
+        const main=document.createElement('button'); main.type='button'; main.className='advanced-method-main'; main.title='Mở setup và công thức giải';
+        const image=document.createElement('img'); image.src=method.preview; image.alt=`Preview ${method.name}`;
+        const title=document.createElement('b'); title.textContent=method.name;
+        main.append(image,title);
+        main.onclick=()=>{ openAdvancedMethodId=isOpen?null:method.id; openAdvancedSlot='FR'; algPlayback=null; algPlayToken++; activeAlgId=null; renderAdvancedMethods(); };
+        const options=document.createElement('div'); options.className='advanced-method-options';
+        const tabs=document.createElement('div'); tabs.className='slot-tabs';
+        f2lSlotOrder.forEach(slot=>{
+          const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot; tab.className=slot===openAdvancedSlot?'is-active':'';
+          tab.onclick=()=>{openAdvancedSlot=slot; algPlayback=null; algPlayToken++; activeAlgId=null; renderAdvancedMethods();}; tabs.appendChild(tab);
+        });
+        const list=document.createElement('div'); list.className='opt-list';
+        const {setup,solutions}=method.slots[openAdvancedSlot];
+        list.appendChild(createAlgRow({id:`${method.id}:${openAdvancedSlot}:setup`,label:`SETUP · ${setup}`,sequence:setup,isSetup:true,status:`${method.id} · ${openAdvancedSlot} · SETUP`,extraClass:'opt-setup'}));
+        solutions.forEach((solution,index)=>list.appendChild(createAlgRow({id:`${method.id}:${openAdvancedSlot}:solve:${index}`,label:`GIẢI ${index+1} · ${solution}`,sequence:solution,isSetup:false,status:`${method.id} · ${openAdvancedSlot} · GIẢI ${index+1}`})));
+        options.append(tabs,list); card.append(main,options); container.appendChild(card);
+      });
+    }
+    renderAdvancedMethods();
     const isMobileUi=()=>matchMedia('(max-width:720px)').matches;
     function scrollActiveCaseIntoView(){
       if(!activeCaseId||openCaseId) return;
@@ -1406,6 +1429,35 @@
         else closeCasesDockPanel();
       });
     }
+    function enableAdvancedSheetSwipeDismiss(){
+      const sheet=dockSheetBasic, handle=document.querySelector('#advanced-sheet-drag');
+      if(!handle||handle.dataset.bound==='1') return;
+      handle.dataset.bound='1';
+      let startY=0, dragging=false, dy=0, moved=false;
+      const clear=()=>{sheet.style.transform=''; sheet.style.opacity='';};
+      const start=event=>{const point=event.touches?event.touches[0]:event; startY=point.clientY; dragging=true; dy=0; moved=false;};
+      const move=event=>{
+        if(!dragging) return;
+        const point=event.touches?event.touches[0]:event; dy=Math.max(0,point.clientY-startY);
+        if(dy>6) moved=true;
+        sheet.style.transform=`translateY(${dy}px)`; sheet.style.opacity=String(Math.max(.35,1-dy/220));
+        if(event.cancelable) event.preventDefault();
+      };
+      const end=()=>{
+        if(!dragging) return;
+        dragging=false;
+        if(dy>72){
+          sheet.style.transform=`translateY(${Math.max(dy,180)}px)`; sheet.style.opacity='0';
+          setTimeout(()=>{clear(); openAdvancedMethodId=null; renderAdvancedMethods(); setDockPanels(null); syncMobileDockFromSheets();},180);
+        } else clear();
+        dy=0;
+      };
+      handle.addEventListener('touchstart',start,{passive:true});
+      handle.addEventListener('touchmove',move,{passive:false});
+      handle.addEventListener('touchend',end); handle.addEventListener('touchcancel',end);
+      handle.addEventListener('click',event=>{if(moved){event.preventDefault(); moved=false; return;} openAdvancedMethodId=null; renderAdvancedMethods(); setDockPanels(null); syncMobileDockFromSheets();});
+    }
+    enableAdvancedSheetSwipeDismiss();
     // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
     function selectF2LSlot(slot){
       const cameraPosition=camera.position.clone(), cameraQuaternion=camera.quaternion.clone();
