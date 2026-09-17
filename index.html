@@ -131,6 +131,16 @@
       .dock-sheet.is-dock-open { display:block; }
       .dock-sheet h2 { margin:0 0 6px; font:700 13px var(--font-display); letter-spacing:.02em; }
       .dock-sheet p { margin:0; font-size:11px; line-height:1.5; opacity:.7; }
+      .advanced-sheet { max-height:min(58vh,460px); padding:12px; overflow:hidden; }
+      .advanced-toolbar { display:flex; gap:6px; align-items:center; margin-bottom:9px; }
+      .advanced-toolbar select { flex:1; min-width:0; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--cream); color:var(--ink); font:700 12px var(--font-mono); }
+      .advanced-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:8px; }
+      .advanced-tabs button { min-height:32px; padding:5px; font-size:11px; }
+      .advanced-tabs button.is-active { background:var(--ink); color:#fff; }
+      .advanced-setup { padding:8px; margin-bottom:8px; border:1px solid var(--line); border-radius:8px; font:700 11px var(--font-mono); overflow-wrap:anywhere; }
+      .advanced-algorithms { max-height:calc(min(58vh,460px) - 162px); overflow:auto; display:grid; gap:5px; padding-right:2px; }
+      .advanced-algorithms button { display:block; width:100%; padding:9px; text-align:left; font:600 11px/1.4 var(--font-mono); overflow-wrap:anywhere; }
+      .advanced-status { margin:0 0 8px; font-size:11px; opacity:.72; }
       .formula-panel {
         z-index:5;
         top:auto; right:0; left:0; bottom:calc(44px + env(safe-area-inset-bottom,0px)); transform:none;
@@ -261,12 +271,12 @@
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
-  <section id="dock-sheet-basic" class="dock-sheet" aria-label="Cơ bản" hidden><h2>CƠ BẢN</h2><p>Nội dung F2L cơ bản sẽ nằm ở đây.</p></section>
+  <section id="dock-sheet-basic" class="dock-sheet advanced-sheet" aria-label="Nâng cao" hidden><h2>NÂNG CAO · AF2L</h2><div class="advanced-toolbar"><select id="af2l-case-select" aria-label="Chọn trường hợp AF2L"></select></div><div id="af2l-type" class="advanced-status"></div><div id="af2l-tabs" class="advanced-tabs" aria-label="Vị trí AF2L"></div><button id="af2l-setup" type="button" class="advanced-setup" aria-label="Chạy setup AF2L"></button><div id="af2l-algorithms" class="advanced-algorithms" aria-label="Công thức AF2L"></div></section>
   <section id="dock-sheet-keyhole" class="dock-sheet" aria-label="Keyhole" hidden><h2>KEYHOLE</h2><p>Nội dung Keyhole sẽ nằm ở đây.</p></section>
   <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
     <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
     <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Các trường hợp F2L">4 hướng</button>
-    <button id="dock-basic" type="button" aria-pressed="false" aria-controls="dock-sheet-basic" title="F2L cơ bản">Cơ bản</button>
+    <button id="dock-basic" type="button" aria-pressed="false" aria-controls="dock-sheet-basic" title="F2L nâng cao">Nâng cao</button>
     <button id="dock-keyhole" type="button" aria-pressed="false" aria-controls="dock-sheet-keyhole" title="Keyhole">Keyhole</button>
   </nav>
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
@@ -279,6 +289,7 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+    import { af2lCases } from './af2l-data.js';
 
     const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
@@ -1077,6 +1088,24 @@
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}
       return results;
     }
+    async function validateAF2LCase(caseId){
+      const af2lCase=af2lCases.find(item=>item.id===caseId); if(!af2lCase)throw new Error(`Unknown AF2L case: ${caseId}`);
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      const results=[];
+      try{
+        for(const slot of f2lSlotOrder){
+          const {setup,solutions}=af2lCase.slots[slot];
+          for(let index=0;index<solutions.length;index++){
+            resetToSetupStart();
+            await runMoves(parseMoves(setup),0);
+            await runMoves(parseMoves(solutions[index]),0);
+            results.push({slot,solution:index+1,passed:isF2LLayerSolved()});
+          }
+        }
+      }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; resetToSetupStart();}
+      return results;
+    }
     async function diagnoseF2LPair(caseId, slot, solutionIndex, solutionOverride){
       const f2lCase=f2lSetups.find(item=>item.id===caseId); if(!f2lCase)throw new Error(`Unknown F2L case: ${caseId}`);
       const slotData=f2lCase.slots[slot]; if(!slotData)throw new Error(`Unknown slot: ${slot}`);
@@ -1092,7 +1121,7 @@
         return {caseId,slot,solutionIndex,setup:slotData.setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
     }
-    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,diagnoseF2LPair};
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAF2LCase,diagnoseF2LPair};
     const formulaPanel=document.querySelector('#formula-panel');
     const dockKeyboard=document.querySelector('#dock-keyboard');
     const dockCases=document.querySelector('#dock-cases');
@@ -1100,6 +1129,37 @@
     const dockKeyhole=document.querySelector('#dock-keyhole');
     const dockSheetBasic=document.querySelector('#dock-sheet-basic');
     const dockSheetKeyhole=document.querySelector('#dock-sheet-keyhole');
+    const af2lCaseSelect=document.querySelector('#af2l-case-select');
+    const af2lType=document.querySelector('#af2l-type');
+    const af2lTabs=document.querySelector('#af2l-tabs');
+    const af2lSetup=document.querySelector('#af2l-setup');
+    const af2lAlgorithms=document.querySelector('#af2l-algorithms');
+    let activeAF2LCaseId=af2lCases[0]?.id;
+    let activeAF2LSlot='FR';
+    function renderAF2L(){
+      const af2lCase=af2lCases.find(item=>item.id===activeAF2LCaseId)||af2lCases[0];
+      if(!af2lCase)return;
+      activeAF2LCaseId=af2lCase.id;
+      af2lCaseSelect.value=af2lCase.id;
+      af2lType.textContent=af2lCase.type;
+      af2lTabs.replaceChildren(...['FR','FL','BL','BR'].map(slot=>{
+        const tab=document.createElement('button'); tab.type='button'; tab.textContent=slot;
+        tab.classList.toggle('is-active',slot===activeAF2LSlot);
+        tab.onclick=()=>{activeAF2LSlot=slot;renderAF2L();}; return tab;
+      }));
+      const slotData=af2lCase.slots[activeAF2LSlot];
+      af2lSetup.textContent=`SETUP · ${slotData.setup}`;
+      af2lSetup.onclick=()=>{if(busy)return; knownF2LCase=null;clearF2LSelection();resetToSetupStart();runMoves(parseMoves(slotData.setup));};
+      af2lAlgorithms.replaceChildren(...slotData.solutions.map((algorithm,index)=>{
+        const btn=document.createElement('button');btn.type='button';btn.textContent=`GIẢI ${index+1} · ${algorithm}`;
+        btn.onclick=()=>{if(busy)return;knownF2LCase=null;clearF2LSelection();runMoves(parseMoves(algorithm));};return btn;
+      }));
+    }
+    af2lCaseSelect.replaceChildren(...af2lCases.map(af2lCase=>{
+      const option=document.createElement('option');option.value=af2lCase.id;option.textContent=`${af2lCase.id} · ${af2lCase.type}`;return option;
+    }));
+    af2lCaseSelect.onchange=()=>{activeAF2LCaseId=af2lCaseSelect.value;activeAF2LSlot='FR';renderAF2L();};
+    renderAF2L();
     const dockButtons={keyboard:dockKeyboard, cases:dockCases, basic:dockBasic, keyhole:dockKeyhole};
     let mobileDockSheet=null;
     function closeMovePadInstant(){
