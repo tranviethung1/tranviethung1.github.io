@@ -10,7 +10,9 @@
     "test:f2l-4": "playwright test tests/f2l-4-formulas.spec.mjs",
     "test:f2l-5": "playwright test tests/f2l-5-formulas.spec.mjs",
     "test:f2l-6": "playwright test tests/f2l-6-formulas.spec.mjs",
-    "test:f2l-7": "playwright test tests/f2l-7-formulas.spec.mjs"
+    "test:f2l-7": "playwright test tests/f2l-7-formulas.spec.mjs",
+    "test:f2l-8": "playwright test tests/f2l-8-formulas.spec.mjs",
+    "test:f2l-9": "playwright test tests/f2l-9-formulas.spec.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0"
