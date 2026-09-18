@@ -464,6 +464,8 @@
     // Preserve visual home orientation so a corner twisted in its own slot remains selectable.
     cubies.forEach(piece=>piece.userData.homeQuaternion=piece.quaternion.clone());
     const raycaster=new THREE.Raycaster(), pointer=new THREE.Vector2(); let busy=false, moves=0, selectedCorner=null, selectedEdge=null, pointerDown=null;
+    // Playback/queue live near `busy` so color-front reorient can cancel them before recognition.
+    let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve(), rotateGate=Promise.resolve();
     // Mesh tubes give outlines a dependable 2px-like weight; WebGL ignores LineBasicMaterial linewidth.
     function createThickOutline(color){const outline=new THREE.Group(), half=.66, points=[[-half,-half,-half],[half,-half,-half],[half,half,-half],[-half,half,-half],[-half,-half,half],[half,-half,half],[half,half,half],[-half,half,half]].map(([x,y,z])=>new THREE.Vector3(x,y,z)), edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]], material=new THREE.MeshBasicMaterial({color}); edges.forEach(([from,to])=>{const a=points[from],b=points[to],length=a.distanceTo(b),line=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,length,6),material); line.position.copy(a).add(b).multiplyScalar(.5); line.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize()); outline.add(line);}); return outline;}
     const selectedOutline=createThickOutline(0xff4b2b); selectedOutline.visible=false; cube.add(selectedOutline);
@@ -476,6 +478,7 @@
     function createBrushX(material=pairMarkerMaterial){const mark=new THREE.Group(), strokes=[[-.35,-.31,.32,.35],[-.35,-.28,.34,.31],[-.29,-.35,.36,.29],[-.33,.32,.34,-.34],[-.36,.27,.31,-.35],[-.27,.35,.36,-.28]]; strokes.forEach(([x1,y1,x2,y2],index)=>{const wobble=(index%3-1)*.025; const path=new THREE.CatmullRomCurve3([new THREE.Vector3(x1,y1,.006),new THREE.Vector3(wobble,wobble,.011),new THREE.Vector3(x2,y2,.006)]); const geometry=new THREE.TubeGeometry(path,12,.007+(index%2)*.002,5,false); mark.add(new THREE.Mesh(geometry,material));}); return mark;}
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
     let scrambleMoveDuration=60;
+    let activeRotate=null;
     function finishRotatePieces(pivot,chosen,axis,dir){
       pivot.rotation[axis]=dir*Math.PI/2;
       pivot.updateMatrixWorld();
@@ -489,8 +492,35 @@
     }
     function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
       // Instant path for ?test=1 validation (duration 0): skip rAF so suites finish under timeout.
-      if(duration<=0){ finishRotatePieces(pivot,chosen,axis,dir); return Promise.resolve(); }
-      return new Promise(resolve=>{function tick(now){const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)requestAnimationFrame(tick); else { finishRotatePieces(pivot,chosen,axis,dir); resolve(); }} requestAnimationFrame(tick);});}
+      if(duration<=0){ finishRotatePieces(pivot,chosen,axis,dir); activeRotate=null; return Promise.resolve(); }
+      let rafId=0, finished=false;
+      const finish=()=>{
+        if(finished) return;
+        finished=true;
+        if(rafId) cancelAnimationFrame(rafId);
+        finishRotatePieces(pivot,chosen,axis,dir);
+        if(activeRotate?.pivot===pivot) activeRotate=null;
+      };
+      const done=new Promise(resolve=>{function tick(now){ if(finished) return; const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)rafId=requestAnimationFrame(tick); else { finish(); resolve(); }} rafId=requestAnimationFrame(tick);});
+      activeRotate={pivot, snap:finish, promise:done};
+      rotateGate=done.catch(()=>{});
+      return done;}
+    // Wait out in-flight layer/cube animations (e.g. SETUP Play between steps) before starting another runMoves.
+    async function waitWhileBusy(maxMs=8000){const start=performance.now(); while(busy){ if(performance.now()-start>maxMs) throw new Error('busy'); await new Promise(resolve=>requestAnimationFrame(resolve)); }}
+    function cancelPlaybackAndSnap(){
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      if(activeRotate) activeRotate.snap();
+      busy=false;
+      nextMoveQueue=nextMoveQueue.catch(()=>{}).then(()=>{});
+    }
+    async function waitForCubeIdle(maxMs=12000){
+      await nextMoveQueue.catch(()=>{});
+      if(activeRotate) await activeRotate.promise.catch(()=>{});
+      await rotateGate.catch(()=>{});
+      await waitWhileBusy(maxMs);
+    }
     function rotateLayer(axis,layer,dir=1){return rotatePieces(cubies.filter(p=>p.userData.coord[axis]===layer),axis,dir);}
     // Cube rotations reorient the current face frame while the camera stays in place.
     // Thus, after `y`, the orange center occupies the visible F position and the next `F`
@@ -539,7 +569,11 @@
     const recognitionPairHome={x:1,y:-1,z:1};
     async function buildCaseRecognitionCache(){
       if(caseRecognitionReady)return caseRecognitionReady;
-      caseRecognitionReady=(async()=>{const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves; scrambleMoveDuration=0; scrambleDelay=0;
+      caseRecognitionReady=(async()=>{
+        cancelPlaybackAndSnap();
+        await nextMoveQueue.catch(()=>{});
+        busy=false;
+        const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves; scrambleMoveDuration=0; scrambleDelay=0;
         // Signatures already canonicalize all four side-color pairs to FR. Adding
         // FL/BL/BR records here would create identical keys and let a rotated record
         // overwrite the true FR case (for example F2L-2 as F2L-4 · BR).
@@ -575,17 +609,116 @@
     function chooseRecognitionCandidate(candidates){return [...candidates].sort((a,b)=>Number(a.caseId.match(/\d+/)[0])-Number(b.caseId.match(/\d+/)[0]))[0]||null;}
     function recognizePairFromCache(corner,edge){const signature=pairPoseSignature(corner,edge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[], candidates=standard.length?standard:auf; if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates); return chooseRecognitionCandidate(candidates);}
     async function recognizeSelectedF2LCase(){if(!selectedCorner||!selectedEdge)return null; await buildCaseRecognitionCache(); return recognizePairFromCache(selectedCorner,selectedEdge);}
+    function isSelectedPairInserted(){
+      if(!selectedCorner||!selectedEdge) return false;
+      // Require both pieces to match current centers — do not treat "corner only"
+      // as inserted (e.g. F2L-25: corner seated, edge still on U).
+      const centerColors=new Map();
+      cubies.filter(piece=>Object.values(piece.userData.homeCoord).filter(Boolean).length===1).forEach(piece=>{
+        const sticker=piece.children.find(child=>child.userData.originalMaterial);
+        const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+        centerColors.set(vectorToFace(normal),sticker.userData.face);
+      });
+      const matchesCenters=piece=>piece.children.filter(child=>child.userData.originalMaterial).every(sticker=>{
+        const normal=sticker.position.clone().applyQuaternion(piece.quaternion).normalize();
+        return centerColors.get(vectorToFace(normal))===sticker.userData.face;
+      });
+      return matchesCenters(selectedCorner)&&matchesCenters(selectedEdge);
+    }
     // Safe three-move ejections restore the D-layer turn they temporarily borrow.
+    // Optional leading AUF aligns the U-layer corner before the side-slot extract.
     // Test each candidate against the real detector before showing it; this prevents
     // guessing a setup when the target pair cannot be put into a known F2L pose.
-    const f2lExtractionCandidates=['R U R′','R U′ R′','R′ U R','R′ U′ R','L U L′','L U′ L′','L′ U L','L′ U′ L','F U F′','F U′ F′','F′ U F','F′ U′ F','B U B′','B U′ B′','B′ U B','B′ U′ B'];
-    async function findF2LExtractionSetup(){
+    // Also require extract + AUF + a real slot formula to insert the selected pair —
+    // recognition alone can match FR-canonical pose while the user-slot alg fails.
+    const f2lExtractionCandidates=[
+      'R U R′','R U′ R′','R′ U R','R′ U′ R','R U2 R′','R′ U2 R',
+      'L U L′','L U′ L′','L′ U L','L′ U′ L','L U2 L′','L′ U2 L',
+      'F U F′','F U′ F′','F′ U F','F′ U′ F','F U2 F′','F′ U2 F',
+      'B U B′','B U′ B′','B′ U B','B′ U′ B','B U2 B′','B′ U2 B'
+    ];
+    const f2lExtractAufPrefixes=['','U','U2','U′'];
+    function aufPrefixOrder(preferred=''){
+      return [preferred, ...f2lExtractAufPrefixes.filter(auf=>auf!==preferred)];
+    }
+    async function tryExtractSequence(sequence, snapshot, slotOrder){
+      placeSolvedPoseFromSnapshot(snapshot);
+      try{ await runMoves(parseMoves(sequence),0); }
+      catch(error){ console.warn(`Bỏ qua SETUP extract ${sequence}:`,error); busy=false; return null; }
+      const detected=recognizePairFromCache(selectedCorner,selectedEdge);
+      if(!detected) return null;
+      const caseEntry=f2lSetups.find(entry=>entry.id===detected.caseId);
+      if(!caseEntry) return null;
+      const postExtract=saveCubiePose();
+      // Signature AUF can be wrong after y-reorientation; try every U-prefix that inserts.
+      for(const extraSetup of aufPrefixOrder(detected.extraSetup||'')){
+        for(const slot of slotOrder){
+          for(const solution of caseEntry.slots[slot]?.solutions||[]){
+            const formula=[extraSetup,solution].filter(Boolean).join(' ');
+            try{
+              placeSolvedPoseFromSnapshot(postExtract);
+              await runMoves(parseMoves(formula),0);
+              if(isSelectedPairInserted()) return {sequence,detected:{...detected,extraSetup},slot,formula,solution};
+            }catch(error){console.warn(`Bỏ qua công thức extract ${detected.caseId} · ${slot}:`,error); busy=false;}
+          }
+        }
+      }
+      return null;
+    }
+    async function findF2LExtractionSetup(preferredSlot){
       if(!selectedCorner||!selectedEdge)return null;
       await buildCaseRecognitionCache();
       const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
       scrambleMoveDuration=0; scrambleDelay=0;
-      try{for(const sequence of f2lExtractionCandidates){placeSolvedPoseFromSnapshot(snapshot); await runMoves(parseMoves(sequence),0); const detected=recognizePairFromCache(selectedCorner,selectedEdge); if(detected)return {sequence,detected};}}
+      const slotOrder=[preferredSlot,'FR','FL','BL','BR'].filter((slot,index,all)=>slot&&all.indexOf(slot)===index);
+      try{
+        for(const auf of f2lExtractAufPrefixes){
+          for(const extract of f2lExtractionCandidates){
+            const sequence=[auf,extract].filter(Boolean).join(' ');
+            const found=await tryExtractSequence(sequence, snapshot, slotOrder);
+            if(found) return found;
+          }
+        }
+        // Two side-slot ejects when corner and edge sit in different slots.
+        for(const first of f2lExtractionCandidates){
+          for(const second of f2lExtractionCandidates){
+            if(first===second) continue;
+            // Skip pairs that turn the same face — they rarely help and explode the search.
+            if(first[0]===second[0]) continue;
+            const sequence=`${first} ${second}`;
+            const found=await tryExtractSequence(sequence, snapshot, slotOrder);
+            if(found) return found;
+          }
+        }
+      }
       catch(error){console.warn('Không thể thử setup extract F2L:',error);}
+      finally{restoreCubiePose(snapshot); scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;}
+      return null;
+    }
+    // Recognition cache is FR-only; user-slot algs can fail for the same signature.
+    // Verify extraSetup + solution on the live cube (after y reorientation) before showing Play.
+    async function resolveVerifiedDetectedSolution(detected, preferredSlot){
+      if(!detected||!selectedCorner||!selectedEdge) return null;
+      const caseEntry=f2lSetups.find(entry=>entry.id===detected.caseId);
+      if(!caseEntry) return null;
+      const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      const slotOrder=[preferredSlot,'FR','FL','BL','BR'].filter((slot,index,all)=>slot&&all.indexOf(slot)===index);
+      try{
+        for(const extraSetup of aufPrefixOrder(detected.extraSetup||'')){
+          for(const slot of slotOrder){
+            const solutions=caseEntry.slots[slot]?.solutions||[];
+            for(const solution of solutions){
+              const formula=[extraSetup,solution].filter(Boolean).join(' ');
+              try{
+                placeSolvedPoseFromSnapshot(snapshot);
+                await runMoves(parseMoves(formula),0);
+                if(isSelectedPairInserted()) return {caseId:detected.caseId,slot,extraSetup,solution,formula};
+              }catch(error){console.warn(`Bỏ qua công thức nhận diện ${detected.caseId} · ${slot}:`,error); busy=false;}
+            }
+          }
+        }
+      }catch(error){console.warn('Không thể xác minh công thức nhận diện F2L:',error);}
       finally{restoreCubiePose(snapshot); scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;}
       return null;
     }
@@ -626,9 +759,11 @@
       return null;
     }
     // Keep white on D: only y turns bring a side color to Front.
+    // Engine `y` matches U's sense (moveMap dir=-1): R→F, F→L, L→B, B→R.
+    // So R (CAM) comes to F via `y`, L (ĐỎ) via `y′`, B via `y y`.
     function yMovesToBringHomeFaceToFront(homeFace){
       const facing=currentFacingOfHomeFace(homeFace);
-      return ({F:[],R:['y'],L:['y′'],B:['y2']})[facing]||null;
+      return ({F:[],R:['y'],L:['y′'],B:['y','y']})[facing]||null;
     }
     function refreshSelectionOutlines(){
       if(selectedCorner){selectedOutline.position.copy(selectedCorner.position); selectedOutline.quaternion.copy(selectedCorner.quaternion);}
@@ -639,8 +774,11 @@
       const colors=[['ĐỎ','#B61A1A','L'],['XANH LÁ','#21C925','F'],['XANH DA TRỜI','#0045AD','B'],['CAM','#FF5900','R']];
       solveResult.innerHTML=colors.map(([name,color,face])=>`<button class="color-choice" type="button" data-color="${name}" data-face="${face}" aria-label="Chọn màu ${name} làm mặt gốc" style="background:${color}"></button>`).join('');
       solveResult.querySelectorAll('.color-choice').forEach(choice=>choice.onclick=async()=>{
-        if(selectingF2LFront||busy)return;
+        if(selectingF2LFront)return;
         selectingF2LFront=true;
+        // Snap any in-flight Play/Next rotation, then recognize + reorient with duration 0.
+        cancelPlaybackAndSnap();
+        const cancelToken=algPlayToken;
         const choices=[...solveResult.querySelectorAll('.color-choice')];
         choices.forEach(button=>{button.disabled=true; button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');});
         choice.classList.add('is-selected'); choice.textContent='✓'; choice.setAttribute('aria-pressed','true');
@@ -648,43 +786,72 @@
         const frontFace=choice.dataset.face;
         const slot=detectSelectedPairSlot(frontName);
         if(!slot){
+          selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
           alert('Chưa chọn cặp F2L hoặc không xác định được slot với màu mặt gốc này.');
           return;
         }
+        await nextMoveQueue.catch(()=>{});
+        if(cancelToken!==algPlayToken){selectingF2LFront=false; return;}
         let detectedCase, pairCoordinates;
-        try{detectedCase=await recognizeSelectedF2LCase(); pairCoordinates=logSelectedPairPositions(frontName,slot,detectedCase);}catch{
+        try{
+          busy=false;
+          detectedCase=await recognizeSelectedF2LCase();
+          pairCoordinates=logSelectedPairPositions(frontName,slot,detectedCase);
+        }catch(error){
+          console.error('F2L recognize failed:',error);
           selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
           alert('Không thể nhận diện case lúc này — thử chọn lại màu.');
           return;
         }
+        if(cancelToken!==algPlayToken){selectingF2LFront=false; return;}
         const yMoves=yMovesToBringHomeFaceToFront(frontFace);
         if(!yMoves){
           selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
           alert('Không thể đưa màu này ra mặt trước khi giữ trắng ở đáy (cần xoay x/z).');
           return;
         }
-        try{
-          if(yMoves.length) await runMoves(yMoves);
-        }catch{
-          selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
-          alert('Đang xoay Rubik — thử chọn lại màu sau khi xong.');
-          return;
+        if(yMoves.length){
+          try{
+            cancelPlaybackAndSnap();
+            await nextMoveQueue.catch(()=>{});
+            const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+            scrambleMoveDuration=0; scrambleDelay=0; busy=false;
+            try{ await runMoves(yMoves,0); }
+            finally{ scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; }
+          }catch(error){
+            console.error('F2L front reorient failed:',error);
+            selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
+            alert('Đang xoay Rubik — thử chọn lại màu sau khi xong.');
+            return;
+          }
         }
         selectingF2LFront=false;
         refreshSelectionOutlines();
-        const recognizedCase=detectedCase||((knownF2LCase&&{caseId:knownF2LCase.split(' · ')[0],slot:knownF2LCase.split(' · ')[1],extraSetup:''}));
-        const casePart=recognizedCase?.caseId;
-        // The selected front color is authoritative: once it establishes FR/FL/BL/BR,
-        // always show that slot's stored setup and solution—not the cache's canonical slot.
-        const caseSlot=slot, caseData=casePart?f2lSetups.find(entry=>entry.id===casePart)?.slots[caseSlot]:null;
-        const firstSolution=caseData?.solutions[0]||null;
-        const extraSetup=recognizedCase?.extraSetup;
-        stateEl.textContent=casePart?`${casePart} · ${caseSlot}${extraSetup?` · SETUP ${extraSetup}`:''} · gốc ${frontName}`:`SLOT ${slot} · gốc ${frontName} · KHÔNG NHẬN DIỆN CASE`;
-        if(casePart&&firstSolution) renderDetectedF2LSolution({caseId:casePart,slot:caseSlot,extraSetup,solution:firstSolution});
-        else {
-          const extraction=await findF2LExtractionSetup();
-          console.info('F2L case not recognized for selected pair.',{slot:caseSlot,front:frontName,detectedCase,hasSolution:!!firstSolution,pairCoordinates,extraction});
-          renderUnmatchedF2LSolution({slot:caseSlot,frontName,extraction});
+        // Recognition before y is only for the console log. After reorienting the
+        // chosen front color to F, AUF/signature can change — always detect+verify
+        // in the post-y frame before showing Play / falling back to SETUP extract.
+        let recognizedCase=await recognizeSelectedF2LCase();
+        if(!recognizedCase&&knownF2LCase){
+          recognizedCase={caseId:knownF2LCase.split(' · ')[0],slot:knownF2LCase.split(' · ')[1],extraSetup:''};
+        }
+        let verified=recognizedCase?await resolveVerifiedDetectedSolution(recognizedCase, slot):null;
+        if(verified){
+          stateEl.textContent=`${verified.caseId} · ${verified.slot}${verified.extraSetup?` · SETUP ${verified.extraSetup}`:''} · gốc ${frontName}`;
+          renderDetectedF2LSolution({caseId:verified.caseId,slot:verified.slot,extraSetup:verified.extraSetup,solution:verified.solution});
+        } else if(isSelectedPairInserted()){
+          stateEl.textContent=`SLOT ${slot} · gốc ${frontName} · CẶP ĐÃ ĐÚNG`;
+          renderInsertedF2LPair({slot,frontName});
+        } else {
+          const extraction=await findF2LExtractionSetup(slot);
+          const coords=selectedCorner&&selectedEdge?selectedPairCoordinates():pairCoordinates;
+          if(extraction){
+            console.info('F2L pair needs SETUP extract before case formula.',{slot,front:frontName,detectedCase:recognizedCase,detectedBeforeY:detectedCase,extraction,pairCoordinates:coords});
+            stateEl.textContent=`SLOT ${slot} · gốc ${frontName} · SETUP → ${extraction.detected.caseId}`;
+          } else {
+            console.info('F2L case not recognized for selected pair.',{slot,front:frontName,detectedCase:recognizedCase,detectedBeforeY:detectedCase,hasSolution:false,pairCoordinates:coords,extraction:null,verified:null});
+            stateEl.textContent=`SLOT ${slot} · gốc ${frontName} · KHÔNG NHẬN DIỆN CASE`;
+          }
+          renderUnmatchedF2LSolution({slot,frontName,extraction});
         }
         setContextualSurface('detected-solution');
       });
@@ -714,11 +881,43 @@
     if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
     const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
     const normalizeMove=move=>move.replace(/['’]/g,'′');
-    function expandMoveToken(token){const t=normalizeMove(token); const m=t.match(/^([RUFLDBrufldbMESxyz])(2)?(′)?$/); if(!m) throw new Error(`Unknown move: ${token}`); const face=m[1], twice=!!m[2], prime=!!m[3]; const base=prime?`${face}′`:face; if(!moveMap[base]) throw new Error(`Unknown move: ${token}`); return twice?[base,base]:[base];}
+    // Cubing turns: X, X′, X2, X2′, X3 (=X′), X3′ (=X).
+    function expandMoveToken(token){
+      const t=normalizeMove(token);
+      const m=t.match(/^([RUFLDBrufldbMESxyz])([23])?(′)?$/);
+      if(!m) throw new Error(`Unknown move: ${token}`);
+      const face=m[1];
+      let quarterTurns=m[2]?Number(m[2]):1;
+      if(m[3]) quarterTurns=(4-quarterTurns)%4;
+      if(!quarterTurns) return [];
+      const cw=face, ccw=`${face}′`;
+      if(!moveMap[cw]||!moveMap[ccw]) throw new Error(`Unknown move: ${token}`);
+      if(quarterTurns===1) return [cw];
+      if(quarterTurns===2) return [cw,cw];
+      return [ccw];
+    }
     const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
     // Wide: two layers on the face side (e.g. r = x≥0) in the same direction as the capital face move.
     function rotateWide(axis,side,dir=1){return rotatePieces(cubies.filter(p=>side>0?p.userData.coord[axis]>=0:p.userData.coord[axis]<=0),axis,dir);}
-    async function runMoves(moves,delay=scrambleDelay){for(const move of moves){const key=normalizeMove(move); const spec=moveMap[key]; if(!spec) throw new Error(`Unknown move: ${move}`); if(spec[0]==='cube') await rotateCube(spec[1],spec[2]); else if(spec[0]==='wide') await rotateWide(spec[1],spec[2],spec[3]); else await rotateLayer(spec[1],spec[2],spec[3]); if(delay) await new Promise(resolve=>setTimeout(resolve,delay));}}
+    async function runMoves(moves,delay=scrambleDelay){
+      // Expand U2/y2/… — callers may pass raw tokens or pre-split moveMap keys.
+      const tokens=(Array.isArray(moves)?moves:[moves]).flatMap(item=>{
+        const text=String(item||'').trim();
+        if(!text) return [];
+        if(text.includes(' ')) return parseMoves(text);
+        try{ return expandMoveToken(text); }
+        catch{ return parseMoves(text); }
+      });
+      for(const move of tokens){
+        const key=normalizeMove(move);
+        const spec=moveMap[key];
+        if(!spec) throw new Error(`Unknown move: ${move}`);
+        if(spec[0]==='cube') await rotateCube(spec[1],spec[2]);
+        else if(spec[0]==='wide') await rotateWide(spec[1],spec[2],spec[3]);
+        else await rotateLayer(spec[1],spec[2],spec[3]);
+        if(delay) await new Promise(resolve=>setTimeout(resolve,delay));
+      }
+    }
     function resetToSolved(){clearF2LSelection(); cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);}); resetCoordLabels(); moves=0; updateMoves();}
     // SETUP always begins from the exact solved cube and viewing pose present at first load.
     function resetToSetupStart(){
@@ -1035,7 +1234,7 @@
         return {methodId,slot,solutionIndex,setup,solution,passed:isF2LLayerSolved(),afterSetup,afterSolve};
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
     }
-    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAdvancedMethod,diagnoseF2LPair,diagnoseAdvancedMethod};
+    if(new URLSearchParams(location.search).has('test'))window.__rubikTest={validateF2LCase,validateAdvancedMethod,diagnoseF2LPair,diagnoseAdvancedMethod,async diagnoseMoveSequence(setupSequence,solveSequence){const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0; try{resetToSetupStart(); if(setupSequence)await runMoves(parseMoves(setupSequence),0); const afterSetup={solved:isF2LLayerSolved(),details:f2lMismatchDetails()}; if(solveSequence)await runMoves(parseMoves(solveSequence),0); return {setupSequence,solveSequence,afterSetup,passed:isF2LLayerSolved(),afterSolve:f2lMismatchDetails()};}finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}},async diagnoseRecognitionPath(setupSequence,frontColorName,homeCorner={x:-1,y:-1,z:1}){const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0; try{resetToSetupStart(); if(setupSequence)await runMoves(parseMoves(setupSequence),0); selectedCorner=cubies.find(piece=>piece.userData.homeCoord.x===homeCorner.x&&piece.userData.homeCoord.y===homeCorner.y&&piece.userData.homeCoord.z===homeCorner.z)||null; selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner); const slot=detectSelectedPairSlot(frontColorName); const frontFace=colorNameToHomeFace[frontColorName]; const detected=selectedCorner&&selectedEdge?await recognizeSelectedF2LCase():null; const yMoves=yMovesToBringHomeFaceToFront(frontFace); if(yMoves?.length)await runMoves(yMoves,0); const verified=detected?await resolveVerifiedDetectedSolution(detected,slot):null; const extraction=verified?null:await findF2LExtractionSetup(slot); return {slot,front:frontColorName,detected,verified,extraction,pairCoordinates:selectedCorner&&selectedEdge?selectedPairCoordinates():null};}finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}},async findSetupMatchingCoords(target){const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0; const cornerHome={x:-1,y:-1,z:1}; const matches=[]; try{await buildCaseRecognitionCache(); for(const entry of f2lSetups){for(const slot of ['FR','FL','BL','BR']){const setup=entry.slots[slot]?.setup; if(!setup)continue; for(const auf of ['', 'U', 'U2', 'U′']){resetToSetupStart(); await runMoves(parseMoves(setup+(auf?' '+auf:'')),0); const corner=cubies.find(p=>p.userData.homeCoord.x===cornerHome.x&&p.userData.homeCoord.y===cornerHome.y&&p.userData.homeCoord.z===cornerHome.z); const edge=corner&&getPairedF2LEdge(corner); if(!corner||!edge)continue; const cc=corner.userData.coord, ec=edge.userData.coord; if(cc.x===target.corner.x&&cc.y===target.corner.y&&cc.z===target.corner.z&&ec.x===target.edge.x&&ec.y===target.edge.y&&ec.z===target.edge.z){const stickers=piece=>{const map={}; piece.children.filter(m=>m.userData.originalMaterial).forEach(st=>{const n=new THREE.Vector3(st.userData.axis==='x'?st.userData.layer:0,st.userData.axis==='y'?st.userData.layer:0,st.userData.axis==='z'?st.userData.layer:0).applyQuaternion(piece.quaternion); map[st.userData.face]=vectorToFace(n);}); return map;}; matches.push({caseId:entry.id,slot,auf,cornerStickers:stickers(corner),edgeStickers:stickers(edge)});}}}} return matches;}finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}},async findTrappedMatchingCoords(target){const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0; const cornerHome={x:-1,y:-1,z:1}; const inv={'R U R′':'R U′ R′','R U′ R′':'R U R′','R′ U R':'R′ U′ R','R′ U′ R':'R′ U R','L U L′':'L U′ L′','L U′ L′':'L U L′','L′ U L':'L′ U′ L','L′ U′ L':'L′ U L','F U F′':'F U′ F′','F U′ F′':'F U F′','F′ U F':'F′ U′ F','F′ U′ F':'F′ U F','B U B′':'B U′ B′','B U′ B′':'B U B′','B′ U B':'B′ U′ B','B′ U′ B':'B′ U B'}; const matches=[]; try{for(const entry of f2lSetups){for(const slot of ['FR','FL']){const setup=entry.slots[slot]?.setup; if(!setup)continue; for(const auf of ['', 'U', 'U2', 'U′']){for(const [extract,inverse] of Object.entries(inv)){resetToSetupStart(); await runMoves(parseMoves([setup,auf,inverse].filter(Boolean).join(' ')),0); const corner=cubies.find(p=>p.userData.homeCoord.x===cornerHome.x&&p.userData.homeCoord.y===cornerHome.y&&p.userData.homeCoord.z===cornerHome.z); const edge=corner&&getPairedF2LEdge(corner); if(!corner||!edge)continue; const cc=corner.userData.coord, ec=edge.userData.coord; if(cc.x!==target.corner.x||cc.y!==target.corner.y||cc.z!==target.corner.z||ec.x!==target.edge.x||ec.y!==target.edge.y||ec.z!==target.edge.z)continue; const stickers=piece=>{const map={}; piece.children.filter(m=>m.userData.originalMaterial).forEach(st=>{const n=new THREE.Vector3(st.userData.axis==='x'?st.userData.layer:0,st.userData.axis==='y'?st.userData.layer:0,st.userData.axis==='z'?st.userData.layer:0).applyQuaternion(piece.quaternion); map[st.userData.face]=vectorToFace(n);}); return map;}; const cs=stickers(corner), es=stickers(edge); if(target.cornerStickers&&(cs.L!==target.cornerStickers.L||cs.D!==target.cornerStickers.D||cs.F!==target.cornerStickers.F))continue; if(target.edgeStickers&&(es.L!==target.edgeStickers.L||es.F!==target.edgeStickers.F))continue; matches.push({caseId:entry.id,slot,auf,extract,setup:[setup,auf,inverse].filter(Boolean).join(' '),cornerStickers:cs,edgeStickers:es}); if(matches.length>=8)return matches;}}}} return matches;}finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}}};
     const formulaPanel=document.querySelector('#formula-panel');
     const dockKeyboard=document.querySelector('#dock-keyboard');
     const dockCases=document.querySelector('#dock-cases');
@@ -1134,7 +1333,6 @@
       viewedF2LCases.add(caseId);
       persistSetting('rubik-f2l-viewed', [...viewedF2LCases].map(encodeURIComponent).join('|'));
     }
-    let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
     resetButton.onclick=()=>{
       if(busy) return;
       algPlayback=null;
@@ -1176,13 +1374,17 @@
     }
     async function algNext(id, sequence, isSetup, status){
       // Serialize rapid Next taps: a cube rotation must finish before the following face move.
+      // Capture token so a cancelled playback (color-front reorient) cannot restart itself.
+      const token=algPlayToken;
       nextMoveQueue=nextMoveQueue.then(async()=>{
-        if(busy) return;
+        if(token!==algPlayToken||busy) return;
         markActiveAlgRow(id);
         if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSetupStart(); }
-        if(algPlayback.index>=algPlayback.moves.length) return;
+        if(!algPlayback||algPlayback.index>=algPlayback.moves.length) return;
+        if(token!==algPlayToken) return;
         const move=algPlayback.moves[algPlayback.index];
         await runMoves([move], stepDelay());
+        if(token!==algPlayToken||!algPlayback) return;
         algPlayback.index++;
         updateMoveStepHighlight();
         stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
@@ -1230,16 +1432,23 @@
       const solutionId=`detected-${caseId}-${slot}-solution`;
       detectedSolution.append(createAlgRow({id:solutionId,label:`CÔNG THỨC · ${formula}`,sequence:formula,isSetup:false,status:`${caseId} · ${slot} · CÔNG THỨC`}));
     }
+    function renderInsertedF2LPair({slot,frontName}){
+      detectedSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent=`SLOT ${slot} · ĐÃ ĐÚNG`;
+      const description=document.createElement('p'); description.textContent=`Cặp theo mặt gốc ${frontName} đã nằm đúng slot (khớp tâm màu hiện tại). Không cần công thức F2L — chọn cặp chưa giải hoặc XÁO TRỘN F2L.`;
+      detectedSolution.append(title,description);
+    }
     function renderUnmatchedF2LSolution({slot,frontName,extraction}){
       detectedSolution.replaceChildren();
       const title=document.createElement('h2'); title.textContent=`SLOT ${slot}`;
-      const description=document.createElement('p'); description.textContent=extraction?`Cặp theo mặt gốc ${frontName} đang bị kẹt trong slot sai. Chạy EXTRACT để đưa về ${extraction.detected.caseId}, sau đó chạy công thức.`:`Cặp theo mặt gốc ${frontName} chưa khớp case F2L chuẩn trong thư viện.`;
+      const description=document.createElement('p'); description.textContent=extraction?`Cặp theo mặt gốc ${frontName} đang ở pose cần SETUP trước. Chạy SETUP (${extraction.sequence}) để đưa về ${extraction.detected.caseId}, rồi chạy CÔNG THỨC.`:`Cặp theo mặt gốc ${frontName} chưa khớp case F2L chuẩn (edge có thể đang kẹt slot khác / pose ngoài thư viện). Thử XÁO TRỘN F2L lại hoặc SETUP một case rồi GIẢI F2L.`;
       detectedSolution.append(title,description);
       if(!extraction)return;
       const extractId=`detected-extract-${slot}`;
-      detectedSolution.append(createAlgRow({id:extractId,label:`EXTRACT · ${extraction.sequence}`,sequence:extraction.sequence,isSetup:false,status:`SLOT ${slot} · EXTRACT`}));
-      const solution=[extraction.detected.extraSetup,f2lSetups.find(entry=>entry.id===extraction.detected.caseId)?.slots[slot]?.solutions[0]].filter(Boolean).join(' ');
-      if(solution)detectedSolution.append(createAlgRow({id:`${extractId}-solution`,label:`CÔNG THỨC · ${solution}`,sequence:solution,isSetup:false,status:`${extraction.detected.caseId} · ${slot} · CÔNG THỨC`}));
+      const formulaSlot=extraction.slot||slot;
+      detectedSolution.append(createAlgRow({id:extractId,label:`SETUP · ${extraction.sequence}`,sequence:extraction.sequence,isSetup:false,status:`SLOT ${slot} · SETUP`}));
+      const formula=extraction.formula||[extraction.detected.extraSetup,f2lSetups.find(entry=>entry.id===extraction.detected.caseId)?.slots[formulaSlot]?.solutions[0]].filter(Boolean).join(' ');
+      if(formula)detectedSolution.append(createAlgRow({id:`${extractId}-solution`,label:`CÔNG THỨC · ${formula}`,sequence:formula,isSetup:false,status:`${extraction.detected.caseId} · ${formulaSlot} · CÔNG THỨC`}));
     }
     // advancedMethods is imported from its shared catalog module.
 
@@ -1277,7 +1486,362 @@
         return results;
       }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
     }
-    if(new URLSearchParams(location.search).has('test')) Object.assign(window.__rubikTest,{validateKeyholePairs});
+    if(new URLSearchParams(location.search).has('test')) Object.assign(window.__rubikTest,{validateKeyholePairs,async debugExtract(setupSequence,frontColorName,homeCorner={x:-1,y:-1,z:1}){const priorDuration=scrambleMoveDuration,priorDelay=scrambleDelay;scrambleMoveDuration=0;scrambleDelay=0;const logs=[];try{resetToSetupStart();if(setupSequence)await runMoves(parseMoves(setupSequence),0);selectedCorner=cubies.find(piece=>piece.userData.homeCoord.x===homeCorner.x&&piece.userData.homeCoord.y===homeCorner.y&&piece.userData.homeCoord.z===homeCorner.z)||null;selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner);const slot=detectSelectedPairSlot(frontColorName);const frontFace=colorNameToHomeFace[frontColorName];const yMoves=yMovesToBringHomeFaceToFront(frontFace);if(yMoves?.length)await runMoves(yMoves,0);const snapshot=saveCubiePose();for(const auf of ['','U','U2','U′']){for(const extract of ['L′ U L','F′ U F','F U′ F′','R U R′','R′ U′ R','R U′ R′','L U′ L′']){const sequence=[auf,extract].filter(Boolean).join(' ');placeSolvedPoseFromSnapshot(snapshot);await runMoves(parseMoves(sequence),0);const detected=recognizePairFromCache(selectedCorner,selectedEdge);if(!detected){logs.push({sequence,detected:null});continue;}const caseEntry=f2lSetups.find(e=>e.id===detected.caseId);let inserted=null;const post=saveCubiePose();for(const s of [slot,'FR','FL','BL','BR']){for(const solution of caseEntry?.slots[s]?.solutions||[]){const formula=[detected.extraSetup,solution].filter(Boolean).join(' ');placeSolvedPoseFromSnapshot(post);await runMoves(parseMoves(formula),0);if(isSelectedPairInserted()){inserted={slot:s,formula};break;}}if(inserted)break;}logs.push({sequence,detected,inserted});if(inserted)return {slot,logs:logs.filter(l=>l.detected),found:{sequence,detected,inserted}};}}return {slot,logs:logs.filter(l=>l.detected).slice(0,20),found:null};}finally{scrambleMoveDuration=priorDuration;scrambleDelay=priorDelay;clearF2LSelection();}},
+      async checkFrontRecognition(caseId,frontColorName,slot='FR'){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        try{
+          const entry=f2lSetups.find(e=>e.id===caseId);
+          const setup=entry?.slots?.FR?.setup;
+          if(!setup) return {error:'no setup'};
+          const frontFace=colorNameToHomeFace[frontColorName];
+          const i=f2lSideCycle.indexOf(frontFace);
+          const right=f2lSideCycle[(i+1)%4], back=f2lSideCycle[(i+2)%4], left=f2lSideCycle[(i+3)%4];
+          const faces=({FR:[frontFace,right],FL:[frontFace,left],BL:[back,left],BR:[back,right]})[slot];
+          const home={x:faces.includes('R')?1:faces.includes('L')?-1:0,y:-1,z:faces.includes('F')?1:faces.includes('B')?-1:0};
+          resetToSetupStart();
+          const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+          if(yMoves?.length) await runMoves(yMoves,0);
+          await runMoves(parseMoves(setup),0);
+          selectedCorner=cubies.find(p=>p.userData.homeCoord.x===home.x&&p.userData.homeCoord.y===home.y&&p.userData.homeCoord.z===home.z)||null;
+          selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner);
+          await buildCaseRecognitionCache();
+          const detected=selectedCorner&&selectedEdge?recognizePairFromCache(selectedCorner,selectedEdge):null;
+          const preferred=detectSelectedPairSlot(frontColorName);
+          const verified=detected?await resolveVerifiedDetectedSolution(detected,preferred):null;
+          const inserted=!verified&&isSelectedPairInserted();
+          const extraction=verified||inserted?null:await findF2LExtractionSetup(preferred);
+          return {caseId,frontColorName,slot:preferred,home,yMoves,detected,verified,inserted,extraction,pairCoordinates:selectedCorner&&selectedEdge?selectedPairCoordinates():null};
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      },
+      async simulateColorChoice(setupSequence,frontColorName,homeCorner){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        try{
+          resetToSetupStart();
+          if(setupSequence) await runMoves(parseMoves(setupSequence),0);
+          selectedCorner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z)||null;
+          selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner);
+          const slot=detectSelectedPairSlot(frontColorName);
+          const frontFace=colorNameToHomeFace[frontColorName];
+          const detectedBefore=selectedCorner&&selectedEdge?await recognizeSelectedF2LCase():null;
+          const pairBefore=selectedCorner&&selectedEdge?selectedPairCoordinates():null;
+          const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+          if(yMoves?.length) await runMoves(yMoves,0);
+          const detectedAfter=await recognizeSelectedF2LCase();
+          const verified=detectedAfter?await resolveVerifiedDetectedSolution(detectedAfter,slot):null;
+          const inserted=!verified&&isSelectedPairInserted();
+          const extraction=verified||inserted?null:await findF2LExtractionSetup(slot);
+          return {
+            slot,yMoves,detectedBefore,detectedAfter,inserted,
+            verified:verified?{caseId:verified.caseId,slot:verified.slot,formula:verified.formula,extraSetup:verified.extraSetup}:null,
+            extraction:extraction?{sequence:extraction.sequence,caseId:extraction.detected.caseId,slot:extraction.slot,formula:extraction.formula}:null,
+            pairBefore,
+            pairAfter:selectedCorner&&selectedEdge?selectedPairCoordinates():null,
+          };
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      },
+      async sweepFrSetupFronts(limit=41){
+        const fronts=['XANH LÁ','CAM','ĐỎ','XANH DA TRỜI'];
+        const home={x:1,y:-1,z:1};
+        const fails=[];
+        let total=0, pass=0;
+        for(const entry of f2lSetups.slice(0,limit)){
+          const setup=entry.slots.FR?.setup; if(!setup) continue;
+          for(const front of fronts){
+            total++;
+            const r=await window.__rubikTest.simulateColorChoice(setup,front,home);
+            if(r.verified||r.extraction||r.inserted) pass++;
+            else fails.push({id:entry.id,front,slot:r.slot,before:r.detectedBefore,after:r.detectedAfter});
+          }
+        }
+        return {total,pass,failCount:fails.length,fails};
+      },
+      async findSetupForPairPose(target,homeCorner={x:1,y:-1,z:1}){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        const stickerMap=piece=>{const map={}; piece.children.filter(m=>m.userData.originalMaterial).forEach(st=>{const n=new THREE.Vector3(st.userData.axis==='x'?st.userData.layer:0,st.userData.axis==='y'?st.userData.layer:0,st.userData.axis==='z'?st.userData.layer:0).applyQuaternion(piece.quaternion); map[st.userData.face]=vectorToFace(n);}); return map;};
+        const matchMap=(got,want)=>!want||Object.entries(want).every(([k,v])=>got[k]===v);
+        const matches=[];
+        try{
+          for(const entry of f2lSetups){
+            for(const slot of ['FR','FL','BL','BR']){
+              const setup=entry.slots[slot]?.setup; if(!setup) continue;
+              for(const auf of ['','U','U2','U′']){
+                resetToSetupStart();
+                await runMoves(parseMoves([setup,auf].filter(Boolean).join(' ')),0);
+                const corner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z);
+                const edge=corner&&getPairedF2LEdge(corner);
+                if(!corner||!edge) continue;
+                const cc=corner.userData.coord, ec=edge.userData.coord;
+                if(cc.x!==target.corner.x||cc.y!==target.corner.y||cc.z!==target.corner.z) continue;
+                if(ec.x!==target.edge.x||ec.y!==target.edge.y||ec.z!==target.edge.z) continue;
+                const cs=stickerMap(corner), es=stickerMap(edge);
+                if(!matchMap(cs,target.cornerStickers)||!matchMap(es,target.edgeStickers)) continue;
+                matches.push({caseId:entry.id,slot,auf,setup:[setup,auf].filter(Boolean).join(' '),cs,es});
+                if(matches.length>=5) return matches;
+              }
+            }
+          }
+          return matches;
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
+      },
+      async parseMoveTokens(sequence){
+        return parseMoves(sequence);
+      },
+      async validateFrontColorRecognition(){
+        const fronts=['XANH LÁ','CAM','ĐỎ','XANH DA TRỜI'];
+        const homeFaceByFront={'XANH LÁ':'F','CAM':'R','ĐỎ':'L','XANH DA TRỜI':'B'};
+        const orientation=[];
+        for(const [front,homeFace] of Object.entries(homeFaceByFront)){
+          // Always measure from solved so prior front checks do not skew yMoves.
+          resetToSetupStart();
+          const yMoves=yMovesToBringHomeFaceToFront(homeFace);
+          const centers=await window.__rubikTest.dumpCenters((yMoves||[]).join(' '));
+          orientation.push({
+            front,
+            homeFace,
+            yMoves:yMoves||[],
+            facingAtF:centers.centers[homeFace],
+            f2lSolved:centers.f2lSolved,
+            passed:centers.centers[homeFace]==='F'&&centers.f2lSolved,
+          });
+        }
+        const regressionSetup='F R′ F′ R U';
+        const regression=await window.__rubikTest.simulateColorChoice(regressionSetup,'ĐỎ',{x:1,y:-1,z:1});
+        const regressionPassed=!!(regression.verified&&regression.verified.caseId==='F2L -1'&&regression.slot==='BR');
+        const sweep=await window.__rubikTest.sweepFrSetupFronts(41);
+        const sampleCases=['F2L -1','F2L -9','F2L -15','F2L -21','F2L -23'];
+        const samples=[];
+        for(const caseId of sampleCases){
+          for(const front of fronts){
+            const result=await window.__rubikTest.checkFrontRecognition(caseId,front,'FR');
+            samples.push({
+              caseId,
+              front,
+              slot:result.slot,
+              detected:result.detected?.caseId||null,
+              verified:!!result.verified,
+              extraction:!!result.extraction,
+              passed:!!(result.verified||result.extraction||result.inserted),
+            });
+          }
+        }
+        const tokens={
+          L3:await window.__rubikTest.parseMoveTokens('L3'),
+          R3Prime:await window.__rubikTest.parseMoveTokens("R3′"),
+          y2:await window.__rubikTest.parseMoveTokens('y2'),
+          U2:await window.__rubikTest.parseMoveTokens('U2'),
+        };
+        const tokenPassed=JSON.stringify(tokens.L3)==='["L′"]'
+          &&JSON.stringify(tokens.R3Prime)==='["R"]'
+          &&JSON.stringify(tokens.y2)==='["y","y"]'
+          &&JSON.stringify(tokens.U2)==='["U","U"]';
+        return {
+          orientation,
+          orientationPassed:orientation.every(item=>item.passed),
+          regression:{
+            setup:regressionSetup,
+            front:'ĐỎ',
+            slot:regression.slot,
+            detectedBefore:regression.detectedBefore,
+            detectedAfter:regression.detectedAfter,
+            verified:regression.verified,
+            passed:regressionPassed,
+          },
+          sweep,
+          samples,
+          samplesPassed:samples.every(item=>item.passed),
+          tokens,
+          tokenPassed,
+          passed:orientation.every(item=>item.passed)&&regressionPassed&&sweep.failCount===0&&samples.every(item=>item.passed)&&tokenPassed,
+        };
+      },
+      async dumpCenters(move=''){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        try{
+          resetToSetupStart();
+          if(move) await runMoves(parseMoves(move),0);
+          const centers={};
+          for(const face of ['R','L','F','B','U','D']){
+            const home=homeFaceCoord[face];
+            const piece=cubies.find(p=>p.userData.homeCoord.x===home.x&&p.userData.homeCoord.y===home.y&&p.userData.homeCoord.z===home.z);
+            centers[face]=currentFacingOfHomeFace(face);
+          }
+          return {move,centers,bringR:yMovesToBringHomeFaceToFront('R'),f2lSolved:isF2LLayerSolved()};
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
+      },
+      async dumpPairAfter(frontColorName,setupSequence='',homeCorner={x:1,y:-1,z:-1}){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        try{
+          resetToSetupStart();
+          const frontFace=colorNameToHomeFace[frontColorName];
+          const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+          if(yMoves?.length) await runMoves(yMoves,0);
+          if(setupSequence) await runMoves(parseMoves(setupSequence),0);
+          selectedCorner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z)||null;
+          selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner);
+          await buildCaseRecognitionCache();
+          const detected=selectedCorner&&selectedEdge?recognizePairFromCache(selectedCorner,selectedEdge):null;
+          const slot=detectSelectedPairSlot(frontColorName);
+          const verified=detected?await resolveVerifiedDetectedSolution(detected,slot):null;
+          const extraction=verified?null:await findF2LExtractionSetup(slot);
+          return {slot,detected,verified,extraction,pairCoordinates:selectedCorner&&selectedEdge?selectedPairCoordinates():null,yMoves};
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      },
+      async searchMovesAfterFront(target,frontColorName='CAM',homeCorner={x:1,y:-1,z:-1},sequences=null){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        const stickerMap=piece=>{const map={}; piece.children.filter(m=>m.userData.originalMaterial).forEach(st=>{const n=new THREE.Vector3(st.userData.axis==='x'?st.userData.layer:0,st.userData.axis==='y'?st.userData.layer:0,st.userData.axis==='z'?st.userData.layer:0).applyQuaternion(piece.quaternion); map[st.userData.face]=vectorToFace(n);}); return map;};
+        const matchMap=(got,want)=>!want||Object.entries(want).every(([k,v])=>got[k]===v);
+        const base=[
+          'R U′ R′','R U R′','R U2 R′','F′ U F','F′ U′ F','L′ U L','L′ U′ L','L′ U2 L','B U B′','B U′ B′',
+          'R U′ R′ L′ U L','R U′ R′ L′ U′ L','R U R′ L′ U L','R U′ R′ U L′ U L','R U′ R′ U′ L′ U L','R U′ R′ U2 L′ U L',
+          'L′ U L R U′ R′','L′ U′ L R U′ R′','L′ U2 L R U′ R′','F′ U′ F R U′ R′','B U B′ L′ U L',
+          'R U′ R′ U R U′ R′','U R U′ R′','U′ R U′ R′','U2 R U′ R′','U L′ U L','U′ L′ U′ L',
+          'R U′ R′ U′ R U R′ U′ L′ U L','F R′ F′ R','R′ F R F′','U F R′ F′ R','R U R′ U′ R U′ R′',
+          'R U′ R′ F′ U′ F','R U′ R′ B U B′','L′ U L U′ L′ U L','R2 U R2 U′ R2','r U′ r′ U r U r′'
+        ];
+        const seqs=sequences||base;
+        // Also all FR setups then optional extract, applied AFTER front y
+        if(!sequences){
+          for(const entry of f2lSetups){
+            const setup=entry.slots.FR?.setup; if(!setup) continue;
+            for(const auf of ['','U','U2','U′']){
+              for(const ex of ['','R U′ R′','L′ U L','L′ U′ L','F′ U F','B U B′']){
+                seqs.push([setup,auf,ex].filter(Boolean).join(' '));
+              }
+            }
+          }
+        }
+        const matches=[];
+        try{
+          const frontFace=colorNameToHomeFace[frontColorName];
+          for(const seq of seqs){
+            resetToSetupStart();
+            const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+            if(yMoves?.length) await runMoves(yMoves,0);
+            if(seq) await runMoves(parseMoves(seq),0);
+            const corner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z);
+            const edge=corner&&getPairedF2LEdge(corner);
+            if(!corner||!edge) continue;
+            const cc=corner.userData.coord, ec=edge.userData.coord;
+            if(cc.x!==target.corner.x||cc.y!==target.corner.y||cc.z!==target.corner.z) continue;
+            if(ec.x!==target.edge.x||ec.y!==target.edge.y||ec.z!==target.edge.z) continue;
+            const cs=stickerMap(corner), es=stickerMap(edge);
+            if(!matchMap(cs,target.cornerStickers)||!matchMap(es,target.edgeStickers)) continue;
+            selectedCorner=corner; selectedEdge=edge;
+            await buildCaseRecognitionCache();
+            const detected=recognizePairFromCache(corner,edge);
+            const slotNow=detectSelectedPairSlot(frontColorName);
+            const verified=detected?await resolveVerifiedDetectedSolution(detected,slotNow):null;
+            const extraction=verified?null:await findF2LExtractionSetup(slotNow);
+            matches.push({seq,cs,es,detected,verified,extraction,slotNow,pairCoordinates:selectedPairCoordinates()});
+            if(matches.length>=5) break;
+          }
+          return matches;
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      },
+      async findPoseAfterFront(target,frontColorName='CAM',homeCorner={x:1,y:-1,z:-1}){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        const stickerMap=piece=>{const map={}; piece.children.filter(m=>m.userData.originalMaterial).forEach(st=>{const n=new THREE.Vector3(st.userData.axis==='x'?st.userData.layer:0,st.userData.axis==='y'?st.userData.layer:0,st.userData.axis==='z'?st.userData.layer:0).applyQuaternion(piece.quaternion); map[st.userData.face]=vectorToFace(n);}); return map;};
+        const matchMap=(got,want)=>!want||Object.entries(want).every(([k,v])=>got[k]===v);
+        const extracts=['','R U R′','R U′ R′','R′ U R','R′ U′ R','L U L′','L U′ L′','L′ U L','L′ U′ L','F U F′','F U′ F′','F′ U F','F′ U′ F','B U B′','B U′ B′','B′ U B','B′ U′ B','R U2 R′','L′ U2 L','U R U′ R′','U′ R U R′','R U R′ U R U′ R′','L′ U′ L U′ L′ U L','R U′ R′ U′ R U R′','F′ U′ F U F′ U′ F'];
+        const matches=[];
+        try{
+          for(const entry of f2lSetups){
+            for(const slot of ['FR','FL','BL','BR']){
+              const setup=entry.slots[slot]?.setup; if(!setup) continue;
+              for(const auf of ['','U','U2','U′']){
+                for(const extract of extracts){
+                  resetToSetupStart();
+                  await runMoves(parseMoves([setup,auf,extract].filter(Boolean).join(' ')),0);
+                  const frontFace=colorNameToHomeFace[frontColorName];
+                  const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+                  if(yMoves?.length) await runMoves(yMoves,0);
+                  const corner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z);
+                  const edge=corner&&getPairedF2LEdge(corner);
+                  if(!corner||!edge) continue;
+                  const cc=corner.userData.coord, ec=edge.userData.coord;
+                  if(cc.x!==target.corner.x||cc.y!==target.corner.y||cc.z!==target.corner.z) continue;
+                  if(ec.x!==target.edge.x||ec.y!==target.edge.y||ec.z!==target.edge.z) continue;
+                  const cs=stickerMap(corner), es=stickerMap(edge);
+                  if(!matchMap(cs,target.cornerStickers)||!matchMap(es,target.edgeStickers)) continue;
+                  selectedCorner=corner; selectedEdge=edge;
+                  await buildCaseRecognitionCache();
+                  const detected=recognizePairFromCache(corner,edge);
+                  const slotNow=detectSelectedPairSlot(frontColorName);
+                  const extraction=await findF2LExtractionSetup(slotNow);
+                  matches.push({caseId:entry.id,slot,auf,extract,setupSeq:[setup,auf,extract].filter(Boolean).join(' '),cs,es,detected,extraction,slotNow,pairCoordinates:selectedPairCoordinates()});
+                  if(matches.length>=3) return matches;
+                }
+              }
+            }
+          }
+          return matches;
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      },
+      async searchExtendedExtract(setupSequence,frontColorName,homeCorner={x:1,y:-1,z:-1},extraSequences=[]){
+        const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay; scrambleMoveDuration=0; scrambleDelay=0;
+        try{
+          resetToSetupStart();
+          if(setupSequence) await runMoves(parseMoves(setupSequence),0);
+          selectedCorner=cubies.find(p=>p.userData.homeCoord.x===homeCorner.x&&p.userData.homeCoord.y===homeCorner.y&&p.userData.homeCoord.z===homeCorner.z)||null;
+          selectedEdge=selectedCorner&&getPairedF2LEdge(selectedCorner);
+          const slot=detectSelectedPairSlot(frontColorName);
+          const frontFace=colorNameToHomeFace[frontColorName];
+          const yMoves=yMovesToBringHomeFaceToFront(frontFace);
+          if(yMoves?.length) await runMoves(yMoves,0);
+          await buildCaseRecognitionCache();
+          const snapshot=saveCubiePose();
+          const candidates=[...f2lExtractionCandidates,...extraSequences];
+          const found=[];
+          for(const auf of f2lExtractAufPrefixes){
+            for(const extract of candidates){
+              const sequence=[auf,extract].filter(Boolean).join(' ');
+              placeSolvedPoseFromSnapshot(snapshot);
+              await runMoves(parseMoves(sequence),0);
+              const detected=recognizePairFromCache(selectedCorner,selectedEdge);
+              if(!detected) continue;
+              const caseEntry=f2lSetups.find(e=>e.id===detected.caseId);
+              const post=saveCubiePose();
+              for(const extraSetup of aufPrefixOrder(detected.extraSetup||'')){
+                for(const s of [slot,'FR','FL','BL','BR'].filter((v,i,a)=>v&&a.indexOf(v)===i)){
+                  for(const solution of caseEntry?.slots[s]?.solutions||[]){
+                    const formula=[extraSetup,solution].filter(Boolean).join(' ');
+                    placeSolvedPoseFromSnapshot(post);
+                    try{
+                      await runMoves(parseMoves(formula),0);
+                      if(isSelectedPairInserted()){found.push({sequence,detected:{...detected,extraSetup},slot:s,formula}); if(found.length>=5) return {slot,found,pairCoordinates:selectedPairCoordinates()};}
+                    }catch{busy=false;}
+                  }
+                }
+              }
+            }
+          }
+          // Two-step: extract A then extract B
+          for(const a of f2lExtractionCandidates){
+            for(const b of f2lExtractionCandidates){
+              if(a===b) continue;
+              for(const auf of ['',...f2lExtractAufPrefixes.slice(1)]){
+                const sequence=[auf,a,b].filter(Boolean).join(' ');
+                placeSolvedPoseFromSnapshot(snapshot);
+                await runMoves(parseMoves(sequence),0);
+                const detected=recognizePairFromCache(selectedCorner,selectedEdge);
+                if(!detected) continue;
+                const caseEntry=f2lSetups.find(e=>e.id===detected.caseId);
+                const post=saveCubiePose();
+                for(const solution of caseEntry?.slots.FR?.solutions||[]){
+                  const formula=[detected.extraSetup,solution].filter(Boolean).join(' ');
+                  placeSolvedPoseFromSnapshot(post);
+                  try{
+                    await runMoves(parseMoves(formula),0);
+                    if(isSelectedPairInserted()){found.push({sequence,detected,slot:'FR',formula,twoStep:true}); if(found.length>=5) return {slot,found,pairCoordinates:selectedPairCoordinates()};}
+                  }catch{busy=false;}
+                }
+              }
+            }
+          }
+          return {slot,found,pairCoordinates:selectedPairCoordinates()};
+        }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; clearF2LSelection();}
+      }
+    });
     let openAdvancedMethodId=null, openAdvancedSlot='FR', activeAdvancedMethodId=null;
     const viewedAdvancedMethods=new Set((readSetting('rubik-af2l-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
     function markAdvancedMethodViewed(methodId){

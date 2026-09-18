@@ -1,9 +1,11 @@
 {
   "private": true,
   "scripts": {
+    "start": "python3 -m http.server 4173",
     "test:setup": "playwright install chromium",
     "test:setup:deps": "playwright install-deps chromium",
     "test:f2l": "playwright test",
+    "test:f2l-front-recognition": "playwright test tests/f2l-front-recognition.spec.mjs",
     "test:f2l-10": "playwright test tests/f2l-10-formulas.spec.mjs",
     "test:f2l-11": "playwright test tests/f2l-11-formulas.spec.mjs",
     "test:f2l-12": "playwright test tests/f2l-12-formulas.spec.mjs",

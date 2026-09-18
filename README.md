@@ -2,6 +2,17 @@
 
 Trang web luyện F2L (Three.js). Chi tiết yêu cầu: [`docs/rubik-requirements.md`](docs/rubik-requirements.md).
 
+## Chạy local
+
+Trainer dùng ES modules (`import` từ `f2l-data.js`, …). **Không mở bằng `file://`** — Chrome sẽ chặn CORS (`origin 'null'`).
+
+```bash
+npm start
+# hoặc: python3 -m http.server 4173
+```
+
+Rồi mở http://localhost:4173/f2l/
+
 ## Test Playwright (F2L formulas)
 
 ### Cài lần đầu (WSL / Ubuntu)
