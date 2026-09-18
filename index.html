@@ -153,6 +153,20 @@
       #dock-sheet-basic:has(.advanced-method.is-open) .sheet-drag { margin:0; padding:8px 0 6px; }
       .dock-sheet h2 { margin:0 0 6px; font:700 13px var(--font-display); letter-spacing:.02em; }
       .dock-sheet p { margin:0; font-size:11px; line-height:1.5; opacity:.7; }
+      .keyhole-methods { display:flex; flex-direction:column; gap:8px; max-height:calc(min(36vh,240px) - 22px); overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .keyhole-methods::-webkit-scrollbar { display:none; }
+      .keyhole-intro { margin:0; padding:0 2px 2px; font-size:10px; line-height:1.45; opacity:.78; }
+      .keyhole-case { padding:8px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
+      .keyhole-case h3 { margin:0 0 5px; font:700 11px var(--font-display); }
+      .keyhole-case p { margin:0 0 6px; font-size:10px; line-height:1.4; opacity:.75; }
+      .keyhole-steps { display:flex; flex-direction:column; gap:4px; }
+      .keyhole-steps .opt-row { display:flex; gap:4px; align-items:stretch; }
+      .keyhole-steps .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+      .keyhole-steps .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
+      .keyhole-steps .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+      .keyhole-steps .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
+      .keyhole-steps .opt-next,.keyhole-steps .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
+      .keyhole-steps .opt-row.is-active .opt-label,.keyhole-steps .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
       .advanced-method { display:flex; flex-direction:column; gap:6px; padding:7px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
       /* Open AF2L like 4-hướng: full detail panel, not expanded beside the strip. */
       .advanced-method.is-open {
@@ -312,7 +326,7 @@
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
   <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup F2L"></nav>
   <section id="dock-sheet-basic" class="dock-sheet" aria-label="Nâng cao" hidden><button id="advanced-sheet-drag" class="sheet-drag" type="button" aria-label="Kéo xuống để đóng" title="Kéo xuống để đóng"></button><div id="advanced-methods" class="advanced-methods" aria-label="Phương pháp F2L nâng cao"></div></section>
-  <section id="dock-sheet-keyhole" class="dock-sheet" aria-label="Keyhole" hidden><h2>KEYHOLE</h2><p>Nội dung Keyhole sẽ nằm ở đây.</p></section>
+  <section id="dock-sheet-keyhole" class="dock-sheet" aria-label="Keyhole" hidden><button id="keyhole-sheet-drag" class="sheet-drag" type="button" aria-label="Kéo xuống để đóng" title="Kéo xuống để đóng"></button><div id="keyhole-methods" class="keyhole-methods" aria-label="Các trường hợp Keyhole F2L"></div></section>
   <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
     <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
     <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Các trường hợp F2L">4 hướng</button>
@@ -1184,6 +1198,7 @@
     const dockKeyhole=document.querySelector('#dock-keyhole');
     const dockSheetBasic=document.querySelector('#dock-sheet-basic');
     const dockSheetKeyhole=document.querySelector('#dock-sheet-keyhole');
+    const keyholeSheetDrag=document.querySelector('#keyhole-sheet-drag');
     const dockButtons={keyboard:dockKeyboard, cases:dockCases, basic:dockBasic, keyhole:dockKeyhole};
     let mobileDockSheet=null;
     function closeMovePadInstant(){
@@ -1798,6 +1813,43 @@
         BR:{setup:'R U′ R′ U2 L′ U L U′ y′',solutions:['U F′ U′ F2 R′ F′ U′ F R F′','y U L′ U′ L U2 R U R′','y U L′ U′ L U2 R U R′ y′']}
       }
     }];
+    const keyholeCases=[
+      {id:'KEYHOLE · 1', title:'Keyhole · 1', description:'Công thức Keyhole được cung cấp.', solutions:["R U′ R′ U R U2 R′ U R U′ R′"]},
+      {id:'KEYHOLE · 2', title:'Keyhole · 2', description:'Công thức Keyhole mirror được cung cấp.', solutions:["y′ L′ U L U L′ U′ L U2 L′ U L"]}
+    ];
+    const inverseSequence=sequence=>parseMoves(sequence).reverse().map(invertToken).join(' ');
+    function renderKeyholeMethods(){
+      const container=document.querySelector('#keyhole-methods');
+      if(!container) return;
+      container.innerHTML='';
+      const intro=document.createElement('p'); intro.className='keyhole-intro'; intro.textContent='Mỗi cặp SETUP n → GIẢI n là case luyện cố định: chạy SETUP từ solved, rồi chạy GIẢI cùng số để trở về solved.'; container.appendChild(intro);
+      keyholeCases.forEach(keyholeCase=>{
+        const card=document.createElement('article'); card.className='keyhole-case'; card.dataset.keyholeId=keyholeCase.id;
+        const title=document.createElement('h3'); title.textContent=keyholeCase.title;
+        const description=document.createElement('p'); description.textContent=keyholeCase.description;
+        const steps=document.createElement('div'); steps.className='keyhole-steps';
+        keyholeCase.solutions.forEach((solution,index)=>{
+          const number=index+1, setup=inverseSequence(solution), prefix=`${keyholeCase.id}:${number}`;
+          steps.appendChild(createAlgRow({id:`${prefix}:setup`,label:`SETUP ${number} · ${setup}`,sequence:setup,isSetup:true,status:`${keyholeCase.id} · SETUP ${number}`,extraClass:'opt-setup'}));
+          steps.appendChild(createAlgRow({id:`${prefix}:solve`,label:`GIẢI ${number} · ${solution}`,sequence:solution,isSetup:false,status:`${keyholeCase.id} · GIẢI ${number}`}));
+        });
+        card.append(title,description,steps); container.appendChild(card);
+      });
+    }
+    renderKeyholeMethods();
+    async function validateKeyholePairs(){
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay, results=[];
+      scrambleMoveDuration=0; scrambleDelay=0;
+      try{
+        for(const keyholeCase of keyholeCases) for(let index=0;index<keyholeCase.solutions.length;index++){
+          const solution=keyholeCase.solutions[index], setup=inverseSequence(solution);
+          resetToSetupStart(); await runMoves(parseMoves(setup),0); await runMoves(parseMoves(solution),0);
+          results.push({caseId:keyholeCase.id,solution:index+1,setup,solutionMoves:solution,passed:isF2LLayerSolved()});
+        }
+        return results;
+      }finally{scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay;}
+    }
+    if(new URLSearchParams(location.search).has('test')) Object.assign(window.__rubikTest,{validateKeyholePairs});
     let openAdvancedMethodId=null, openAdvancedSlot='FR', activeAdvancedMethodId=null;
     const viewedAdvancedMethods=new Set((readSetting('rubik-af2l-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
     function markAdvancedMethodViewed(methodId){
@@ -1843,7 +1895,7 @@
         card.dataset.methodId=method.id;
         if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button'); main.type='button'; main.className='advanced-method-main'; main.title='Mở setup và công thức giải';
-        const image=document.createElement('img'); image.src=method.preview; image.alt=`Preview ${method.name}`;
+        const image=document.createElement('img'); image.src=`previews/af2l-${method.id.replace('AF2L -','')}.png`; image.alt=`Preview ${method.name}`;
         const title=document.createElement('b'); title.textContent=method.name;
         main.append(image,title);
         main.onclick=()=>{
@@ -1990,6 +2042,19 @@
       });
     }
     enableAdvancedSheetSwipeDismiss();
+    function enableKeyholeSheetSwipeDismiss(){
+      const sheet=dockSheetKeyhole, handle=keyholeSheetDrag;
+      if(!handle||handle.dataset.bound==='1') return;
+      handle.dataset.bound='1';
+      let startY=0, dragging=false, dy=0, moved=false;
+      const clear=()=>{sheet.style.transform=''; sheet.style.opacity='';};
+      const start=event=>{const point=event.touches?event.touches[0]:event; startY=point.clientY; dragging=true; dy=0; moved=false;};
+      const move=event=>{if(!dragging)return; const point=event.touches?event.touches[0]:event; dy=Math.max(0,point.clientY-startY); if(dy>6)moved=true; sheet.style.transform=`translateY(${dy}px)`; sheet.style.opacity=String(Math.max(.35,1-dy/220)); if(event.cancelable)event.preventDefault();};
+      const end=()=>{if(!dragging)return; dragging=false; if(dy>72){sheet.style.transform='translateY(100%)'; sheet.style.opacity='0'; setTimeout(()=>{clear();setDockPanels(null);syncMobileDockFromSheets();},180);}else clear(); dy=0;};
+      handle.addEventListener('touchstart',start,{passive:true}); handle.addEventListener('touchmove',move,{passive:false}); handle.addEventListener('touchend',end); handle.addEventListener('touchcancel',end);
+      handle.addEventListener('click',event=>{if(moved){event.preventDefault();moved=false;return;} setDockPanels(null);syncMobileDockFromSheets();});
+    }
+    enableKeyholeSheetSwipeDismiss();
     // Changing an F2L slot is UI-only: retain the exact viewing direction and Rubik state.
     function selectF2LSlot(slot){
       const cameraPosition=camera.position.clone(), cameraQuaternion=camera.quaternion.clone();
