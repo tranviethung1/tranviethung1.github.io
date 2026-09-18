@@ -108,6 +108,7 @@
     .hint { display:none; }
     .practice-controls { position:fixed; z-index:3; right:86px; top:78px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; border-radius:12px; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
     .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:84px; transform:translateX(-50%); display:flex; gap:8px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:36px; min-height:36px; padding:0; border:2px solid transparent; border-radius:10px; color:#fff; font:700 18px var(--font-display); } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
+    .detected-f2l-solution { position:fixed; z-index:5; left:50%; bottom:84px; transform:translateX(-50%); width:min(430px,calc(100vw - 32px)); padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); } .detected-f2l-solution[hidden] { display:none; } .detected-f2l-solution h2 { margin:0 0 7px; font:700 12px var(--font-display); } .detected-f2l-solution p { margin:0 0 7px; font:10px var(--font-ui); opacity:.72; } .detected-f2l-solution .opt-row { display:flex; gap:4px; align-items:stretch; margin-top:4px; } .detected-f2l-solution .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); } .detected-f2l-solution .opt-controls { display:flex; flex-shrink:0; gap:3px; } .detected-f2l-solution .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); } .detected-f2l-solution .opt-next,.detected-f2l-solution .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; } .detected-f2l-solution .opt-row.is-active .opt-label,.detected-f2l-solution .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
     .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
     .reset-cube { position:fixed; z-index:4; right:32px; top:78px; width:42px; min-height:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
     .settings-panel { position:fixed; z-index:4; right:32px; top:128px; width:250px; padding:14px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 13px var(--font-display); } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:10px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; border-radius:8px; } .settings-row input { width:110px; accent-color:var(--accent); }
@@ -373,7 +374,7 @@
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
   <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WHITE CROSS ↓</span></div>
-  <output id="solve-result" class="solve-result" hidden></output><button id="solve-f2l" class="solve-f2l" type="button" hidden>GIẢI F2L</button>
+  <output id="solve-result" class="solve-result" hidden></output><section id="detected-f2l-solution" class="detected-f2l-solution" aria-live="polite" hidden></section><button id="solve-f2l" class="solve-f2l" type="button" hidden>GIẢI F2L</button>
 
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
   <script type="module">
@@ -393,7 +394,7 @@
     statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
     const siteRoutes={playground:'../',training:'./',oll:'../statistics/oll/',pll:'../statistics/pll/',cross:'../statistics/cross/',f2l:'./'};
     siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{const destination=siteRoutes[item.dataset.statistic||item.dataset.navSection]; if(destination===location.pathname){setSiteNavigation(false);return;} location.href=destination;});
-    addEventListener('keydown',event=>{if(event.key==='Escape'&&siteNav.classList.contains('is-open')) setSiteNavigation(false);});
+    addEventListener('keydown',event=>{if(event.key!=='Escape')return; if(siteNav.classList.contains('is-open')) setSiteNavigation(false); else if(typeof setContextualSurface==='function'&&contextualSurface) setContextualSurface(null);});
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
     const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
     const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.9; stage.appendChild(renderer.domElement);
@@ -494,16 +495,82 @@
     // Coord labels travel with x/y/z so the visible grid stays locked to center colors.
     function rotateCube(axis,dir=1){return rotatePieces([...cubies,...coordLabels],axis,dir);}
     function isUnsolvedF2LCorner(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LCorner=h.y===-1&&Math.abs(h.x)===1&&Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const twisted=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LCorner&&(displaced||twisted);}
+    function isUnsolvedF2LEdge(piece){const c=piece.userData.coord, h=piece.userData.homeCoord; const isF2LEdge=h.y===0&&Math.abs(h.x)+Math.abs(h.z)===1; const displaced=c.x!==h.x||c.y!==h.y||c.z!==h.z; const flipped=piece.quaternion.angleTo(piece.userData.homeQuaternion)>1e-4; return isF2LEdge&&(displaced||flipped);}
     // The matching F2L edge shares the corner's two non-white home-face directions.
     function getPairedF2LEdge(corner){const h=corner.userData.homeCoord; return cubies.find(piece=>{const edge=piece.userData.homeCoord; return edge.y===0&&edge.x===h.x&&edge.z===h.z;});}
     // Mark every side-color sticker belonging to this pair—both colors on its corner and edge.
     function showPairMarkers(corner,edge){pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0; if(!corner||!edge)return; [corner,edge].forEach(piece=>piece.children.filter(mesh=>mesh.userData.originalMaterial&&mesh.userData.face!=='D'&&mesh.userData.face!=='U').forEach(sticker=>{const isCool=['F','B'].includes(sticker.userData.face), isOrange=sticker.userData.face==='L', isBlue=sticker.userData.face==='B', marker=createBrushX(isCool?coolMarkerMaterial:pairMarkerMaterial); marker.position.z=isOrange||isBlue?-.1:.082; marker.renderOrder=100; sticker.add(marker); pairMarkers.push(marker);}));}
-    const solveButton=document.querySelector('#solve-f2l'), solveResult=document.querySelector('#solve-result');
+    const solveButton=document.querySelector('#solve-f2l'), solveResult=document.querySelector('#solve-result'), detectedSolution=document.querySelector('#detected-f2l-solution');
     // A case is known only immediately after its stored SETUP has been applied.
     let knownF2LCase=null;
     const rememberSetupCase=status=>{const match=status.match(/^SETUP · (F2L -\d+) · (FR|FL|BL|BR)$/); knownF2LCase=match?`${match[1]} · ${match[2]}`:null;};
-    function clearF2LSelection(){selectedCorner=null; selectedEdge=null; selectedOutline.visible=false; pairedEdgeOutline.visible=false; pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0; solveButton.hidden=true; solveResult.hidden=true;}
-    function selectCorner(event){const rect=renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true)[0]; const piece=hit&&cubies.find(candidate=>candidate.children.includes(hit.object)); if(!piece||!isUnsolvedF2LCorner(piece)) return; clearF2LSelection(); selectedCorner=piece; selectedEdge=getPairedF2LEdge(piece); selectedOutline.position.copy(piece.position); selectedOutline.quaternion.copy(piece.quaternion); selectedOutline.visible=true; if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion); pairedEdgeOutline.visible=true;} showPairMarkers(selectedCorner,selectedEdge); solveButton.hidden=false; stateEl.textContent='F2L CORNER + EDGE SELECTED';}
+    function clearF2LSelection(){selectedCorner=null; selectedEdge=null; selectedOutline.visible=false; pairedEdgeOutline.visible=false; pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0; solveButton.hidden=true; if(typeof setContextualSurface==='function') setContextualSurface(null); else {solveResult.hidden=true; detectedSolution.hidden=true; detectedSolution.replaceChildren();}}
+    function selectCorner(event){const rect=renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX-rect.left)/rect.width)*2-1,-((event.clientY-rect.top)/rect.height)*2+1); raycaster.setFromCamera(pointer,camera); const hit=raycaster.intersectObjects(cubies,true)[0]; const piece=hit&&cubies.find(candidate=>candidate.children.includes(hit.object)); if(!piece||piece.userData.homeCoord?.y!==-1) return; const pairedEdge=getPairedF2LEdge(piece); if(!isUnsolvedF2LCorner(piece)&&!isUnsolvedF2LEdge(pairedEdge)) return; clearF2LSelection(); selectedCorner=piece; selectedEdge=pairedEdge; selectedOutline.position.copy(piece.position); selectedOutline.quaternion.copy(piece.quaternion); selectedOutline.visible=true; if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion); pairedEdgeOutline.visible=true;} showPairMarkers(selectedCorner,selectedEdge); solveButton.hidden=false; stateEl.textContent='F2L CORNER + EDGE SELECTED';}
+    // Normalize any side-color pair to the canonical FR frame and compare its complete
+    // physical corner+edge pose. Cache entries retain *all* candidates: no imported
+    // case may overwrite another just because their pair signatures collide.
+    const caseRecognitionCache=new Map(), aufRecognitionCache=new Map(); let caseRecognitionReady=null;
+    const vectorToFace=v=>Math.abs(v.x)>.5?(v.x>0?'R':'L'):Math.abs(v.y)>.5?(v.y>0?'U':'D'):(v.z>0?'F':'B');
+    const faceToVector=face=>({R:new THREE.Vector3(1,0,0),L:new THREE.Vector3(-1,0,0),U:new THREE.Vector3(0,1,0),D:new THREE.Vector3(0,-1,0),F:new THREE.Vector3(0,0,1),B:new THREE.Vector3(0,0,-1)})[face].clone();
+    function canonicalTurnsForPair(corner){return ({FR:0,FL:1,BL:2,BR:3})[slotRelativeToFront('F',pairHomeSideFaces(corner))]??0;}
+    function rotateCanonical(vector,turns){const v=vector.clone(); for(let i=0;i<turns;i++)v.set(v.z,v.y,-v.x); return v;}
+    function canonicalPieceSignature(piece,turns){
+      const coord=rotateCanonical(new THREE.Vector3(piece.userData.coord.x,piece.userData.coord.y,piece.userData.coord.z),turns);
+      const stickers=piece.children.filter(mesh=>mesh.userData.originalMaterial).map(sticker=>{
+        const normal=new THREE.Vector3(sticker.userData.axis==='x'?sticker.userData.layer:0,sticker.userData.axis==='y'?sticker.userData.layer:0,sticker.userData.axis==='z'?sticker.userData.layer:0).applyQuaternion(piece.quaternion);
+        const canonicalColor=vectorToFace(rotateCanonical(faceToVector(sticker.userData.face),turns));
+        return `${canonicalColor}:${vectorToFace(rotateCanonical(normal,turns))}`;
+      }).sort().join(',');
+      return `${coord.x}${coord.y}${coord.z}[${stickers}]`;
+    }
+    function pairPoseSignature(corner,edge){const turns=canonicalTurnsForPair(corner); return `${canonicalPieceSignature(corner,turns)}|${canonicalPieceSignature(edge,turns)}`;}
+    function saveCubiePose(){return cubies.map(piece=>({piece,coord:{...piece.userData.coord},position:piece.position.clone(),quaternion:piece.quaternion.clone()}));}
+    function restoreCubiePose(snapshot){snapshot.forEach(({piece,coord,position,quaternion})=>{piece.userData.coord={...coord}; piece.position.copy(position); piece.quaternion.copy(quaternion); piece.rotation.setFromQuaternion(quaternion);});}
+    function placeSolvedCubies(){cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={...h}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);});}
+    // Render each stored case into all four possible U-layer positions. A case remains
+    // the same F2L case after an AUF; its correction is the inverse U turn before GIẢI.
+    const aufVariants=[{moves:[],setup:''},{moves:['U'],setup:'U′'},{moves:['U2'],setup:'U2'},{moves:['U′'],setup:'U'}];
+    // Every slot setup is the FR pose followed by a whole-cube y rotation. The pair
+    // being tested is therefore always the original FR colour pair; its coordinates
+    // move with y, while `pairPoseSignature` normalizes that colour pair to FR.
+    const recognitionPairHome={x:1,y:-1,z:1};
+    async function buildCaseRecognitionCache(){
+      if(caseRecognitionReady)return caseRecognitionReady;
+      caseRecognitionReady=(async()=>{const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves; scrambleMoveDuration=0; scrambleDelay=0;
+        // Signatures already canonicalize all four side-color pairs to FR. Adding
+        // FL/BL/BR records here would create identical keys and let a rotated record
+        // overwrite the true FR case (for example F2L-2 as F2L-4 · BR).
+        try{for(const entry of f2lSetups){const slot='FR', data=entry.slots[slot]; if(!data?.setup)continue; for(const auf of aufVariants){
+          // A malformed formula elsewhere in the long library must not make every
+          // recognisable case fail. Skip only that reference pose and continue.
+          try{placeSolvedCubies(); await runMoves(parseMoves(data.setup),0); if(auf.moves.length)await runMoves(parseMoves(auf.moves.join(' ')),0); const targetCorner=cubies.find(piece=>piece.userData.homeCoord.x===recognitionPairHome.x&&piece.userData.homeCoord.y===recognitionPairHome.y&&piece.userData.homeCoord.z===recognitionPairHome.z); const targetEdge=targetCorner&&getPairedF2LEdge(targetCorner); if(targetCorner&&targetEdge){const signature=pairPoseSignature(targetCorner,targetEdge), record={caseId:entry.id,slot,extraSetup:auf.setup}, cache=auf.setup?aufRecognitionCache:caseRecognitionCache, candidates=cache.get(signature)||[]; candidates.push(record); cache.set(signature,candidates);}}
+          catch(error){console.warn(`Bỏ qua pose nhận diện ${entry.id} · ${slot}:`,error); busy=false;}
+        }}}
+        finally{restoreCubiePose(snapshot); scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;}
+      })();
+      return caseRecognitionReady;
+    }
+    function describePairPiece(piece){
+      const stickers=piece.children.filter(mesh=>mesh.userData.originalMaterial).map(sticker=>{
+        const normal=new THREE.Vector3(sticker.userData.axis==='x'?sticker.userData.layer:0,sticker.userData.axis==='y'?sticker.userData.layer:0,sticker.userData.axis==='z'?sticker.userData.layer:0).applyQuaternion(piece.quaternion);
+        return {color:sticker.userData.face,currentFace:vectorToFace(normal),coordinate:{...piece.userData.coord}};
+      });
+      return {homeCoordinate:{...piece.userData.homeCoord},currentCoordinate:{...piece.userData.coord},stickers};
+    }
+    function selectedPairCoordinates(){return {corner:describePairPiece(selectedCorner),edge:describePairPiece(selectedEdge)};}
+    function logSelectedPairPositions(frontName,slot,detectedCase){
+      const pairCoordinates=selectedPairCoordinates();
+      console.groupCollapsed('F2L selected-pair coordinates');
+      console.log({front:frontName,slot,detectedCase:detectedCase||null,pairCoordinates});
+      console.table([pairCoordinates.corner,pairCoordinates.edge].flatMap((piece,index)=>piece.stickers.map(sticker=>({piece:index===0?'corner':'edge',homeCoordinate:JSON.stringify(piece.homeCoordinate),currentCoordinate:JSON.stringify(piece.currentCoordinate),color:sticker.color,currentFace:sticker.currentFace}))));
+      console.groupEnd();
+      return pairCoordinates;
+    }
+    // Candidate ranking is deterministic: standard pose before AUF, then lower case
+    // number. Ambiguous signatures are exposed in the console instead of silently
+    // choosing the final record that happened to be cached.
+    function chooseRecognitionCandidate(candidates){return [...candidates].sort((a,b)=>Number(a.caseId.match(/\d+/)[0])-Number(b.caseId.match(/\d+/)[0]))[0]||null;}
+    async function recognizeSelectedF2LCase(){if(!selectedCorner||!selectedEdge)return null; await buildCaseRecognitionCache(); const signature=pairPoseSignature(selectedCorner,selectedEdge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[], candidates=standard.length?standard:auf; if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates); return chooseRecognitionCandidate(candidates);}
     // Side colors around U, clockwise: F → R → B → L. Chosen color becomes Front for slot naming.
     const colorNameToHomeFace={'ĐỎ':'L','CAM':'R','XANH LÁ':'F','XANH DA TRỜI':'B'};
     const f2lSideCycle=['F','R','B','L'];
@@ -548,11 +615,15 @@
       if(selectedCorner){selectedOutline.position.copy(selectedCorner.position); selectedOutline.quaternion.copy(selectedCorner.quaternion);}
       if(selectedEdge){pairedEdgeOutline.position.copy(selectedEdge.position); pairedEdgeOutline.quaternion.copy(selectedEdge.quaternion);}
     }
+    let selectingF2LFront=false;
     solveButton.onclick=()=>{
       const colors=[['ĐỎ','#B61A1A','L'],['XANH LÁ','#21C925','F'],['XANH DA TRỜI','#0045AD','B'],['CAM','#FF5900','R']];
       solveResult.innerHTML=colors.map(([name,color,face])=>`<button class="color-choice" type="button" data-color="${name}" data-face="${face}" aria-label="Chọn màu ${name} làm mặt gốc" style="background:${color}"></button>`).join('');
       solveResult.querySelectorAll('.color-choice').forEach(choice=>choice.onclick=async()=>{
-        solveResult.querySelectorAll('.color-choice').forEach(button=>{button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');});
+        if(selectingF2LFront||busy)return;
+        selectingF2LFront=true;
+        const choices=[...solveResult.querySelectorAll('.color-choice')];
+        choices.forEach(button=>{button.disabled=true; button.classList.remove('is-selected'); button.textContent=''; button.setAttribute('aria-pressed','false');});
         choice.classList.add('is-selected'); choice.textContent='✓'; choice.setAttribute('aria-pressed','true');
         const frontName=choice.dataset.color;
         const frontFace=choice.dataset.face;
@@ -561,25 +632,43 @@
           alert('Chưa chọn cặp F2L hoặc không xác định được slot với màu mặt gốc này.');
           return;
         }
+        let detectedCase, pairCoordinates;
+        try{detectedCase=await recognizeSelectedF2LCase(); pairCoordinates=logSelectedPairPositions(frontName,slot,detectedCase);}catch{
+          selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
+          alert('Không thể nhận diện case lúc này — thử chọn lại màu.');
+          return;
+        }
         const yMoves=yMovesToBringHomeFaceToFront(frontFace);
         if(!yMoves){
+          selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
           alert('Không thể đưa màu này ra mặt trước khi giữ trắng ở đáy (cần xoay x/z).');
           return;
         }
         try{
           if(yMoves.length) await runMoves(yMoves);
         }catch{
+          selectingF2LFront=false; choices.forEach(button=>button.disabled=false);
           alert('Đang xoay Rubik — thử chọn lại màu sau khi xong.');
           return;
         }
+        selectingF2LFront=false;
         refreshSelectionOutlines();
-        const casePart=knownF2LCase?knownF2LCase.split(' · ')[0]:null;
-        stateEl.textContent=casePart?`${casePart} · ${slot} · gốc ${frontName}`:`SLOT ${slot} · gốc ${frontName}`;
-        alert(casePart
-          ?`Mặt gốc ${frontName} → cặp đang chọn thuộc ${slot} (case ${casePart}).`
-          :`Mặt gốc ${frontName} → cặp đang chọn thuộc slot ${slot}.`);
+        const recognizedCase=detectedCase||((knownF2LCase&&{caseId:knownF2LCase.split(' · ')[0],slot:knownF2LCase.split(' · ')[1],extraSetup:''}));
+        const casePart=recognizedCase?.caseId;
+        // The selected front color is authoritative: once it establishes FR/FL/BL/BR,
+        // always show that slot's stored setup and solution—not the cache's canonical slot.
+        const caseSlot=slot, caseData=casePart?f2lSetups.find(entry=>entry.id===casePart)?.slots[caseSlot]:null;
+        const firstSolution=caseData?.solutions[0]||null;
+        const extraSetup=recognizedCase?.extraSetup;
+        stateEl.textContent=casePart?`${casePart} · ${caseSlot}${extraSetup?` · SETUP ${extraSetup}`:''} · gốc ${frontName}`:`SLOT ${slot} · gốc ${frontName} · KHÔNG NHẬN DIỆN CASE`;
+        if(casePart&&firstSolution) renderDetectedF2LSolution({caseId:casePart,slot:caseSlot,extraSetup,solution:firstSolution});
+        else {
+          console.info('F2L case not recognized for selected pair.',{slot:caseSlot,front:frontName,detectedCase,hasSolution:!!firstSolution,pairCoordinates});
+          renderUnmatchedF2LSolution({slot:caseSlot,frontName});
+        }
+        setContextualSurface('detected-solution');
       });
-      solveResult.hidden=false;
+      setContextualSurface('color-choice');
     };
     renderer.domElement.addEventListener('pointerdown',event=>pointerDown={x:event.clientX,y:event.clientY}); renderer.domElement.addEventListener('pointerup',event=>{if(pointerDown&&Math.hypot(event.clientX-pointerDown.x,event.clientY-pointerDown.y)<6)selectCorner(event); pointerDown=null;});
     // Clockwise when facing each face (standard cubing). Facing +axis faces ⇒ negative rotation about that axis; facing −axis faces ⇒ positive.
@@ -980,6 +1069,7 @@
       const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
       const mobile=matchMedia('(max-width:720px)').matches;
       if(open){
+        if(mobile&&contextualSurface) setContextualSurface(null);
         movePad.hidden=false;
         movePad.classList.add('is-animating');
         if(mobile) movePadToggle.hidden=true;
@@ -1249,7 +1339,20 @@
     const dockSheetKeyhole=document.querySelector('#dock-sheet-keyhole');
     const keyholeSheetDrag=document.querySelector('#keyhole-sheet-drag');
     const dockButtons={keyboard:dockKeyboard, cases:dockCases, basic:dockBasic, keyhole:dockKeyhole};
-    let mobileDockSheet=null;
+    let mobileDockSheet=null, contextualSurface=null;
+    // Color selection and the detected algorithm are mutually exclusive contextual panels.
+    // On mobile they also exclude every dock sheet to prevent bottom-panel stacking.
+    function setContextualSurface(surface){
+      contextualSurface=surface;
+      solveResult.hidden=surface!=='color-choice';
+      detectedSolution.hidden=surface!=='detected-solution';
+      if(surface!=='detected-solution') detectedSolution.replaceChildren();
+      if(matchMedia('(max-width:720px)').matches&&surface){
+        closeMovePadInstant();
+        setDockPanels(null);
+        syncMobileDockFromSheets();
+      }
+    }
     function closeMovePadInstant(){
       if(window.anime) anime.remove(movePad);
       movePad.hidden=true;
@@ -1259,6 +1362,7 @@
       movePadToggle.setAttribute('aria-expanded','false');
     }
     function setDockPanels(openSheet){
+      if(openSheet&&contextualSurface) setContextualSurface(null);
       formulaPanel.classList.toggle('is-dock-open', openSheet==='cases');
       dockSheetBasic.classList.toggle('is-dock-open', openSheet==='basic');
       dockSheetKeyhole.classList.toggle('is-dock-open', openSheet==='keyhole');
@@ -1410,6 +1514,21 @@
       controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',algNext));
       row.appendChild(btn); row.appendChild(controls);
       return row;
+    }
+    function renderDetectedF2LSolution({caseId,slot,extraSetup,solution}){
+      detectedSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent=`${caseId} · ${slot}`;
+      const formula=[extraSetup,solution].filter(Boolean).join(' ');
+      const description=document.createElement('p'); description.textContent=extraSetup?'Đã cộng nước đưa cặp về pose chuẩn vào công thức.':'Cặp đang ở pose chuẩn.';
+      detectedSolution.append(title,description);
+      const solutionId=`detected-${caseId}-${slot}-solution`;
+      detectedSolution.append(createAlgRow({id:solutionId,label:`CÔNG THỨC · ${formula}`,sequence:formula,isSetup:false,status:`${caseId} · ${slot} · CÔNG THỨC`}));
+    }
+    function renderUnmatchedF2LSolution({slot,frontName}){
+      detectedSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent=`SLOT ${slot}`;
+      const description=document.createElement('p'); description.textContent=`Cặp theo mặt gốc ${frontName} chưa khớp case F2L chuẩn trong thư viện.`;
+      detectedSolution.append(title,description);
     }
     const advancedMethods=[{
       id:'AF2L -1',
@@ -1928,6 +2047,7 @@
       if(openAdvancedMethodId) activeAdvancedMethodId=openAdvancedMethodId;
       openAdvancedMethodId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
       renderAdvancedMethods();
+      setContextualSurface(null);
       setDockPanels(null);
       syncMobileDockFromSheets();
     }
@@ -1997,6 +2117,7 @@
       formulaPanel.style.transform=''; formulaPanel.style.opacity='';
       if(openCaseId) activeCaseId=openCaseId;
       openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      setContextualSurface(null);
       setDockPanels(null);
       syncMobileDockFromSheets();
       renderFormulaButtons();
