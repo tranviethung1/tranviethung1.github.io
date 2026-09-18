@@ -570,7 +570,23 @@
     // number. Ambiguous signatures are exposed in the console instead of silently
     // choosing the final record that happened to be cached.
     function chooseRecognitionCandidate(candidates){return [...candidates].sort((a,b)=>Number(a.caseId.match(/\d+/)[0])-Number(b.caseId.match(/\d+/)[0]))[0]||null;}
-    async function recognizeSelectedF2LCase(){if(!selectedCorner||!selectedEdge)return null; await buildCaseRecognitionCache(); const signature=pairPoseSignature(selectedCorner,selectedEdge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[], candidates=standard.length?standard:auf; if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates); return chooseRecognitionCandidate(candidates);}
+    function recognizePairFromCache(corner,edge){const signature=pairPoseSignature(corner,edge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[], candidates=standard.length?standard:auf; if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates); return chooseRecognitionCandidate(candidates);}
+    async function recognizeSelectedF2LCase(){if(!selectedCorner||!selectedEdge)return null; await buildCaseRecognitionCache(); return recognizePairFromCache(selectedCorner,selectedEdge);}
+    // Safe three-move ejections restore the D-layer turn they temporarily borrow.
+    // Test each candidate against the real detector before showing it; this prevents
+    // guessing a setup when the target pair cannot be put into a known F2L pose.
+    const f2lExtractionCandidates=['R U R′','R U′ R′','R′ U R','R′ U′ R','L U L′','L U′ L′','L′ U L','L′ U′ L','F U F′','F U′ F′','F′ U F','F′ U′ F','B U B′','B U′ B′','B′ U B','B′ U′ B'];
+    async function findF2LExtractionSetup(){
+      if(!selectedCorner||!selectedEdge)return null;
+      await buildCaseRecognitionCache();
+      const snapshot=saveCubiePose(), oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      try{for(const sequence of f2lExtractionCandidates){placeSolvedPoseFromSnapshot(snapshot); await runMoves(parseMoves(sequence),0); const detected=recognizePairFromCache(selectedCorner,selectedEdge); if(detected)return {sequence,detected};}}
+      catch(error){console.warn('Không thể thử setup extract F2L:',error);}
+      finally{restoreCubiePose(snapshot); scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;}
+      return null;
+    }
+    function placeSolvedPoseFromSnapshot(snapshot){restoreCubiePose(snapshot);}
     // Side colors around U, clockwise: F → R → B → L. Chosen color becomes Front for slot naming.
     const colorNameToHomeFace={'ĐỎ':'L','CAM':'R','XANH LÁ':'F','XANH DA TRỜI':'B'};
     const f2lSideCycle=['F','R','B','L'];
@@ -663,8 +679,9 @@
         stateEl.textContent=casePart?`${casePart} · ${caseSlot}${extraSetup?` · SETUP ${extraSetup}`:''} · gốc ${frontName}`:`SLOT ${slot} · gốc ${frontName} · KHÔNG NHẬN DIỆN CASE`;
         if(casePart&&firstSolution) renderDetectedF2LSolution({caseId:casePart,slot:caseSlot,extraSetup,solution:firstSolution});
         else {
-          console.info('F2L case not recognized for selected pair.',{slot:caseSlot,front:frontName,detectedCase,hasSolution:!!firstSolution,pairCoordinates});
-          renderUnmatchedF2LSolution({slot:caseSlot,frontName});
+          const extraction=await findF2LExtractionSetup();
+          console.info('F2L case not recognized for selected pair.',{slot:caseSlot,front:frontName,detectedCase,hasSolution:!!firstSolution,pairCoordinates,extraction});
+          renderUnmatchedF2LSolution({slot:caseSlot,frontName,extraction});
         }
         setContextualSurface('detected-solution');
       });
@@ -1524,11 +1541,16 @@
       const solutionId=`detected-${caseId}-${slot}-solution`;
       detectedSolution.append(createAlgRow({id:solutionId,label:`CÔNG THỨC · ${formula}`,sequence:formula,isSetup:false,status:`${caseId} · ${slot} · CÔNG THỨC`}));
     }
-    function renderUnmatchedF2LSolution({slot,frontName}){
+    function renderUnmatchedF2LSolution({slot,frontName,extraction}){
       detectedSolution.replaceChildren();
       const title=document.createElement('h2'); title.textContent=`SLOT ${slot}`;
-      const description=document.createElement('p'); description.textContent=`Cặp theo mặt gốc ${frontName} chưa khớp case F2L chuẩn trong thư viện.`;
+      const description=document.createElement('p'); description.textContent=extraction?`Cặp theo mặt gốc ${frontName} đang bị kẹt trong slot sai. Chạy EXTRACT để đưa về ${extraction.detected.caseId}, sau đó chạy công thức.`:`Cặp theo mặt gốc ${frontName} chưa khớp case F2L chuẩn trong thư viện.`;
       detectedSolution.append(title,description);
+      if(!extraction)return;
+      const extractId=`detected-extract-${slot}`;
+      detectedSolution.append(createAlgRow({id:extractId,label:`EXTRACT · ${extraction.sequence}`,sequence:extraction.sequence,isSetup:false,status:`SLOT ${slot} · EXTRACT`}));
+      const solution=[extraction.detected.extraSetup,f2lSetups.find(entry=>entry.id===extraction.detected.caseId)?.slots[slot]?.solutions[0]].filter(Boolean).join(' ');
+      if(solution)detectedSolution.append(createAlgRow({id:`${extractId}-solution`,label:`CÔNG THỨC · ${solution}`,sequence:solution,isSetup:false,status:`${extraction.detected.caseId} · ${slot} · CÔNG THỨC`}));
     }
     const advancedMethods=[{
       id:'AF2L -1',
