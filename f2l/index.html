@@ -37,8 +37,25 @@
     @media (prefers-reduced-motion:reduce) {
       * { scroll-behavior:auto !important; }
     }
-    header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px; pointer-events:none; }
+    header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px 28px 86px; pointer-events:none; }
     .brand { font-family:var(--font-display); font-weight:800; font-size:clamp(28px,4.2vw,52px); line-height:.8; letter-spacing:-.08em; } .brand span { color:var(--accent); }
+    .site-menu-toggle { position:fixed; z-index:9; left:28px; top:23px; width:44px; min-height:44px; padding:0; border:0; border-radius:12px; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:0 8px 22px rgba(16,20,24,.08); font-size:0; }
+    .site-menu-toggle::before { content:''; display:block; width:19px; height:13px; margin:auto; border-top:2px solid currentColor; border-bottom:2px solid currentColor; background:linear-gradient(currentColor,currentColor) center/100% 2px no-repeat; }
+    .site-menu-toggle[aria-expanded="true"]::before { width:18px; height:18px; border:0; background:linear-gradient(45deg,transparent 45%,currentColor 46% 54%,transparent 55%),linear-gradient(-45deg,transparent 45%,currentColor 46% 54%,transparent 55%); }
+    .site-nav-backdrop { position:fixed; z-index:8; inset:0; border:0; border-radius:0; background:rgba(18,18,18,.28); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .site-nav-backdrop.is-open { opacity:1; pointer-events:auto; }
+    .site-nav { position:fixed; z-index:9; top:0; bottom:0; left:0; width:min(310px,84vw); padding:22px 0; background:var(--cream); box-shadow:12px 0 32px rgba(18,18,18,.2); transform:translateX(-105%); transition:transform .24s ease; overflow-y:auto; }
+    .site-nav.is-open { transform:translateX(0); }
+    .site-nav-head { display:flex; align-items:center; justify-content:space-between; padding:0 18px 18px; border-bottom:1px solid var(--line); }
+    .site-nav-head b { font:800 20px var(--font-display); letter-spacing:-.06em; } .site-nav-head b span { color:var(--accent); }
+    .site-nav-close { min-height:34px; width:34px; padding:0; border:0; border-radius:8px; font-size:23px; background:transparent; }
+    .site-nav-list { display:flex; flex-direction:column; margin:0; padding:10px 0; list-style:none; }
+    .site-nav-item,.site-nav-parent { width:100%; min-height:48px; padding:0 18px; border:0; border-radius:0; background:transparent; display:flex; align-items:center; justify-content:space-between; text-align:left; font:700 13px var(--font-display); }
+    .site-nav-item::before,.site-nav-parent::before { content:'◈'; margin-right:11px; color:var(--accent); font-size:12px; } .site-nav-item::after { content:''; margin-left:auto; }
+    .site-nav-parent .chevron { margin-left:auto; font-size:18px; transition:transform .18s ease; } .site-nav-parent[aria-expanded="true"] .chevron { transform:rotate(180deg); }
+    .site-nav-sublist { display:none; margin:0; padding:0; list-style:none; background:rgba(18,18,18,.04); } .site-nav-sublist.is-open { display:block; }
+    .site-nav-subitem { width:100%; min-height:42px; padding:0 22px 0 49px; border:0; border-radius:0; background:transparent; text-align:left; font:600 12px var(--font-ui); }
+    .site-nav-item:hover,.site-nav-item:focus-visible,.site-nav-parent:hover,.site-nav-parent:focus-visible,.site-nav-subitem:hover,.site-nav-subitem:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
     .meta { text-align:right; font-size:10px; letter-spacing:.1em; line-height:1.65; opacity:.7; }
     .panel { position:fixed; z-index:3; left:32px; bottom:30px; width:252px; padding:16px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(16px) saturate(1.2); box-shadow:var(--shadow); }
     .panel h1 { font-family:var(--font-display); margin:0 0 12px; font-size:15px; letter-spacing:-.04em; } .panel p { margin:0; font-size:10px; line-height:1.65; opacity:.73; }
@@ -89,7 +106,7 @@
     .move-pad .move-row { display:flex; flex-wrap:wrap; gap:3px; }
     .move-pad-keys button { min-width:28px; min-height:28px; padding:0 4px; border-radius:7px; font:600 11px var(--font-mono); letter-spacing:0; background:rgba(244,240,232,.96); }
     .hint { display:none; }
-    .practice-controls { position:fixed; z-index:3; right:76px; top:28px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; border-radius:12px; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
+    .practice-controls { position:fixed; z-index:3; right:86px; top:78px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; border-radius:12px; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
     .solve-f2l { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; } .solve-f2l[hidden] { display:none; } .solve-result { position:fixed; z-index:4; left:50%; bottom:84px; transform:translateX(-50%); display:flex; gap:8px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); } .solve-result[hidden] { display:none; } .color-choice { position:relative; width:36px; min-height:36px; padding:0; border:2px solid transparent; border-radius:10px; color:#fff; font:700 18px var(--font-display); } .color-choice:hover,.color-choice:focus-visible { transform:translateY(-2px); outline:2px solid var(--ink); outline-offset:2px; } .color-choice.is-selected { border-color:var(--ink); box-shadow:inset 0 0 0 2px var(--cream); }
     .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
     .reset-cube { position:fixed; z-index:4; right:32px; top:78px; width:42px; min-height:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
@@ -97,10 +114,13 @@
     .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; } .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; } .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); } .formula-panel .case-card.is-open { outline:none; } .formula-panel .case-card.is-active:not(.is-open) { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); } .formula-panel .case-card.is-viewed:not(.is-open):not(.is-active) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); } .formula-panel .case-card.is-viewed .formula-id { color:var(--accent); } .formula-panel .case-card.is-active:not(.is-open) .formula-id { color:var(--ink); } .formula-panel .case-card.is-viewed .formula-id::after { content:' ✓'; font-weight:800; } .formula-panel .case-card.is-open > .case-main { display:none; } .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; } .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; } .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; } .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; } .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; } .formula-panel .case-card.is-open .case-options { display:flex; } .formula-panel .slot-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; } .formula-panel .slot-tabs button { min-height:32px; padding:0; border-radius:8px; font:700 10px var(--font-display); background:transparent; } .formula-panel .slot-tabs button.is-active { background:var(--ink); color:#fff; } .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 40px + 2 * 5px + 16px); overflow-y:auto; overscroll-behavior:contain; } .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; } .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); } .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; } .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; } .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; } .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; } .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); } .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; } .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; } .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; }     .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); } .formula-panel .case-drag { display:none; }
     .mobile-dock { display:none; }
     @media (max-width:720px) {
-      header { padding:10px 12px; }
+      header { padding:10px 12px 10px 54px; }
       .brand { font-size:22px; }
+      .site-menu-toggle { left:8px; top:5px; width:38px; min-height:38px; border-radius:10px; }
+      .site-nav { width:min(296px,84vw); }
+      .site-nav-head { padding:0 14px 14px; }
       #stage canvas { transform:scale(.78) translateY(calc(-6% + 60px)); transform-origin:center top; }
-      .practice-controls { top:10px; right:48px; left:auto; gap:5px; max-width:calc(100vw - 140px); flex-wrap:wrap; justify-content:flex-end; }
+      .practice-controls { top:52px; right:52px; left:auto; gap:5px; max-width:calc(100vw - 104px); flex-wrap:wrap; justify-content:flex-end; }
       .practice-controls button { padding:0 8px; min-height:34px; font-size:8px; letter-spacing:0; background:rgba(244,240,232,.92); }
       .practice-controls button.is-active { color:#fff; }
       .settings-toggle { top:10px; right:10px; width:34px; min-height:34px; font-size:16px; }
@@ -320,7 +340,24 @@
   <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 có thể tương tác"></main>
   <div class="grain"></div>
   <header><div class="brand">RUB<span>I</span>K</div></header>
-  <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">LUYỆN F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button></nav>
+  <button id="site-menu-toggle" class="site-menu-toggle" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="site-nav"></button>
+  <button id="site-nav-backdrop" class="site-nav-backdrop" type="button" aria-label="Đóng menu điều hướng" tabindex="-1"></button>
+  <nav id="site-nav" class="site-nav" aria-label="Điều hướng chính" aria-hidden="true">
+    <div class="site-nav-head"><b>RUB<span>I</span>K</b><button id="site-nav-close" class="site-nav-close" type="button" aria-label="Đóng menu">×</button></div>
+    <ul class="site-nav-list">
+      <li><button class="site-nav-item" type="button" data-nav-section="playground">Playground</button></li>
+      <li><button class="site-nav-item" type="button" data-nav-section="training">Training</button></li>
+      <li><button id="statistics-menu-toggle" class="site-nav-parent" type="button" aria-expanded="false" aria-controls="statistics-submenu">Statistics <span class="chevron">⌄</span></button>
+        <ul id="statistics-submenu" class="site-nav-sublist">
+          <li><button class="site-nav-subitem" type="button" data-statistic="oll">OLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="pll">PLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="cross">Cross</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="f2l">F2L</button></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <nav class="practice-controls" aria-label="Điều khiển luyện tập"><button id="f2l-practice" type="button" aria-pressed="false">TẬP TRUNG F2L</button><button id="f2l-scramble" type="button">XÁO TRỘN F2L</button></nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden><h2>CÀI ĐẶT</h2><div class="settings-row"><span>HIỆN X BỊ CHE</span><button id="xray-markers" type="button" aria-pressed="false">TẮT</button></div><div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div><label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label></section>
@@ -345,6 +382,18 @@
     import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
     const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
+    const siteMenuToggle=document.querySelector('#site-menu-toggle'), siteNav=document.querySelector('#site-nav'), siteNavBackdrop=document.querySelector('#site-nav-backdrop'), siteNavClose=document.querySelector('#site-nav-close'), statisticsMenuToggle=document.querySelector('#statistics-menu-toggle'), statisticsSubmenu=document.querySelector('#statistics-submenu');
+    function setSiteNavigation(open){
+      siteNav.classList.toggle('is-open',open); siteNavBackdrop.classList.toggle('is-open',open);
+      siteNav.setAttribute('aria-hidden',String(!open)); siteMenuToggle.setAttribute('aria-expanded',String(open));
+      if(open) siteNavClose.focus(); else siteMenuToggle.focus();
+    }
+    siteMenuToggle.onclick=()=>setSiteNavigation(!siteNav.classList.contains('is-open'));
+    siteNavClose.onclick=()=>setSiteNavigation(false); siteNavBackdrop.onclick=()=>setSiteNavigation(false);
+    statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
+    const siteRoutes={playground:'../',training:'./',oll:'../statistics/oll/',pll:'../statistics/pll/',cross:'../statistics/cross/',f2l:'./'};
+    siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{const destination=siteRoutes[item.dataset.statistic||item.dataset.navSection]; if(destination===location.pathname){setSiteNavigation(false);return;} location.href=destination;});
+    addEventListener('keydown',event=>{if(event.key==='Escape'&&siteNav.classList.contains('is-open')) setSiteNavigation(false);});
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
     const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
     const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.9; stage.appendChild(renderer.domElement);
@@ -579,7 +628,7 @@
     const f2lSlotOrder=['FR','FL','BL','BR'];
     const f2lSetups=[{
       id:'F2L -1',
-      preview:'previews/f2l-1.png',
+      preview:'../previews/f2l-1.png',
       slots:{
         FR:{setup:'F R′ F′ R', solutions:['U R U′ R′','R′ F R F′','y′ r′ U′ R U M′','y U F′ L F L2 U L']},
         FL:{setup:'F R′ F′ R y', solutions:['F′ r U r′','d R U′ R′','F′ L F L′','y′ U R U′ R′','U F U′ F′']},
@@ -588,7 +637,7 @@
       }
     },{
       id:'F2L -2',
-      preview:'previews/f2l-2.png',
+      preview:'../previews/f2l-2.png',
       slots:{
         FR:{setup:'R′ F R F′', solutions:['F R′ F′ R','y′ U′ R′ U R','U′ F′ U F','y U′ L′ U L','r U R′ U′ M']},
         FL:{setup:'R′ F R F′ y', solutions:['U′ L′ U L','L F′ L′ F','r U′ r′ F','U r′ U′ F U F′ r','U2 L′ U2 L']},
@@ -597,7 +646,7 @@
       }
     },{
       id:'F2L -3',
-      preview:'previews/f2l-3.png',
+      preview:'../previews/f2l-3.png',
       slots:{
         FR:{setup:'F′ U F', solutions:['F′ U′ F','y′ R′ U′ R','y L′ U′ L','S U R U′ R′ S′']},
         FL:{setup:'F′ U F y', solutions:['L′ U′ L','U2 R′ F R U R′ F′ R','y′ S U R U′ R′ S′','U S′ F U′ F′ U S']},
@@ -606,7 +655,7 @@
       }
     },{
       id:'F2L -4',
-      preview:'previews/f2l-4.png',
+      preview:'../previews/f2l-4.png',
       slots:{
         FR:{setup:'R U′ R′', solutions:['R U R′','y′ f R f′','y F U F′','y2 L U L′']},
         FL:{setup:'R U′ R′ y', solutions:['F U F′','y L U L′','S′ L F′ L′ f','U′ M L′ U L U′ M′','y′ R U R′']},
@@ -615,7 +664,7 @@
       }
     },{
       id:'F2L -5',
-      preview:'previews/f2l-5.png',
+      preview:'../previews/f2l-5.png',
       slots:{
         FR:{setup:'R U R′ U2 R U′ R′ U', solutions:['U′ R U R′ U2 R U′ R′','F2 L′ U′ L U F2','U′ R U R′ U′ R U2 R′','U′ R U R′ U R′ F R F′','y2 U′ L U L′ U2 L U′ L′']},
         FL:{setup:'R U R′ U2 R U′ R′ U y', solutions:['U R′ F r U′ r′ F′ R','U2 F R U R′ U2 F′','U l′ U L U′ L′ U′ l','y′ U′ R U R′ U2 R U′ R′','d′ L U L′ U2 L U′ L′']},
@@ -624,7 +673,7 @@
       }
     },{
       id:'F2L -6',
-      preview:'previews/f2l-6.png',
+      preview:'../previews/f2l-6.png',
       slots:{
         FR:{setup:'F′ U′ F U2 F′ U F U′', solutions:['U′ r U′ R′ U R U r′','y′ U R′ U′ R U2 R′ U R','d R′ U′ R U2 R′ U R','U F′ U′ F U2 F′ U F','y U L′ U′ L U2 L′ U L']},
         FL:{setup:'F′ U′ F U2 F′ U F U′ y', solutions:['U L′ U′ L U2 L′ U L','F2 R U R′ U′ F2','R′ F2 R U R′ U′ F2 U R','U L′ U′ L U L′ U2 L','U′ y′ r U′ R′ U R U r′']},
@@ -633,7 +682,7 @@
       }
     },{
       id:'F2L -7',
-      preview:'previews/f2l-7.png',
+      preview:'../previews/f2l-7.png',
       slots:{
         FR:{setup:'R U R′ U2 R U2 R′ U', solutions:['U′ R U2 R′ U′ R U2 R′','M′ U′ M U2 r U′ r′','U′ R U2 R′ U2 R U′ R′','U′ R U2 R′ U R′ F R F′','R U R′ U R U′ R′ U R U′ R′']},
         FL:{setup:'R U R′ U2 R U2 R′ U y', solutions:['F U R U2 R′ U F′','d′ L U2 L′ U2 L U′ L′','U′ F U2 R U′ R′ U F′','l U2 L2 U′ L2 U′ l′','y′ U′ R U2 R′ U′ R U2 R′']},
@@ -642,7 +691,7 @@
       }
     },{
       id:'F2L -8',
-      preview:'previews/f2l-8.png',
+      preview:'../previews/f2l-8.png',
       slots:{
         FR:{setup:'r′ U′ R2 U′ R2 U2 r', solutions:['d R′ U2 R U R′ U2 R','r′ U2 R2 U R2 U r','y′ U R′ U2 R U2 R′ U R','y U L′ U2 L U2 L′ U L','U F′ U2 L′ U L U′ F']},
         FL:{setup:'r′ U′ R2 U′ R2 U2 r y', solutions:['U L′ U2 L U L′ U2 L','U r′ F2 r U2 r′ F r','U′ R′ U2 R U R′ U R U2 L′ U L','U L′ U2 L U2 L′ U L']},
@@ -651,7 +700,7 @@
       }
     },{
       id:'F2L -9',
-      preview:'previews/f2l-9.png',
+      preview:'../previews/f2l-9.png',
       slots:{
         FR:{setup:'F′ U F U′ R U R′ U', solutions:['U′ R U′ R′ U F′ U′ F','F R U R′ U′ F′ R U′ R′','U′ R U′ R′ d R′ U′ R','d R′ U′ R U′ R′ U′ R','y U L′ U L U′ L′ U′ L']},
         FL:{setup:'F′ U F U′ R U R′ U y', solutions:['U L′ U L U′ L′ U′ L','F2 U R U′ R′ F2','U2 L′ U L U L′ U′ L','U L′ U L U′ L′ U′ L','F2 U R U′ R′ F2']},
@@ -660,7 +709,7 @@
       }
     },{
       id:'F2L -10',
-      preview:'previews/f2l-10.png',
+      preview:'../previews/f2l-10.png',
       slots:{
         FR:{setup:'R U′ R′ U′ R U′ R′ U', solutions:['U′ R U R′ U R U R′','U2 R U′ R′ U′ R U R′','y′ U R′ U R U′ f R f′','d R′ U R d′ R U R′','F2 U′ L′ U L F2']},
         FL:{setup:'R U′ R′ U′ R U′ R′ U y', solutions:['U L′ U L U′ F U F′','F U′ R U R′ U2 F′','d′ L U L′ U L U L′','y′ U′ R U R′ U R U R′','U L′ U L U′ F U F′']},
@@ -669,7 +718,7 @@
       }
     },{
       id:'F2L -11',
-      preview:'previews/f2l-11.png',
+      preview:'../previews/f2l-11.png',
       slots:{
         FR:{setup:'F′ U F U′ R U2 R′ U', solutions:['U′ R U2 R′ U F′ U′ F','y′ R U2 R2 U′ R2 U′ R′','U′ R U2 R′ d R′ U′ R','F′ U L′ U2 L U2 F','U′ R U2 R′ U F′ U′ F']},
         FL:{setup:'F′ U F U′ R U2 R′ U y', solutions:['L′ U L U′ L′ U L U2 L′ U L','L U2 L2 U′ L2 U′ L′','F U R U′ R′ U R U′ R′ U F′','U′ F U2 F′ U r′ F′ r','L′ U L U′ L′ U L U L′ U2 L']},
@@ -678,7 +727,7 @@
       }
     },{
       id:'F2L -12',
-      preview:'previews/f2l-12.png',
+      preview:'../previews/f2l-12.png',
       slots:{
         FR:{setup:'R U R′ U2 R U R′ U′ R U R′', solutions:['R U′ R′ U R U′ R′ U2 R U′ R′','R′ U2 R2 U R2 U R','U R U′ R′ U R U R′ U′ R U R′','R′ D′ R U2 R′ D R2 U R′','y′ U R′ U2 R U′ y R U R′']},
         FL:{setup:'R U R′ U2 R U R′ U′ R U R′ y', solutions:['U L′ U2 L d′ L U L′','U L′ U2 L d′ L U L′','U L′ U2 L d′ L U L′','y′ R′ U2 R2 U R2 U R','F U′ R U2 R′ U2 F′']},
@@ -687,7 +736,7 @@
       }
     },{
       id:'F2L -13',
-      preview:'previews/f2l-13.svg',
+      preview:'../previews/f2l-13.svg',
       slots:{
         FR:{setup:'r U2 R′ U R U′ R′ U M', solutions:["y′ U R′ U R U′ R′ U′ R","M′ U′ R U R′ U2 R U′ r′","d R′ U R U′ R′ U′ R","R U′ R′ U R′ F R F′ R U′ R′","U R U′ R′ U R U′ R′ F R′ F′ R","y U L′ U L U′ L′ U′ L","U F′ U F U′ F′ U′ F","R U R′ U′ R′ F R F′ R′ F R F′","R′ D′ r U r′ D F R F′","R′ D′ r U r′ D R U R U′ R′","U F2 u′ R U′ R′ u F2","R U R′ U′ R′ F R F′ U R U′ R′","U2 L F′ L2 U2 L F L′ U2 L","R′ F R F′ U′ R′ F R F′ R U R′","y2 U F′ U′ L′ U L S′ L′ f","U2 F′ L′ U L U′ L′ U2 L F","R′ F R F′ U′ F′ R U R′ U′ R′ F R","F′ U L′ U′ L U′ F U R U′ R′","R U R2 F R F2 U′ F","F′ U2 F U2 F′ U′ F U2 F′ U F","y2 M U′ L U L′ U′ L U2 l′","y2 U f′ L f U′ f′ L′ f","R U2 R′ U2 F′ U2 F U′ F′ U F","U R U′ R′ U R U′ R′ U′ F′ U F","y L′ U L U′ L′ U2 L U2 L′ U L","R F′ r U R′ U2 r′ F2","U F′ U F U′ y L′ U′ L","U R U′ R′ U R U′ R′ y U′ L′ U L","R U R′ U R U′ R′ F′ U′ F","U R U′ R′ U R U′ M′ U R′ U′ M","U y′ R′ U R U′ R′ U′ R","U F′ L F L′ U′ L′ U L R U′ R′"]},
         FL:{setup:'r U2 R′ U R U′ R′ U M y', solutions:["U L′ U L U′ L′ U′ L","y′ R U′ R′ U2 R U′ R′ U F′ U F","U L′ U L U′ L′ U L U L′ U L","U L F′ L2 U′ L U L F L′","L′ U L U′ L′ U2 L U2 L′ U L"]},
@@ -696,7 +745,7 @@
       }
     },{
       id:'F2L -14',
-      preview:'previews/f2l-14.svg',
+      preview:'../previews/f2l-14.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ R U R′ U', solutions:["U′ R U′ R′ U R U R′","R U2 R′ U2 R U R′ U2 R U′ R′","U′ R2 D R′ U R D′ R2","U2 R2 U R′ U R U2 R2","R′ D′ R U′ R′ D R2 U R′","U′ R U′ R′ U R U′ R′ U′ R U′ R′","U′ R′ F R2 U R′ U′ R′ F′ R","F R′ F′ R U R U′ R′ F R′ F′ R","y U′ L′ U L U′ L′ U L U F U′ F′","U R U2 R′ U R U2 R′ U R U′ R′","y L′ U2 L U2 y′ R U2 R′ U R U′ R′","y′ M U R′ U′ R U2 R′ U r","y L′ U L U′ L F′ L′ F L′ U L","y M′ U r′ F′ r U2 r′ F R","R U R′ d′ L′ U L F′ L F L′","y2 U′ L U′ L′ U L U L′","y U′ L′ U L U′ L′ U L F′ L F L′","y U′ L′ U L U′ L′ U L F′ r U r′","R U′ R′ U R U2 R′ U2 R U′ R′","y L′ U2 L U2 F U2 F′ U F U′ F′"]},
         FL:{setup:'R U′ R′ U′ R U R′ U y', solutions:["d′ L U′ L′ U L U L′","y U′ L U′ L′ U L U L′","y′ U′ R U′ R′ U R U R′","M′ U L′ U′ L U2 L′ U l","U2 F R U′ R′ U R U2 R′ F′","L′ U L U′ L F′ L′ F L′ U L","U2 R′ F′ R2 B′ R2 F R2 B R2 F R","U F U R U′ R′ U R U2 R′ F′","F U′ R U R′ U F′ U′ L′ U L","U′ F U′ F′ U F U F′"]},
@@ -704,189 +753,189 @@
         BR:{setup:'R U′ R′ U′ R U R′ U y′', solutions:["y U′ R U′ R′ U R U R′","d′ R U′ R′ U R U R′","y′ U′ L U′ L′ U L U L′","U′ f R′ f′ U f R f′","M U R′ U′ R U2 R′ U r","U′ F U R U′ R′ S R f′","U′ R′ U R′ F R2 U R′ U′ F′ U′ R"]}
       }
     },{
-      id:'F2L -15', preview:'previews/f2l-15.svg', slots:{
+      id:'F2L -15', preview:'../previews/f2l-15.svg', slots:{
         FR:{setup:'R U R′ U′ R U R′ U2 R U′ R′',solutions:["R′ D′ R U′ R′ D R U R U′ R′","M U r U′ r′ U′ M′","R U R′ U2 R U′ R′ U R U′ R′","F′ U F U2 R U R′","U R′ F R F′ U R U R′","R U2 R′ U R U R′ U R U′ R′","y′ R2 F R F′ R U2 R′ U R","U S′ R U R′ S R U2 R′","l U r U′ r′ U′ l′","y L′ U L U2 y′ R U R′","y L′ U L U2 F U F′","F′ U L′ U L U2 F","U′ r U′ r′ U′ r U r′ R U R′","U2 R′ F′ r U′ r′ F2 R2 U R′","M U L F′ L′ U′ M′","U y′ R′ U R y U2 R U2 R′ U′ R U2 R′","U2 R U R′ U′ R U2 R′ U R U R′","l U L F′ L′ U′ l′","R r′ U r U′ r′ U′ r R′","y′ R′ U R U2 y R U R′","y L2 B L B′ L U2 L′ U L","R′ D′ R U′ R′ D F R F′","U R U′ R′ U2 R′ F R F′ R U R′","y U L′ U L y′ U2 R U2 R′ U2 R U′ R′","y U′ M′ U′ L′ U l U L′ U′ L","R U′ R′ U′ R U′ R′ U R U′ R′ U R U′ R′","U R U′ R′ U2 y L′ U L y′ U R U′ R′","U R U2 R′ U′ R U2 R′ U R U R′","U F′ U2 F U2 R U R′ U2 R U′ R′","R U2 R′ U′ R U′ R′ U2 R U R′","y L′ U L U′ d′ L U L′","U R U′ R′ U2 F′ R U R′ U′ R′ F R","y l′ U′ l U′ l′ U2 l U l′ U l","U2 R U R′ y U L′ U L U2 L′ U L","y L′ U L U2 y L U L′","r′ R U R U R′ U′ r U′ R′","U R U′ R D r′ U r D′ R′ U′ R′","M U R U R′ U′ r U′ R′","R U2 R2 F R F′ U′ R U2 R′","F D R U R U′ R2 D′ F′","y′ U R′ U R U2 y R U2 R′ U2 R U′ R′","R U R′ U2 R U′ R2 F R F′","y2 M′ U l U′ l′ U′ M","U2 M′ U R U′ r′ U2 R U′ R′","y′ R′ U R U2 f R f′","F′ L′ U′ L U L′ U L U′ F","R U′ R U2 R2 U′ R2 U′ R2","F′ U F U′ d′ F U F′","U′ r U′ r′ U′ r U M U R′"]},
         FL:{setup:'R U R′ U′ R U R′ U2 R U′ R′ y',solutions:["L′ U L U2 F U F′","F U2 R U R′ U F′","L′ U L U2 y L U L′","U L′ l U′ l′ U l U l′ U L","L D L′ U′ L D′ L′ F′ L F L′","U′ F′ L F L2 U L U2 L′ U L","U′ M′ U′ L′ U l U L′ U′ L","U′ F′ U′ L′ U L F L′ U′ L","r2 F r U′ r U2 r′ F r","L′ U L U2 y′ R U R′","L′ U L S L′ U2 L S′","U′ L′ F′ L′ U′ L U F L"]},
         BL:{setup:'R U R′ U′ R U R′ U2 R U′ R′ y2',solutions:["L U L′ U2 L U′ L′ U L U′ L′","L U2 L′ U L U L′ U L U′ L′","M′ U l U′ l′ U′ M","f′ L f U2 L U L′","r U l U′ l′ U′ r′","U2 R U2 R′ U′ R U′ R′ L U L′","y′ L′ U L U2 F U F′","L U′ L U2 L2 U′ L2 U′ L2","F′ L F L′ U2 L U L2 U L","r U r′ U2 L U L′ U r U′ r′","L l U F U′ F′ l′ L′","L U F′ L F L′ U2 L′","L F R U′ R′ F′ L′"]},
         BR:{setup:'R U R′ U′ R U R′ U2 R U′ R′ y′',solutions:["R′ U R U2 f R f′","R2 F R F′ R U R′ U2 R","R′ U R U′ d′ R U R′","R2 F R F′ R U2 R′ U R","R′ U R U2 y′ L U L′","y R U R′ U2 R U′ R′ U R U′ R′","R′ U R U2 B U B′","U2 R′ F′ U′ F U R U R′ U′ R","R′ U R U2 y R U R′"]}
       }
     },{
-      id:'F2L -16', preview:'previews/f2l-16.svg', slots:{
+      id:'F2L -16', preview:'../previews/f2l-16.svg', slots:{
         FR:{setup:'F′ U F U2 R U R′',solutions:["R U′ R′ U2 F′ U′ F","R U′ R′ U2 y′ R′ U′ R","U M′ U R U′ r′ U′ R U R′","U F U R U′ R′ F′ R U R′","y M U′ R′ F R U M′","y′ R′ U′ R U2 R′ U R U′ R′ U R","R U′ R′ U d R′ U′ R","U′ F R′ F′ R U′ F′ U′ F","R U′ R′ S′ R U2 R′ S","y r′ U′ l′ U l U r","U F R U R′ U′ F′ U R U′ R′","U F R′ F′ R2 U′ R′ U2 R U′ R′","y L′ U′ L U2 L′ U L U′ L′ U L","R2 B′ R′ B R′ U2 R U′ R′","R U′ R′ U2 y L′ U′ L","r U r′ U r U2 r′ U′ r U′ r′","U′ R U2 R′ U y′ U R′ U′ R U2 R′ U R","l2 F′ l′ U l′ U2 R U′ R′","R U R′ U2 R U′ R′ U′ F′ U F","S U′ f′ U f U S′","R′ D′ R U R′ D R r U R′ U′ M","R′ D′ R U R′ D R F R′ F′ R","y L D L′ U L D′ F′ L′ F","y L D L′ U L D′ L′ U′ L′ U L","U r R′ U R U′ r′ U′ R U R′","y M U′ l′ U l U M′","U R F R U R′ U′ F′ R′","y L′ U2 L U′ L′ U′ L U′ L′ U L","R U′ R′ U2 S R′ F R f′","U′ R U′ R′ U2 y′ R′ U2 R U2 y2 L′ U L","R U R′ U2 R U′ R′ y′ U′ R′ U R","y L′ U2 L U L′ U L U2 L′ U′ L","R U′ B U′ B′ U2 R′","U r U′ r′ U2 r U r′ U′ R U R′","R U′ R′ y U2 L′ U′ L","y′ M′ U′ r′ U r U M","y U2 L′ U′ L y′ U′ R U′ R′ U2 R U′ R′","d′ L F′ L′ F U′ L′ U′ L","y L′ x′ U′ l′ U l U L x","U2 R U M′ U′ r′ U2 r U r′","U R U2 R′ r U′ r′ U2 r U r′","R U′ R′ d′ U′ L′ U′ L","R U′ R′ d′ U′ r′ F′ r","l F′ U F′ U′ F2 l′"]},
         FL:{setup:'F′ U F U2 R U R′ y',solutions:["F U′ R U′ R′ U2 F′","L′ U′ L U2 L′ U L U′ L′ U L","L′ U2 L U′ L′ U′ L U′ L′ U L","M U′ l′ U l U M′","U′ S L′ U′ L S′ L′ U2 L","M U′ R′ F R U M′","L′ U L′ U2 L2 U L2 U L2","F R U R′ U′ R U′ R′ U F′","F2 R′ F′ R2 U′ R′ U F′","r′ U′ l′ U l U r","U′ L F′ L′ F U′ L′ U′ L","F U′ F′ U2 L′ U′ L"]},
         BL:{setup:'F′ U F U2 R U R′ y2',solutions:["L U′ L′ U2 f′ L′ f","L2 F′ L′ F L′ U2 L U′ L′","L U′ L′ y U2 R′ U′ R","L U′ L′ U′ d′ R′ U′ R","L U′ L′ U2 B′ U′ B","L U′ L′ U2 y R′ U′ R","U M U L U′ l′ U′ L U L′","L U′ L′ U2 y′ r′ F′ r"]},
         BR:{setup:'F′ U F U2 R U R′ y′',solutions:["R′ U′ R U2 R′ U R U′ R′ U R","M′ U′ r′ U r U M","U2 R′ U′ R U R D R′ U′ R D′ R′","F R′ F′ R U2 R′ U′ R2 U′ R′","f R′ f′ U2 R′ U′ R","R′ U′ F R′ F′ R U2 R","R′ U2 R U′ R′ U′ R U′ R′ U R","U2 L′ U2 L U L′ U L R′ U′ R","U R′ f′ R U R′ U R U2 R′ U f R","y R U′ R′ U2 F′ U′ F","R′ B′ U′ R U R′ B U R","y R U′ R′ U2 y′ R′ U′ R","R′ U R′ U2 R2 U R2 U R2"]}
       }
     },{
-      id:'F2L -17', preview:'previews/f2l-17.svg', slots:{
+      id:'F2L -17', preview:'../previews/f2l-17.svg', slots:{
         FR:{setup:'R U′ R′ U R U2 R′',solutions:["R U2 R′ U′ R U R′","y2 L U2 L′ U′ L U L′","R U R′ U′ R U2 R′ U2 R U R′","y L F′ L′ F L′ U L U′ L′ U L","y′ R′ U2 F R U R′ U′ F′ R","R U U R′ U′ R U R′ U′","y L′ U′ L U L′ U′ L U F′ L F L′","y U′ F R U R′ U′ R U2 R′ F′","U′ R U2 R′ U′ R U R′ U R U′ R′","U′ R U′ R′ U2 R U2 R2 F R F′"]},
         FL:{setup:'R U′ R′ U R U2 R′ y',solutions:["y L U2 L′ U′ L U L′","L F′ L′ F L′ U L U′ L′ U L","L′ U2 L U2 l′ U L U′ L′ U′ l","y′ R U2 R′ U′ R U R′","F U2 F′ U′ F U F′","U2 F U R U2 R′ U′ R U2 R′ F′","U′ L′ U L2 F′ L′ F U′ L′ U L","L′ U′ L U L′ U′ L U F′ L F L′"]},
         BL:{setup:'R U′ R′ U R U2 R′ y2',solutions:["L U2 L′ U′ L U L′","L U L′ U′ L U2 L′ U2 L U L′"]},
         BR:{setup:'R U′ R′ U R U2 R′ y′',solutions:["y′ L U2 L′ U′ L U L′","y R U2 R′ U′ R U R′","R′ U2 F R U R′ U′ F′ R","l U′ R′ U l′ U R U′ R′ U R","R′ U2 R U2 r′ U R U′ R′ U′ r","f R2 f′ U′ f R f′","U′ F′ U′ L′ U L F R′ U′ R"]}
       }
     },{
-      id:'F2L -18', preview:'previews/f2l-18.svg', slots:{
+      id:'F2L -18', preview:'../previews/f2l-18.svg', slots:{
         FR:{setup:'R U R′ U′ R U R′ F R′ F′ R',solutions:["y′ R′ U2 R U R′ U′ R","y L′ U2 L U L′ U′ L","F′ U2 F U F′ U′ F","R′ F R F′ R U′ R′ U R U′ R′","R U2 R′ y′ R′ U′ R U2 R′ U R","R U R′ U′ R U R′ U′ F R′ F′ R","R U R′ U′ y L′ U L U′ L′ U L","F′ U2 F d R′ U′ R","F R′ F′ R2 U′ R′ U R U2 R2 F R F′","R U′ R2 F R F′ U2 R U R′","R U2 R′ U2 r U′ R′ U R U r′","y U L′ U L U2 y2 R′ U2 R U′ R′ U R","R U′ R′ F′ U′ F R′ F R F′","R U′ R′ F′ U′ F U R U′ R′","R U R′ U′ R U R′ U2 F′ U F","y′ U R′ U R U2 R′ U2 R U′ R′ U R","y′ U R′ U R U2 R′ U2 R y2 U′ L′ U L","U2 f R U R′ U′ R U R′ U′ f′ U′ R U′ R′","R U2 R′ F′ U′ F U2 F′ U F","U R U′ R′ U2 R U′ R′ F′ U′ F","R U R′ U′ R U R′ U′ y′ U′ R′ U R","U′ F U R U′ R′ F′ U2 R U R′","U S R U2 R′ U R U′ R′ U′ S′","R′ F R F′ R U′ R2 F R F′","R U R′ U′ F′ U F U′ F′ U F","R U R′ U′ R U2 R′ U F′ U F","U2 F′ U′ L′ U2 L U L′ U2 L F","U F′ L′ U′ L U L′ U2 L F","R U2 R′ y L′ U′ L U2 L′ U L","U R U′ R2 F R F′ U R U′ R′"]},
         FL:{setup:'R U R′ U′ R U R′ F R′ F′ R y',solutions:["L′ U2 L U L′ U′ L"]},
         BL:{setup:'R U R′ U′ R U R′ F R′ F′ R y2',solutions:["y R′ U2 R U R′ U′ R","U F U R U′ R′ F′ L U L′","L U2 F′ L′ U′ L U F L′","L U2 L′ U2 l U′ L′ U L U l′","r′ U L U′ r U′ L′ U L U′ L′","f′ L2 f U f′ L′ f","y′ L′ U2 L U L′ U′ L"]},
         BR:{setup:'R U R′ U′ R U R′ F R′ F′ R y′',solutions:["R′ U2 R U R′ U′ R"]}
       }
     },{
-      id:'F2L -19', preview:'previews/f2l-19.svg', slots:{
+      id:'F2L -19', preview:'../previews/f2l-19.svg', slots:{
         FR:{setup:'R U R′ U′ R U2 R′ U′',solutions:["U R U2 R′ U R U′ R′","U R U2 R2 F R F′","d f R2 f′ U f R′ f′","R U′ R′ U R U′ R′ U R U R′","R U′ R U R′ U R U2 R2","U y′ f R2 f′ U2 f R2 f′","d f R2 f′ U2 f R2 f′","U y′ f R2 f′ r′ U′ R U M′","d f R2 f′ r′ U′ R U M′","U y′ f R2 f′ U f R′ f′","F′ U F U R U2 R′ U2 R U′ R′","y2 U L U2 L′ U L U′ L′"]},
         FL:{setup:'R U R′ U′ R U2 R′ U′ y',solutions:["U L′ U L2 F′ L′ F L′ U L","d R U2 R′ U R U′ R′","y′ U R U2 R′ U R U′ R′","y U L U2 L′ U L U′ L′","R U2 R′ U2 R′ F R U′ F′","U M′ U′ L′ U2 L U L′ U′ l","U F U2 F′ U F U′ F′","R U2 R′ U2 R′ F R U′ R′ F′ R U R U′ R′","F U′ R U′ R′ U R U2 R′ F′"]},
         BL:{setup:'R U R′ U′ R U2 R′ U′ y2',solutions:["U L U2 L′ U L U′ L′","L U′ L′ U L U′ L′ U L U L′"]},
         BR:{setup:'R U R′ U′ R U2 R′ U′ y′',solutions:["y U R U2 R′ U R U′ R′","U R′ F′ U2 F R U R′ U′ R","U2 f R2 U R2 U′ R f′","U2 F′ U′ F R′ U′ R S R S′","U M U′ R′ U2 R U R′ U′ r","U R′ U′ R U′ r′ U r U2 r′ U′ r","y′ U L U2 L′ U L U′ L′","d L U2 L′ U L U′ L′","U R′ U R U′ R′ U R U′ f R′ f′","U R′ U F′ U F R U′ R′ U R"]}
       }
     },{
-      id:'F2L -20', preview:'previews/f2l-20.svg', slots:{
+      id:'F2L -20', preview:'../previews/f2l-20.svg', slots:{
         FR:{setup:'R U R′ F R′ F′ R2 U R′ U',solutions:["y′ U′ R′ U2 R U′ R′ U R","U′ R U′ R2 F R F′ R U′ R′","y U′ L′ U2 L U′ L′ U L","U′ F′ U2 F U′ F′ U F","U′ R U′ R′ F′ U2 F R U R′","R U R′ U2 R U R′ U2 y′ R′ U R","U′ F′ U2 F2 R′ F′ R","U′ R U R′ U r U′ r′ U2 r U r′","d′ L′ U2 L U′ L′ U L","d′ r′ F2 r2 U′ r′ F","y′ U′ R′ U′ F R′ F′ R2","U2 R′ U2 R U F R′ F′ U R","R U′ R′ U′ F′ U2 F U2 F′ U F","R U R′ U2 R U R′ U2 F′ U F","y L′ U L U′ L′ U L U′ L′ U′ L","y′ R′ U R U′ R′ U R U′ R′ U′ R","R U′ R′ U′ y′ R′ U2 R U2 R′ U R","y′ U′ R′ U2 R2 y R′ F′ R","U′ y L′ U2 L U′ L′ U L","U′ R U R′ U F′ L′ U2 L F","U′ F′ d U R U′ R′ U R","d′ L′ U2 L2 F′ L′ F","R U′ R′ U2 d R′ U2 R U2 R′ U R","R U R′ U2 R U′ R′ U′ R′ F R F′ R U′ R′","R U R′ U2 R U R′ U′ F R′ F′ R","F′ U L′ U L U′ L′ U2 L F","U′ y′ R′ U2 R U′ R′ U R","U′ M′ U R U2 R′ U′ R U r′"]},
         FL:{setup:'R U R′ F R′ F′ R2 U R′ U y',solutions:["U′ L′ U2 L U′ L′ U L","L′ U L U′ L′ U L U′ L′ U′ L","U′ L′ U2 L2 F′ L′ F"]},
         BL:{setup:'R U R′ F R′ F′ R2 U R′ U y2',solutions:["y U′ R′ U2 R U′ R′ U R","U′ L F U2 F′ L′ U′ L U L′","d′ R′ U2 R U′ R′ U R","U′ L U L′ U l U′ l′ U2 l U l′","U′ M U L U2 L′ U′ L U l′","U′ L U′ L′ U L U′ L′ U f′ L f","y′ U′ L′ U2 L U′ L′ U L"]},
         BR:{setup:'R U R′ F R′ F′ R2 U R′ U y′',solutions:["U′ R′ U2 R U′ R′ U R","R′ U R U′ R′ U R U′ R′ U′ R"]}
       }
     },{
-      id:'F2L -21', preview:'previews/f2l-21.svg', slots:{
+      id:'F2L -21', preview:'../previews/f2l-21.svg', slots:{
         FR:{setup:"R U′ R′ U2 R U R′",solutions:["U2 R U R′ U R U′ R′","R U′ R′ U2 R U R′","R B U2 B′ R′","y′ f R′ f′ U2 f R f′","U2 y′ f R f′ U f R′ f′","y R′ F R U2 R′ F′ R","r U′ R′ U2 R U r′","y F R U2 R′ F′","y F R U′ R′ U′ F′","R U R′ U R U R′ U′ R U R′","y2 L y L U2 L′ x′ d′ z","y2 L U′ L′ U2 L U L′","U2 l U′ R U l2 x′","U2 R U R2 F R F′"]},
         FL:{setup:"R U′ R′ U2 R U R′ y",solutions:["l′ U l U2 l′ U′ l","F R U2 R′ F′","y U2 L U L′ U L U′ L′","y L U′ L′ U2 L U L′","y′ U2 R U R′ U R U′ R′","U2 F U F2 L F L′","U2 L′ U′ L F U F′","R′ F R U2 R′ F′ R","U2 F U F′ U F U′ F′","U2 F R′ F R F2"]},
         BL:{setup:"R U′ R′ U2 R U R′ y2",solutions:["L U′ L′ U2 L U L′","U2 L U L′ U L U′ L′","l U′ L′ U2 L U l′","L F U2 F′ L′","U2 L F′ L F L2","U2 R U′ L U L′ R′"]},
         BR:{setup:"R U′ R′ U2 R U R′ y′",solutions:["r′ U r U2 r′ U′ r","y′ U2 L U L′ U L U′ L′","U2 R′ U′ R S R f′ U′ F","U f U R U′ R f′","y U2 R U R′ U R U′ R′","f U R2 U′ f′","U2 f R f′ U f R′ f′","y′ L U′ L′ U2 L U L′","U2 x′ U L′ U L U2 x"]}
       }
     },{
-      id:'F2L -22', preview:'previews/f2l-22.svg', slots:{
+      id:'F2L -22', preview:'../previews/f2l-22.svg', slots:{
         FR:{setup:"F′ L′ U2 L F",solutions:["r U′ r′ U2 r U r′","F′ L′ U2 L F","y′ U2 R′ U′ R U′ R′ U R","y U2 L′ U′ L U′ L′ U L","y′ R′ U R U2 R′ U′ R","U2 F′ U′ F U′ F′ U F","L F′ L′ U2 L F L′","R2 U2 R2 F R F′ R U2 R2","U2 F′ L F′ L′ F2","y L′ U L U2 L′ U′ L","F′ U F U2 F′ U′ F","U′ d′ L′ U′ L U′ L′ U L","y′ U2 R′ U′ R U2 R′ U2 R","U2 F′ U′ F2 R′ F′ R","d U R′ U′ R U′ R′ U R","U2 y′ R′ U′ R U′ R′ U R","y U2 r′ U L′ U′ r2 x′","U2 R U R′ F′ U′ F"]},
         FL:{setup:"F′ L′ U2 L F y",solutions:["L′ U L U2 L′ U′ L","U2 L′ U′ L U′ L′ U L","r′ U′ F2 U r","U′ L′ U L U2 L′ U L U′ L′ U L","L′ B′ U2 B L","U2 R′ U L′ U′ L R","U2 L′ U′ L2 F′ L′ F"]},
         BL:{setup:"F′ L′ U2 L F y2",solutions:["l U′ l′ U2 l U l′","f′ U′ L2 U f","y R′ U R U2 R′ U′ R","y U2 R′ U′ R U′ R′ U R","U2 x′ U′ R U′ R′ U2 x"]},
         BR:{setup:"F′ L′ U2 L F y′",solutions:["R′ U R U2 R′ U′ R","U2 R′ U′ R U′ R′ U R","R′ F′ U2 F R","U′ R′ U R U2 R′ U R U′ R′ U R","U2 R′ F R′ F′ R2","U2 L′ U R′ U′ R L"]}
       }
     },{
-      id:'F2L -23', preview:'previews/f2l-23.svg', slots:{
+      id:'F2L -23', preview:'../previews/f2l-23.svg', slots:{
         FR:{setup:"R U′ R′ U R U′ R′ U2 R U′ R′",solutions:["U R U′ R′ U′ R U′ R′ U R U′ R′","R U R′ U2 R U R′ U′ R U R′","U2 R2 U2 R′ U′ R U′ R2","R U′ R2 D′ R U2 R′ D R","U F R′ F′ R U R U R′","R U R′ F′ U F R U R′","U R U2 R′ U′ R U′ R′ U2 R U′ R′","R U R′ U R U2 R′ U2 R U R′","R U2 R′ U2 R U R′ U R U R′","R′ U′ F′ U F R F′ U F","R U′ R′ U′ R U R′ U2 R U R′","y′ U R′ U R y′ U L U L′ U L U′ L′","U2 R U R′ U′ R U′ R′ U2 R U′ R′","F U R U′ R′ F′ U′ F′ U′ F","d R′ U′ F′ U2 F R d′ R U2 R′","R′ U′ R U′ R′ U2 R2 U2 R′","U R′ F R F′ R U R′ U2 R U′ R′","F′ U L′ U2 L U′ L′ U2 L F","U F′ U′ L′ U L F2 R′ F′ R","y2 U′ L′ U′ L U′ L′ U2 L2 U′ L′","y F′ U′ L′ U L F L′ U L","U R U′ R′ U′ F′ U′ F U2 R U′ R′","R U2 R′ F′ U F U′ R U R′","R U′ R′ d′ L′ U L U2 L′ U L","y′ U R′ U R y U R U R′ U R U′ R′","y L′ U′ L U′ L′ U2 L F U2 F′","R B U B′ R′ U R U R′","R U R′ U R d′ R U2 R′ F′","y′ U R U R′ U R U2 R′ U f R f′","F′ U2 F R U2 R′ U2 R U′ R′","y′ U′ f R U R′ U′ f′ R′ U′ R","U F′ U F U R U R′ U R U′ R′","U y′ R′ U′ R U′ R′ U R U′ y R U′ R′","R U2 R′ U R U′ R′ U′ R U R′","R′ U′ y L′ U L F L′ U L","R U2 R′ U′ R U′ R′ U R U R′ U2 R U′ R′","U R U2 R′ U′ R U′ R′ U R′ F R F′","R U R′ U R U2 R′ U2 R U2 R′ U′ R′ F R F′","y U L′ U L U y′ R U R′ U R U′ R′","y2 U2 L2 U2 L′ U′ L U′ L2","y′ R′ U′ R y U′ R U′ R′ U R U′ R′","R U′ R′ U R′ D′ R U R′ D R","R′ U′ R U′ R′ U R2 U′ R2 U2 R","U′ R′ U′ R U′ R′ U2 R2 U′ R′","U R U R U2 R′ U′ R U′ R2","U R U′ R′ U′ R U′ R2 F R F′","r U2 r′ U′ r U2 r′ U r U2 r′","R U′ R′ U R U2 R′ U R U R′"]},
         FL:{setup:"R U′ R′ U R U′ R′ U2 R U′ R′ y",solutions:["F′ U′ L′ U L F L′ U L","F U′ R U R′ U R U2 R′ F′","U L′ U′ L2 F′ L′ F L′ U L","U′ F R U′ R′ F′ L′ U′ L","y′ U R U′ R′ U′ R U′ R′ U R U′ R′","F S′ R U′ R′ S U′ F′","l′ U′ l U′ L′ U′ L U l′ U′ l","R U2 R′ U′ R U′ R′ F U2 F′","U′ F U R U′ R′ F′ L′ U′ L","U2 L′ U′ L U L′ U L y U′ L U L′","y U L U′ L′ U′ L U′ L′ U L U′ L′","y L U L′ U2 L U L′ U′ L U L′","U′ F R U′ R′ F′ r′ F′ r","F U F′ U2 F U F′ U′ F U F′"]},
         BL:{setup:"R U′ R′ U R U′ R′ U2 R U′ R′ y2",solutions:["U L U′ L′ U′ L U′ L′ U L U′ L′","L U L′ U2 L U L′ U′ L U L′","L′ U′ L U′ L′ U2 L2 U2 L′","U2 L2 U2 L′ U′ L U′ L2","U′ L′ U′ L U′ L′ U2 L2 U′ L′","U2 L′ U2 L U L′ U L2 U L′","L U L′ U L U2 L′ U2 L U L′","U2 R U R′ U R U2 R′ L U L′","U2 L U L′ U′ L U′ L′ U2 L U′ L3","L U L F′ L′ F U2 L′","L F U F′ L′ U L U L′","U2 R′ U′ R U′ B2 r′ U2 r","U2 L R′ U′ R U′ R′ U2 L′ R","U2 R′ U′ R U′ R′ L U2 L′ U2 R"]},
         BR:{setup:"R U′ R′ U R U′ R′ U2 R U′ R′ y′",solutions:["U R′ F R′ F′ R2 U′ R′ U R","U2 l′ U′ L U′ L′ U2 B′ l","R′ F′ U′ F U2 R U′ R′ U′ R","U R′ U′ F′ U F R U′ R′ U R","U′ f U R′ U′ f′ R′ U′ R","y U R U′ R′ U′ R U′ R′ U R U′ R′","R2 F R F′ U R U′ R′ U′ R","U2 R′ U′ R U R′ U R y U′ R U R′","U2 R′ F′ U′ F2 R′ F′ R2","U2 R′ F′ r U′ r′ F2 U′ R","U F U R U′ R′ F′ U2 R′ U′ R","U R′ U′ R U′ R′ U R′ F R F′ R","R′ U′ R U′ R′ U2 R U′ f R′ f′","r′ U′ R U′ R′ U′ r U r′ U′ r","y′ U L U′ L′ U′ L U′ L′ U L U′ L′","y′ L U L′ U2 L U L′ U′ L U L′","U R′ U′ R U′ R′ U R U′ B U′ B′","r′ U′ R U M′ U R′ U′ R U R′ U′ R"]}
       }
     },{
-      id:'F2L -24', preview:'previews/f2l-24.svg', slots:{
+      id:'F2L -24', preview:'../previews/f2l-24.svg', slots:{
         FR:{setup:"R U R′ F R U R′ U′ F′",solutions:["F U R U′ R′ F′ R U′ R′","y′ R′ U′ R U2 R′ U′ R U R′ U′ R","U′ R U R2 F R F′ R U′ R′","y U′ L′ U L U L′ U L U′ L′ U L","R U R′ U R U2 R′ y′ U R′ U R","y′ U′ R′ U R U R′ U R U′ R′ U R","y U′ F′ L F L′ U′ L′ U′ L","R U′ R′ U r U′ R′ U R U r′","U F′ L′ U L F R U R′","S′ R U′ R′ S U2 R U R′","y′ U R U R′ U R U2 R2 U R","R U R′ U R U R′ U′ F R′ F′ R U","F′ U′ F R U′ R′ F′ U′ F","R U R′ U R U2 R′ U F′ U F","r U R′ U R U2 r′ U2 R U R′","y L′ U2 L U2 L′ U′ L U′ L′ U′ L","U2 R U R′ U′ R U′ R′ y′ U R′ U′ R","y′ R′ U′ R U′ R′ U2 R U2 R′ U′ R","y′ R′ U2 R U′ R′ U R U R′ U′ R","U F R′ F′ D′ R U R′ D R","R U2 R′ y′ R′ U2 R U2 R′ U R","y L′ U′ L U2 L′ U′ L U L′ U′ L","y R′ F2 R U R′ F2 R U′ R′ F2 R","y U2 L2 U2 L U L′ U L2","R U2 R′ y L′ U2 L U2 L′ U L","F′ U2 F R U′ R′ U F′ U′ F","U′ R U′ R′ U′ y′ R′ U′ R U′ R′ U R","y′ R′ U R U y R U′ R′ U′ R U2 R′","y′ R′ U R U y R U′ R′ U2 R U′ R′","R U R′ U R U2 R′ y′ R′ U2 R","R U R′ U R U2 R′ d R′ U R","R U2 R′ F′ U2 F U2 F′ U F","y2 f R U R′ U′ f′ L U′ L′","U F R′ F′ R2 U2 R′ U R U R′","U′ F′ U F U F′ U F2 R′ F′ R","U′ R U′ R′ U′ F′ U′ F U′ F′ U F","U′ R U′ R′ U r U′ r′ U2 r U r′","U′ R U′ R′ U′ y L′ U′ L U′ L′ U L","U′ F′ U2 F U F′ U F U2 F′ U F","r U r′ U R U R′ U′ r U r′","R U R′ d R′ U R U′ R′ U R","R U R′ U R U R′ U′ F R′ F′ R","R U R′ U R U R′ U2 F′ U F","y′ U2 R2 U2 R U R′ U R2","F′ U L′ U′ L U′ L′ U2 L F","F′ U′ F U2 F′ U′ F U F′ U′ F"]},
         FL:{setup:"R U R′ F R U R′ U′ F′ y",solutions:["U′ L′ U L U L′ U L U′ L′ U L","U′ F′ r U r′ U′ L′ U′ L","L′ U L U L′ U′ L U2 L′ U′ L","F U′ R U2 R′ U R U2 R′ F′","U2 L2 U2 L U L′ U L2","L′ U L2 D L′ U2 L D′ L′","U2 R U R′ U R U2 R′ U′ L′ U L","F U R U R′ U2 R U2 R′ F′","L U L′ U L U2 L2 U2 L","l′ U2 l U l′ U2 l U′ l′ U2 l","U′ F′ L F L′ U′ L′ U′ L","U′ L′ U L U L′ U L2 F′ L′ F","U′ L′ U′ L′ U2 L U L′ U L2"]},
         BL:{setup:"R U R′ F R U R′ U′ F′ y2",solutions:["U2 r U R′ U R U2 B r′","U2 F U R U′ R′ F′ U2 L U′ L′","y U′ R′ U R U R′ U R U′ R′ U R","U2 F U R U′ R′ F′ U′ L U2 L′","U2 L U L′ U′ L U′ L′ y′ U L′ U′ L","U2 L F U F2 L F L2","U f′ U′ L U f L U L′","U′ L F′ L F L2 U L U′ L′","U2 L F l′ U l F2 U L′","y R′ U′ R U2 R′ U′ R U R′ U′ R","U′ L U L′ U L U′ L′ f′ L2 f","U′ L U L′ U L U′ L′ U f′ L f","U′ L U L′ U L U′ L F′ L′ F L′","L2 F′ L′ F U′ L′ U L U L′","U′ F′ U′ L′ U L F U2 L U L′","y′ U′ L′ U L U L′ U L U′ L′ U L"]},
         BR:{setup:"R U R′ F R U R′ U′ F′ y′",solutions:["R′ U′ R U2 R′ U′ R U R′ U′ R","U2 R2 U2 R U R′ U R2","U′ R′ U R U R′ U R U′ R′ U R","R U R′ U R U2 R2 U2 R","U2 R U2 R′ U′ R U′ R2 U′ R","U F U R U′ R′ S R2 f′","R′ U′ R′ F R F′ U2 R","R′ F′ U′ F R U′ R′ U′ R","R′ U2 R U′ R′ U R U R′ U′ R"]}
       }
     },{
-      id:'F2L -25', preview:'previews/f2l-25.svg', slots:{
+      id:'F2L -25', preview:'../previews/f2l-25.svg', slots:{
         FR:{setup:"F′ R U R′ U′ R′ F R",solutions:["U′ R′ F R F′ R U R′","R′ F′ R U R U′ R′ F","U′ F′ R U R′ U′ R′ F R","U′ F′ U F U R U′ R′","R U′ R′ U′ R U′ R′ U R U R′","l′ U′ l U l F′ l′ F","R′ U′ R′ U′ R′ U R U R","y U′ L′ U′ L U y′ R U R′","l′ U′ l U R U′ R′ F","U2 R U R′ U2 R U2 R′ U2 R U′ R′","y U′ L′ U L U F U′ F′","U′ R U R′ U2 R U′ R′ U2 R U′ R′","R F R′ U R U′ F′ R′","U′ R U′ R′ U2 R U′ R′ U′ R U R′","U2 R U2 R′ U R U′ R′ U2 R U′ R′","y F U R U R′ U′ F′ U F R U R′ F′","U2 R2 U R′ U R′ U′ R2 U′ R2","R2 U R2 U R U′ R U′ R2","R U R′ U′ l′ U′ l U2 R U′ R′ U′ l′ U l","U′ F′ U′ F U R U R′","y U′ L′ U L y′ U R U′ R′","S R U R′ U′ S′ U R U′ R′","R U R′ U2 R U R′ U2 R U′ R′","y′ U′ R′ U R U y R U′ R′","U′ F′ U F R′ F R F′","F U2 r U′ r′ U2 F′","y L U L′ F L U′ L′ F′","d′ L′ U L d R U′ R′","U2 R′ U′ R′ U′ R U R U R","U′ M′ U R U′ M U R′","y U′ L′ U L F′ L F L′","U R U′ R′ U R U R′ U2 R U R′","U′ y′ R′ U R U y R U′ R′","U′ R F U R′ U′ R F′ R′"]},
         FL:{setup:"F′ R U R′ U′ R′ F R y",solutions:["U′ L′ U L F′ r U r′","U′ L′ U L d R U′ R′","U′ L′ U L F′ L F L′","U′ L′ U L y U L U′ L′","U2 R′ E R U R′ E′ R","U′ F U2 R U R′ U2 F′","r′ E r U′ r′ E′ r","R′ E R U′ R′ E′ R","L′ S L U′ L′ S′ L","U′ L′ U′ M U L U′ M′","y L U′ L′ U′ L U′ L′ U L U L′","U′ r′ F r F′ r U r′","U′ L′ U L y′ U R U′ R′","U R′ E R U2 R′ E′ R"]},
         BL:{setup:"F′ R U R′ U′ R′ F R y2",solutions:["L U′ L′ U′ L U′ L′ U L U L′","R D′ R′ U′ R D R′ L U L′","U′ f′ L′ f U L U L′","L′ U′ L′ U′ L′ U L U L","U R′ E2 R U R′ E2 R","L U2 L′ U L U2 L′ U2 L U′ L′","r′ U′ r U r B′ r′ B","r′ U′ r U r f′ u′ f","U′ M U L U′ M′ U L′"]},
         BR:{setup:"F′ R U R′ U′ R′ F R y′",solutions:["U′ R′ U M U′ R U M′","R′ S′ R U′ R′ S R","U′ R′ U R r′ U′ R U M′","d′ R′ F R F′ R U R′","U′ R′ U R d L U′ L′","U2 F R2 U R2 U′ R2 F′","U′ R′ U R U f R′ f′","U′ R′ U R y′ U L U′ L′","U R′ U2 R U2 y R U R′","U′ R′ U′ R U f R f′","U′ R′ U R f′ U f R′","y′ L U′ L′ U′ L U′ L′ U L U L′","U′ R′ U l U′ R U l′","L′ E L U′ L′ E′ L","L′ u′ U′ L U L′ u L","U′ R′ U R y U R U′ R′"]}
       }
     },{
-      id:'F2L -26', preview:'previews/f2l-26.svg', slots:{
+      id:'F2L -26', preview:'../previews/f2l-26.svg', slots:{
         FR:{setup:"F′ U′ F U R U R′ U′",solutions:["U R U′ R′ F R′ F′ R","R S′ R′ U R S R′","U R U R′ U′ y L′ U′ L","U R U′ R′ U′ F′ U F","F′ M′ U′ L′ U l F","U R U′ R′ y U′ L′ U L","U R U′ R′ F l′ U′ l","U R U′ R′ U′ y′ R′ U R","u r U r′ U′ r′ F r F′ u′","U R U′ R′ U2 d R′ U R","U R U′ R′ U′ r U′ r′ U r U r′","y′ R′ U R U R′ U R U′ R′ U′ R","R2 U R′ U′ R′ F R F′ R′","y r U r′ U′ r′ F r F′","U′ R U2 R′ U2 F′ U′ F","F′ r U′ r′ F2 r U r′ U2 M′ U M U R U R′","y U2 L′ U2 L U′ L′ U L U2 L′ U L","y U F L′ U′ L U L F′ L′","U R U R′ U′ y′ R′ U′ R","R′ U′ R F′ R′ U R F","y L U L U L U′ L′ U′ L′","U R U R′ U′ F′ U′ F","U R U′ R′ y′ U′ R′ U R","U R U′ M′ U R′ U′ M","U R U′ R′ U′ y L′ U L","y U L F′ L′ F L′ U′ L","U2 R S′ R′ U′ R S R′","L E′ L′ U L E L′","U2 r U M U2 M′ U r′","U R U′ R′ d′ L′ U L"]},
         FL:{setup:"F′ U′ F U R U R′ U′ y",solutions:["r U r′ U′ r′ F r F′","U L F′ L′ F L′ U′ L","U F L′ U′ L U L F′ L′","U F r′ F′ r U r U′ r′","L F L′ U′ L′ U L F′","L′ U L U L′ U L U′ L′ U′ L","U′ F U2 R U′ R′ U2 F′","L U L U L U′ L′ U′ L′","U F L′ U′ L U r U′ r′"]},
         BL:{setup:"F′ U′ F U R U R′ U′ y2",solutions:["L S L′ U L S′ L′","F R2 u R u′ R2 F′","U L U′ M U L′ U′ M′","U′ R u R′ U R U′ u′ R′","U2 F′ L2 U′ L2 U L2 F","U L U′ L′ d′ R′ U R","U L U′ L′ y U′ R′ U R","U L U′ L′ U′ f′ L f","U L U′ L′ l U L′ U′ M′","U L U′ L′ B L′ B′ L","y′ L′ U L U L′ U L U′ L′ U′ L","R E′ R′ U R E R′","R u U R′ U′ R u′ R′","U L U′ L′ y′ U′ L′ U L"]},
         BR:{setup:"F′ U′ F U R U R′ U′ y′",solutions:["U f R f′ U′ R′ U′ R","R′ U R U R′ U R U′ R′ U′ R","R U R U R U′ R′ U′ R′","U′ R S2 R′ U′ R S2 R′","U2 R′ U2 F′ U2 F U2 R","U R′ U R U R′ U′ R U′ R′ U′ R","R′ U2 R U′ R′ U2 R U2 R′ U R","U′ R U′ S R2 S′ R2 U R′","U2 R′ U R2 U2 R2 U′ R2 U′ R′","F R2 U R U′ R2 F′","U R f′ U′ f R′ U′ R","U f R′ f′ R f′ U′ f","L′ D L U L′ D′ L R′ U′ R","U′ R′ F′ U F U2 R U′ R′ U′ R","l U l′ U′ l′ B l B′","U2 R′ U R′ D′ R U2 R′ D R U′ R","U M U′ R′ U M′ U′ R","U R S2 R′ U R S2 R′"]}
       }
     },{
-      id:'F2L -27', preview:'previews/f2l-27.svg', slots:{
+      id:'F2L -27', preview:'../previews/f2l-27.svg', slots:{
         FR:{setup:"R U R′ U′ R U R′",solutions:["R U′ R′ U R U′ R′","F′ U′ F U2 R U′ R′","y′ f R′ f′ U f R′ f′","y′ f R′ f′ r′ U′ R U M′","y L′ U′ L U2 F U′ F′","R U′ R2 F R F′","y′ R′ U′ R U2 f R′ f′","y L′ U′ L U F′ L F L′","F′ U2 F R U2 R′","R U R′ U′ R U′ R′ U R U′ R′ U R U R′","y2 L U′ L′ U L U′ L′","y L′ U′ L y′ U2 R U′ R′","y′ R′ U′ R U y U R U′ R′"]},
         FL:{setup:"R U R′ U′ R U R′ y",solutions:["L′ U′ L U F′ r U r′","L′ U′ L U F′ L F L′","y′ R U′ R′ U R U′ R′","U′ F R U2 R′ U F′","F U′ F2 L F L′","L′ U′ L U2 F U′ F′","r′ F2 r U2 F′ r U r′","y L U′ L′ U L U′ L′","L′ U′ L d R′ F R F′"]},
         BL:{setup:"R U R′ U′ R U R′ y2",solutions:["L U′ L′ U L U′ L′"]},
         BR:{setup:"R U R′ U′ R U R′ y′",solutions:["R′ U2 R′ F R F′ R","R′ U′ R U r′ U′ R U M′","y R U′ R′ U R U′ R′","R′ U′ R U f′ U f R′","R′ U2 R U′ f R′ f′","y′ L U′ L′ U L U′ L′","y R U′ R2 F R F′"]}
       }
     },{
-      id:'F2L -28', preview:'previews/f2l-28.svg', slots:{
+      id:'F2L -28', preview:'../previews/f2l-28.svg', slots:{
         FR:{setup:"R′ F R F′ U R U′ R′",solutions:["R U R′ U′ F R′ F′ R","y L′ U L U′ L′ U L","F′ U F U′ F′ U F","y′ R′ U R U′ R′ U R","U F′ L′ U2 L U′ F","R U R′ U2 F′ U F","R U2 R′ d R′ U R","R U R′ U2 r U′ r′ U r U r′","R U2 R′ F′ U2 F","U R U R′ U2 r U′ R′ U R U r′","R U R′ U2 y′ R′ U R","R U2 R B′ R′ B R′","R U R2 D′ r U′ r′ D R","R U′ R′ F′ U F R U2 R′","R U R′ U′ F l′ U′ l","l F l′ U2 F′ U F","y2 L U L′ U′ B L′ B′ L","F′ U F2 l′ U′ l","F′ U F2 R′ F′ R","R′ F R F′ R U2 R′ U′ R U R′","R U R′ U′ y′ U′ R′ U R","R U R′ U2 F R′ F′ R2 U′ R′","R U R′ d R′ U2 R","y L′ U L2 F′ L′ F","R U R′ U2 y L′ U L","U2 l U′ R U R′ U′ R U l2 x′"]},
         FL:{setup:"R′ F R F′ U R U′ R′ y",solutions:["L′ U L U′ L′ U L","L′ U L2 F′ L′ F"]},
         BL:{setup:"R′ F R F′ U R U′ R′ y2",solutions:["L U2 L F′ L′ F L′","y R′ U R U′ R′ U R","L U L′ U′ l U L′ U′ M′","L U2 L′ U f′ L f","L U L′ U2 L F U F′ L′","r B r′ U′ R B r′ U′ M′","U2 r U′ L U L′ U′ L U r2 x"]},
         BR:{setup:"R′ F R F′ U R U′ R′ y′",solutions:["R′ U R U′ R′ U R"]}
       }
     },{
-      id:'F2L -29', preview:'previews/f2l-29.svg', slots:{
+      id:'F2L -29', preview:'../previews/f2l-29.svg', slots:{
         FR:{setup:"F R′ F′ R F R′ F′ R",solutions:["R′ F R F′ U R U′ R′","y L′ U′ L U L′ U′ L","y′ R′ U′ R U R′ U′ R","R′ F R F′ R′ F R F′","M′ U R U′ R′ U R U′ r′","M′ U R U′ r′ U R U′ R′","F′ U′ F U F′ U′ F","F R′ F′ R F R′ F′ R F R′ F′ R F R′ F′ R","l′ U l F′ l′ U l F′","R U R′ d′ L′ U2 L U L′ U′ L","U R U R′ U2 F′ U2 F U′ F′ U F","R U R′ U′ R U R′ U′ R U R′ U′ F R′ F′ R","d R′ U2 R U2 R′ U′ R","y U L′ U2 L U2 L′ U′ L","U2 R U′ R′ y L′ U′ L","x R′ U R U′ R′ U R U′ x′","U2 R U′ R′ F′ U′ F","U F′ U2 F U2 F′ U′ F"]},
         FL:{setup:"F R′ F′ R F R′ F′ R y",solutions:["L′ U′ L U L′ U′ L","U L′ U2 L U2 L′ U′ L","U F′ L F L2 U′ L","F′ L F L′ F′ L F L′"]},
         BL:{setup:"F R′ F′ R F R′ F′ R y2",solutions:["y R′ U′ R U R′ U′ R","U2 L U′ L′ f′ L′ f","f′ L′ f U f′ L′ f","x′ U′ F′ U F U′ F′ U x","r′ U L U′ L′ U L U′ x"]},
         BR:{setup:"F R′ F′ R F R′ F′ R y′",solutions:["R′ U′ R U R′ U′ R","U R′ U2 R U2 R′ U′ R","U f′ U f R2 U′ R"]}
       }
     },{
-      id:'F2L -30', preview:'previews/f2l-30.svg', slots:{
+      id:'F2L -30', preview:'../previews/f2l-30.svg', slots:{
         FR:{setup:"R U′ R′ U R U′ R′",solutions:["R U R′ U′ R U R′","U′ R U2 R′ U2 R U R′","U′ F R′ F′ R2 U R′","U2 F′ U F R U R′","y L F′ L′ F L F′ L′ F","y L F′ L′ F U′ L′ U L","y′ U2 R′ U R f R f′","U′ R d′ R U2 R′ F′","F R′ F′ R U′ F′ U F","y2 L U L′ U′ L U L′","F′ R U2 R′ U′ R U R′ U2 R′ F R","y U′ L′ U′ L U2 F U2 F′ U F U′ F′","F R′ F′ R F R′ F′ R"]},
         FL:{setup:"R U′ R′ U R U′ R′ y",solutions:["L F′ L′ F U′ L′ U L","y′ R U R′ U′ R U R′","U′ F U′ R U2 R′ F′","y L U L′ U′ L U L′","r U′ r′ F U′ L′ U L","r U′ r′ F r U′ r′ F","L F′ L′ F L F′ L′ F","M′ U′ L′ U L U′ L′ U l"]},
         BL:{setup:"R U′ R′ U R U′ R′ y2",solutions:["L U L′ U′ L U L′","U′ L U2 L′ U2 L U L′"]},
         BR:{setup:"R U′ R′ U R U′ R′ y′",solutions:["y′ L U L′ U′ L U L′","f R f′ U′ f R f′","U2 R′ U R f R f′","y R U R′ U′ R U R′","l U′ R′ U R U′ R′ U x","x′ U F U′ F′ U F U′ x","U′ R′ F′ U′ F U2 R U′ R′ U R"]}
       }
     },{
-      id:'F2L -31', preview:'previews/f2l-31.svg', slots:{
+      id:'F2L -31', preview:'../previews/f2l-31.svg', slots:{
         FR:{setup:"R U R′ F R′ F′ R U",solutions:["U′ R′ F R F′ R U′ R′","R U′ R′ U y′ R′ U R","F′ U F R U2 R′","R U′ R′ U y L′ U L","R U2 R′ U′ F R′ F′ R","R U′ l U′ R′ U l′","R U′ R′ F′ U2 F","R U′ R′ U2 F R′ F′ R","y r′ F r′ F r U′ r","R U′ R′ U F′ U F","R U2 R′ y U2 L′ U L","F′ U2 F U2 R U′ R′","R U′ R′ y′ R′ U2 R","U R U2 R′ F′ U′ F","R U′ R B′ R′ B R′","S′ R U2 R′ S U′ R U R′","U F R′ F′ R F R′ F′ R2 U′ R′","U F R′ F′ R2 f R f′ R′","R′ F R F′ U′ R U′ R2 F R F′","y′ R′ U R′ F R F′ R","R U2 R′ U2 y L′ U L","R U R′ F′ U F U′ F′ U F","y′ R′ U R y R U2 R′","R′ D′ F′ R U2 R U2 R2 F R U2 R2 D R2","R U2 R′ U2 F′ U F","R U′ R′ d R′ U R","U′ R′ F R F′ U′ R′ F R F′","l F′ R U′ R′ U l′","R U′ R′ y L′ U2 L"]},
         FL:{setup:"R U R′ F R′ F′ R U y",solutions:["U L F′ L′ F L′ U L","L′ U L U′ y L U′ L′","L′ U L F U2 F′","U′ F′ L F L′ F U′ F′","L′ U L U2 F′ r U r′","F U′ F R′ F′ R F′","F U′ F′ L′ U2 L","L′ U L U′ y′ R U′ R′"]},
         BL:{setup:"R U R′ F R′ F′ R U y2",solutions:["L U′ L F′ L′ F L′","f′ L f U′ L U′ L′","B′ U B L U2 L′","L U2 L′ U′ l U L′ U′ M′","L U′ L′ y′ L′ U2 L","L U′ L′ y′ U L′ U L","L U′ L′ U2 B L′ B′ L","U′ r′ U L U′ r U′ L′","L U′ L′ f′ L2 f","y R′ U R′ F R F′ R"]},
         BR:{setup:"R U R′ F R′ F′ R U y′",solutions:["R′ U R′ F R F′ R","R′ U R f R2 f′","R′ U R y R U2 R′","f R′ f′ U R′ U R","R′ U R y′ L U2 L′","R′ U R U′ y′ L U′ L′","U′ R′ F′ U F U R U′ R′ U R","U R f′ U′ f U R f′ U′ f","U R f′ U′ f R′ U R","R′ U R U′ y R U′ R′","f R′ f′ R′ U2 R"]}
       }
     },{
-      id:'F2L -32', preview:'previews/f2l-32.svg', slots:{
+      id:'F2L -32', preview:'../previews/f2l-32.svg', slots:{
         FR:{setup:"R U′ R′ U R U′ R′ U R U′ R′",solutions:["U R U′ R′ U R U′ R′ U R U′ R′","R U R′ U′ R U R′ U′ R U R′","R2 U R2 U R2 U2 R2","U′ F R′ F′ R U′ R U R′","y U2 F U′ R U R′ U F′","U′ R U′ R′ U R U2 R′ U′ R U R′","U2 F′ U L′ U′ L U′ F","U R U R′ U′ R U2 R′ U R U′ R′","y′ R′ U′ R U R′ U′ R U R′ U′ R","y U L′ U′ L U L′ U′ L U′ L′ U L","R′ F R F′ R′ F R F′ R′ F R F′","U2 R′ U2 D′ R U R′ D U R","U2 R U r′ U r U′ r′ U′ M′","U y F′ L F L′ U L′ U′ L","R U R′ U′ R U R′ U′ R U R′ U′","U′ R U R′ U′ R U R′ U R U′ R′","U R′ F R F′ d R′ U′ R","y2 L U L′ U′ L U L′ U′ L U L′","r U′ R2 U′ R U′ R′ U2 R2 U r′","U2 R2 U2 R2 U′ R2 U′ R2","R U2 R′ U′ y L′ U′ L U L′ U′ L U L′ U2 L U2 F U′ F′","y L2 U′ L2 U′ L2 U2 L2","F R′ F′ R2 U R′ U′ R U R′","F2 U′ F2 U′ F2 U2 F2","U′ r U r′ R′ F R F′ r U′ r′","U2 R′ F R F2 r U′ r′ F2","U R U′ R′ U R U′ R2 F R F′","R U R′ U F′ U F R U R′","U′ R U R′ U′ R U R2 F R F′","U2 R′ F R F′ U2 r U′ r′ U2 r U r′","R U′ R2 F2 r U r′ F R2 U R′","U R′ U′ D′ R U R′ D R U′ R′ U R","R U R′ U2 R U R′ U′ R U R′ U2 F′ U′ F U R U R′","R U R′ U R U R′ U′ R U R′ F′ U′ F U R U R′","y2 L2 U L2 U L2 U2 L2","U R′ F R F′ U F′ U′ F","U R U′ B U2 B′ U R′","R U R′ U2 R U2 R′ U2 R U R′","F R′ F′ R F R′ F′ R F R′ F′ R","U R d′ R U2 R′ d R′","U2 r U2 r′ U2 r U′ r′ U2 r U2 r′"]},
         FL:{setup:"R U′ R′ U R U′ R′ U R U′ R′ y",solutions:["U′ L′ U L U′ L′ U L U′ L′ U L","U L′ U L U′ L′ U2 L U L′ U′ L","U2 F U′ R U R′ U F′","L′ U′ L U L′ U′ L U L′ U′ L"]},
         BL:{setup:"R U′ R′ U R U′ R′ U R U′ R′ y2",solutions:["L U L′ U′ L U L′ U′ L U L′","U L U′ L′ U L U′ L′ U L U′ L′","L2 U L2 U L2 U2 L2","U′ L U′ L′ U L U2 L′ U′ L U L′"]},
         BR:{setup:"R U′ R′ U R U′ R′ U R U′ R′ y′",solutions:["U′ R′ U R U′ R′ U R U′ R′ U R","R′ U′ R U R′ U′ R U R′ U′ R","U2 f R′ U R U′ R f′","R2 U′ R2 U′ R2 U2 R2","y R U R′ U′ R U R′ U′ R U R′"]}
       }
     },{
-      id:'F2L -33', preview:'previews/f2l-33.svg', slots:{
+      id:'F2L -33', preview:'../previews/f2l-33.svg', slots:{
         FR:{setup:"R U R′ U2 R U R′ U",solutions:["U′ R U′ R′ U2 R U′ R′","y R′ D R U′ R′ D′ R","R U R′ U′ R U′ R′ U R U′ R′","U′ R U′ R′ U′ R U2 R′","U y L′ U2 L U′ L′ U′ L","U′ y L′ U′ L U2 L′ U′ L","U′ R U′ R′ U R′ F R F′","F′ U2 F R U2 R′ U R U′ R′ U R U′ R′ U F′ U′ F","U′ F D F′ U F D′ F′","y U′ L′ U′ L U2 L′ U′ L","U′ F′ U′ F U2 F′ U′ F","d′ L′ U′ L U2 L′ U′ L","y2 U′ L U′ L′ U2 L U′ L′","U L′ U2 L D′ L′ U L D L′ U L","U R U′ R′ F′ R U R′ U′ R′ F R","U R U′ R′ F′ U F U R U′ R′","U r U′ r′ U r U r′ R U′ R′","U R U R′ U R U R′ U2 R U′ R′","U F′ U2 F U′ F′ U′ F","d U2 R D R′ U R D′ R′","U R U R′ U′ R U′ R′ U′ F′ U′ F U R U R′","y U L′ U2 L U′ L′ U′ L","y′ U R′ U2 R U′ R′ U′ R"]},
         FL:{setup:"R U R′ U2 R U R′ U y",solutions:["R′ D R U′ R′ D′ R","U L′ U2 L U′ L′ U′ L","U′ L D L′ U L D′ L′","U′ L′ U′ L U2 L′ U′ L","U′ F U′ R U′ R′ U F′","U L D L′ U′ L D′ L′"]},
         BL:{setup:"R U R′ U2 R U R′ U y2",solutions:["U′ L U′ L′ U2 L U′ L′","U′ L U′ L′ U′ L U2 L′","D′ R D R′ U R D′ R′ D"]},
         BR:{setup:"R U R′ U2 R U R′ U y′",solutions:["U′ R D R′ U R D′ R′","U′ R′ U′ R U2 R′ U′ R","U R′ U2 R U′ R′ U′ R","U R D R′ U′ R D′ R′"]}
       }
     },{
-      id:'F2L -34', preview:'previews/f2l-34.svg', slots:{
+      id:'F2L -34', preview:'../previews/f2l-34.svg', slots:{
         FR:{setup:"R U′ R′ U2 R U′ R′ U′",solutions:["U R U R′ U2 R U R′","U′ R U2 R′ U R U R′","U R′ D′ R U′ R′ D R","y U L′ U L U2 L′ U L","y′ U R′ U R U2 R′ U R","U′ R′ D′ R U R′ D R","L D′ L′ U L D L′","U F′ U F U2 F′ U F","y2 U′ L U2 L′ U L U L′","U F′ U L′ U L U′ F","U y L′ U L U′ L F′ L′ F","d R′ U R U R′ U2 R","R U R′ U2 y L′ U L U y′ R U′ R′","U R U′ R′ U R U R′ U′ R U R′","U′ R U2 R′ U′ r U′ r′ U′ r U r′","U′ R U R′ U′ r U′ R′ U′ R U r′","U r U2 r′ U2 r U r′ U2 r U2 r′","R U′ R′ U2 R U2 R′ U′ R U′ R′ U2 R U R′","d R′ U R U2 R′ U R","U F′ U F U′ F R′ F′ R","R U R′ U2 R′ F R F′ R U R′","R U R′ U2 F′ U′ F U R U R′","y′ R′ U′ R U R′ U R U′ R′ U R","y L′ U′ L U L′ U L U′ L′ U L","z′ y2 R U′ r′ F R′ F′ r U z′","U F′ U F U F′ U2 F"]},
         FL:{setup:"R U′ R′ U2 R U′ R′ U′ y",solutions:["U L′ U L U2 L′ U L","U L′ U L U L′ U2 L","L′ U′ L U L′ U L U′ L′ U L"]},
         BL:{setup:"R U′ R′ U2 R U′ R′ U′ y2",solutions:["U L U L′ U2 L U L′","U L′ D′ L U′ L′ D L","U′ L U2 L′ U L U L′","U2 R D′ R′ U′ R D R′","U′ L′ D′ L U L′ D L"]},
         BR:{setup:"R U′ R′ U2 R U′ R′ U′ y′",solutions:["U R′ U R U R′ U2 R","U f R2 U R2 U′ f′","U R2 F R F′ R U′ R′ U R","U R′ U R U2 R′ U R"]}
       }
     },{
-      id:'F2L -35', preview:'previews/f2l-35.svg', slots:{
+      id:'F2L -35', preview:'../previews/f2l-35.svg', slots:{
         FR:{setup:"F′ U F U′ R U′ R′ U",solutions:["U′ R U R′ U F′ U′ F","U′ R U R′ d R′ U′ R","U2 R U R′ F R′ F′ R","U2 R U R′ y′ U′ R′ U R","U′ R U R′ U y′ R′ U′ R","r′ D′ r U′ r′ D r U R U′ R′","U2 R U′ R′ U′ F′ U′ F","U M′ U R U′ r′ R U′ R′","R U R2 F R F′ U R U′ R′","U2 R U R′ U′ r U′ r′ U r U r′","y′ U2 f R f′ U′ R′ U R","U2 R U′ R′ U′ y′ R′ U′ R","U2 R U l′ U R′ U′ l","y U2 L F′ L′ F U2 L′ U′ L","y2 U′ L F′ L F L′ U L′","S′ R U2 R′ S R U2 R′ U R U′ R′","U R U′ R′ U′ R U′ R′ U′ y L′ U L","U R U′ R′ U′ R U′ R′ F R′ F′ R","U2 r U′ r′ U r U2 R′ U′ R r′","R U R2 F R F′ R′ F R F′","R U′ R′ U2 y L′ U2 L U L′ U′ L","F′ U′ F U′ y L′ U L U F U′ F′","y L′ U′ L U′ y′ R′ F R F′ R U R′","y L′ U′ L U′ L′ U L F′ L F L′","y2 U′ L U L′ d L′ U′ L","U′ R U R′ y′ U R′ U′ R","U′ R U R′ U y L′ U′ L"]},
         FL:{setup:"F′ U F U′ R U′ R′ U y",solutions:["U2 F U F′ U′ L′ U L","U′ F R′ F R F′ U F′","U2 L F′ L′ F U2 L′ U′ L","U′ F U F′ U L′ U′ L","L′ U L U y′ R U′ R′ U R U R′","y′ U′ R U R′ d R′ U′ R","L′ U′ L U′ L′ U L U y L U′ L′","L′ U′ L U′ L′ U L y U L U′ L′","L′ U′ L U′ L′ U L U F U′ F′","y U′ L U L′ y U R′ U′ R"]},
         BL:{setup:"F′ U F U′ R U′ R′ U y2",solutions:["U′ L U L′ U f′ L′ f","U2 L U L′ U′ L F U F′ L′","L U L′ y R′ U′ R U R′ U′ R","U2 L U M U L′ U′ M′","U′ L F′ L F L′ U L′","U2 L U L′ U′ f′ L f","U2 L U L′ y′ U′ L′ U L","U2 r B r′ U′ L F U F′ L′","U′ L U L′ d L′ U′ L","U2 L U L′ l U L′ U′ M′","U2 L U L′ y U′ R′ U R","U2 L U′ L′ y U′ R′ U′ R","U′ L U L′ y U R′ U′ R"]},
         BR:{setup:"F′ U F U′ R U′ R′ U y′",solutions:["U′ f R f′ U R′ U′ R","R′ F R′ F′ R U R U′ R′ U′ R","U2 f R f′ U′ R′ U R","U′ R′ F′ U F U′ R U R′ U′ R","y U′ R U R′ U F′ U′ F","l′ U R′ U′ l U R U′ R′ U′ R","d′ R U R′ U y′ R′ U′ R","y U′ R U R′ y′ U R′ U′ R","y′ U2 L U′ L′ y U′ R′ U′ R","U′ B U B′ U R′ U′ R","y U′ R U R′ d R′ U′ R","U R′ U′ M U R U′ R′ U′ r"]}
       }
     },{
-      id:'F2L -36', preview:'previews/f2l-36.svg', slots:{
+      id:'F2L -36', preview:'../previews/f2l-36.svg', slots:{
         FR:{setup:"R U′ R′ U2 F R′ F′ R U2",solutions:["U F′ U′ F U′ R U R′","U2 R′ F R F′ U2 R U R′","R2 u R U R′ U′ u′ R′ U R′","R U R′ U R U R′ U′ F′ U′ F","R U R′ U R U′ R′ F R′ F′ R","d R′ U′ R d′ R U R′","R2 D r′ U r D′ R′ U R′","U2 F′ U F U R U R′","U y L′ U′ L U′ F U F′","R U2 R′ y′ R′ U R U′ R′ U′ R","U y L′ U′ L U′ y′ R U R′","y U L′ U′ L U′ y′ R U R′","d R′ U′ R U′ f R f′","y′ U R′ U′ R U′ f R f′","U F′ U′ F d′ F U F′","U2 F′ U′ F U R U′ R′","U2 y L′ U′ L U F U′ F′","U2 y L′ U L U F U F′","U2 y L′ U′ L F′ L F L′","y U L′ U′ L y′ U′ R U R′","y U′ M′ U′ L′ U l L′ U L","d′ U′ L′ U L d R U R′","U R U R′ U′ y′ R′ U2 R U2 R′ U R","S′ R U2 R′ S U2 R U R′ U2 R U′ R′","R U R′ U R U′ R′ d′ L′ U L","U′ R U R′ y′ U2 R′ U′ R U2 R′ U R","R U R′ U R U′ R′ U′ y L′ U L","U′ R U R′ r U′ R′ U R U′ R′ U′ R U′ r′","U′ R U R′ r U′ R′ U R U r′","y U2 r′ F′ r U F U′ F′","R U′ R′ d′ L′ U L U′ L′ U′ L","R U R′ U R U′ R′ U′ F′ U F","y′ U R′ U′ R d′ R U R′","R U R′ U R U′ R′ y′ U′ R′ U R","y′ U R′ U′ R U′ y R U R′","F′ U′ F y U′ L′ U′ L U2 F U2 F′ U F U′ F′","U R U′ R′ U2 R U R′ U′ F R′ F′ R","y U L′ U′ L d′ L U L′","R′ F R F′ U2 R U2 R′ U2 R U R′","U F′ L F′ L′ F U′ F","y′ U R′ U′ R y′ U′ L U L′","U R U′ R′ U2 R U R′ U2 F′ U F","U y′ R′ U′ R U′ y R U R′","U y′ R′ U′ R y U′ R U R′"]},
         FL:{setup:"R U′ R′ U2 F R′ F′ R U2 y",solutions:["U L′ U′ L d′ L U L′","U2 L′ U′ L F′ L F L′","U L′ U′ L U′ F U F′","U2 L′ U L U F U F′","U2 L′ U′ L F′ r U r′","U L′ U′ L y′ U′ R U R′","U L′ U′ L U′ y′ R U R′","U2 L′ U′ L U y L U′ L′","U2 r′ F′ r F′ r U r′","U′ F U R U′ R′ U′ F′ U L′ U L","U′ M′ U′ L′ U l L′ U L","U L′ U′ L y U′ L U L′"]},
         BL:{setup:"R U′ R′ U2 F R′ F′ R U2 y2",solutions:["U f′ L′ f U′ L U L′","U2 f′ L′ f U L U′ L′","L F′ L F L′ U′ L′ U L U L′","y U R′ U′ R U′ f R f′","y U2 R′ U R d L U L′","y U R′ U′ R U′ y R U R′","y U R′ U′ R U′ y′ L U L′","y U R′ U′ R y′ U′ L U L′","r U′ L U r′ U′ L′ U L U L′","y U R′ F R′ F′ R U′ R","U B′ U′ B U′ L U L′","U′ L U M U′ L′ U L U l′","U2 f′ L f U L U L′","y′ U L′ U′ L U′ F U F′"]},
         BR:{setup:"R U′ R′ U2 F R′ F′ R U2 y′",solutions:["U R′ U′ R U′ f R f′","U2 R′ U′ R U R′ F′ U′ F R","U R′ U′ R y U′ R U R′","U R′ U′ R U′ y R U R′","U2 R′ U′ R U y R U′ R′","U R′ U′ R U′ y′ L U L′","U2 R′ U′ R U f R′ f′","U2 R′ U′ R B′ R B R′","U2 R′ U′ l U′ R U l′","U R′ U′ R y′ U′ L U L′","R′ F R′ F′ R2 U R′ U2 R","U2 R′ U′ R y U R U′ R′","U2 R′ U R U f R f′","U R′ F R′ F′ R U′ R"]}
       }
     },{
-      id:'F2L -37', preview:'previews/f2l-37.svg', slots:{
+      id:'F2L -37', preview:'../previews/f2l-37.svg', slots:{
         FR:{setup:"R U′ R U2 F R2 F′ U2 R2",solutions:["R2 U2 F R2 F′ U2 R′ U R′","R′ F R F′ R U′ R′ U R U′ R′ U2 R U′ R′","R U2 R′ U R U2 R′ U F′ U′ F","R U R′ U2 R U2 R′ U y′ R′ U′ R","R U2 R′ U R U2 R′ U y′ R′ U′ R","R′ F R F′ R′ U2 R2 U R2 U R","R U′ R′ U y′ R′ U2 R U2 R′ U R","R U′ R′ d R′ U2 R U2 R′ U R","R U′ R′ U y′ R′ U2 R U R′ U2 R","R U′ R′ y U L′ U2 L U2 L′ U L","R U′ R′ r′ U2 R2 U R2 U r","M′ U R U′ r′ R U′ R′ U R U′ R′ U2 R U′ R′","F R U′ R′ r U2 r′ U r U′ r′ U2 F′","R U′ R U2 F R2 F′ U2 R2","L D R′ F R F′ R U′ R′ U D′ L′","R U R′ U′ R U R′ U′ R U R′ U′ R U′ R′ F′ U2 F","F′ U′ F U2 F′ U2 F U′ R U R′","R′ F R F′ R U2 R′ U2 R U2 R′ U2 R U′ R′","R U′ R′ F R′ F′ R U′ R U′ R′ F R′ F′ R","D′ R U′ R′ D R′ U R U R′ U2 R2 U′ M′ U R′ U′ M","R′ F R F′ d R′ U2 R d′ R U R′","R U R′ U′ R U R′ U R′ F R F′ U R U′ R′","S′ R U2 R′ S U R U2 R′ U2 R U′ R′","R U′ R′ U F′ U2 F U′ F R′ F′ R","F′ U′ F U R′ U2 R2 U R2 U R","z M U′ M U2 M′ U′ M′ U′ M′ U2 M U′ z′","D R U R′ F R′ F′ R D′ U L′ U L U′ L′ U L U′ L′ U L","r U′ r′ R U R′ U r U′ r′ R U R′","R U′ R′ U F′ U2 F U2 F′ U F","D′ R U R′ F R′ F′ R D y R U R′ U′ R U R′ U′ R U R′ U′","U R U′ R′ U R U′ R′ U R U R′ d U R′ U R","F R′ F′ R U′ R U2 R′ d R′ U′ R","y′ f R f′ U′ R U2 R2 U′ R2 U′ R′","R U R′ U′ F′ U L′ U2 L U2 F","R U R′ U′ R U R′ U′ R U R′ U′ R U2 R′ U2 F′ U F","r U r′ U2 M′ U M F′ U′ F","F′ U F U′ R U2 R′ U2 R U′ R′","R U R′ U2 R U2 R′ U F′ U′ F","R U R′ U′ R U R′ U′ R U R′ U′ R U2 R′ U′ F R′ F′ R","R′ F R F2 U′ F U′ R U R′ U′ R U R′","R U R′ U′ R U R′ U′ R U R′ U2 R′ F R F′ R U′ R′","R U R′ U′ F′ U′ F U′ R U R′ U′ F′ U′ F","F′ M′ F U′ M U′ M′ F′ M F","y′ R′ U R f R U R2 U′ R f′","y2 L U′ L′ l′ U2 L2 U L2 U l","R′ F′ U2 R U R U′ R2 U2 R F","F′ R′ U2 R2 U R′ U′ R′ U2 F R","R′ F R F′ R U R′ U R′ F R F′ R U R′","R U′ R′ U F′ U2 F U F′ U2 F","R U′ R′ d R′ U2 R U R′ U2 R","r R U R′ U′ r′ U2 R U R U′ R2"]},
         FL:{setup:"R U′ R U2 F R2 F′ U2 R2 y",solutions:["L2 U2 F′ L2 F U2 L U′ L","L′ U2 L U′ L′ U2 L U′ F U F′","L′ U′ L U2 L′ U2 L U′ y′ R U R′","R′ F R L′ U′ L U′ R′ F R L′ U′ L","L′ U L U′ y′ R U2 R′ U′ R U2 R′","F2 U R U′ R′ F′ U′ R U R′ U2 F′","L F′ L′ F L′ U L U′ L′ U L U2 L′ U L","L F′ L′ F L U2 L2 U′ L2 U′ L′","L′ U L U′ y L U2 L′ U2 L U′ L′","L′ U L U′ L F′ L′ F2 U2 F′ L′ U′ L","L′ U2 L U′ L′ U2 L d′ L U L′","F U′ F′ U L′ U2 L U2 L′ U L","L′ U L l U2 L2 U′ L2 U′ l′","L′ U L U′ y′ R U2 R′ U2 R U′ R′"]},
         BL:{setup:"R U′ R U2 F R2 F′ U2 R2 y2",solutions:["L U′ L′ l′ U2 L2 U L2 U l","f′ L f U′ L U2 L′ U2 L U′ L′","L U2 L′ U L U2 L′ U f′ L′ f","L′ f U f′ L′ U2 L2 U L2 U L","L U′ L′ F′ L′ U′ L2 U L′ F","L U2 L′ U L U2 L′ U y R′ U′ R","y′ L′ U L U′ y L U2 L′ U2 L U′ L′","L U′ L′ R′ F2 L2 F L2 F R","L U′ L′ d L′ U2 L U2 L′ U L","y′ L2 U2 F′ L2 F U2 L U′ L","y2 R2 U2 F R2 F′ U2 R′ U R′","y′ L F′ L′ F L U2 L2 U′ L2 U′ L′","y R′ U R d′ R U2 R′ U2 R U′ R′"]},
         BR:{setup:"R U′ R U2 F R2 F′ U2 R2 y′",solutions:["R′ U R r U2 R2 U′ R2 U′ r′","R′ U2 R U′ R′ U2 R U′ f R f′","R′ U R f R U R2 U′ R f′","R′ U′ R U2 R′ U2 R U′ f R f′","R′ U R F R U R2 U′ R F′","R′ U R U′ y R U2 R′ U′ R U2 R′","R′ U R U′ y R U2 R′ U2 R U′ R′","R′ U R y U′ R U2 R′ U2 R U′ R′","y R U2 R′ U R U2 R′ U y′ R′ U′ R","f R′ f′ U R′ U2 R U R′ U2 R","R U R′ E′ R U R′ F R′ F′ R u′ R U′ R′","y R2 U2 F R2 F′ U2 R′ U R′","R f′ U′ f R U2 R2 U′ R2 U′ R′","R2 U2 B′ R2 B U2 R U′ R","R′ U R d′ R U2 R′ U2 R U′ R′"]}
       }
     },{
-      id:'F2L -38', preview:'previews/f2l-38.svg', slots:{
+      id:'F2L -38', preview:'../previews/f2l-38.svg', slots:{
         FR:{setup:"R U′ R′ U R U2 R′ U R U′ R′",solutions:["R U′ R′ U′ R U R′ U2 R U′ R′","R U R′ U′ R U2 R′ U′ R U R′","R2 U2 R′ U′ R U′ R′ U2 R′","R U′ R′ U′ R U R′ U′ R U2 R′","F′ L′ U2 L U′ L′ U2 L U′ F","y F R U2 R′ U′ R U R′ U2 F′","y L′ U′ L U2 L′ U L U′ L′ U′ L","R U′ R′ U′ R U R′ U R′ F R F′","F R′ F′ R2 U2 R′ U′ R U R′","R U′ M′ U R′ U′ M U R U′ R′ U R U′ R′","r R U2 R′ U′ R U′ r′ U2 R′","y L′ U L U′ L′ U2 L2 F′ L′ F","F′ U2 F′ U′ F U′ F′ U2 F2","x z′ R U R′ U R U2 R′ L′ U′ L U′ L′ U2 L x′","R U′ R′ U′ r U′ r′ U2 r U r′ R U2 R′","R U2 B2 r′ U′ r B′ R2 F R F′","R′ U′ F R F′ R′ U R F′ U′ F","U R′ D′ R U′ R′ D R D′ R′ D R U R′ D′ R D"]},
         FL:{setup:"R U′ R′ U R U2 R′ U R U′ R′ y",solutions:["L′ U L U′ L′ U2 L U′ L′ U L","F R U2 R′ U′ R U R′ U2 F′","L′ U2 L′ U′ L U′ L′ U2 L2","F U′ R U2 R′ U′ R U2 R′ F′"]},
         BL:{setup:"R U′ R′ U R U2 R′ U R U′ R′ y2",solutions:["L U L′ U′ L U2 L′ U′ L U L′","L2 U2 L′ U′ L U′ L′ U2 L′","L U′ L′ U′ L U L′ U′ L U2 L′","L U′ L′ U′ L U L′ U2 L U′ L′","L U2 L′ U2 L U2 L′ U′ L U L′","L U2 R U2 R′ U′ R U′ R′ L′"]},
         BR:{setup:"R U′ R′ U R U2 R′ U R U′ R′ y′",solutions:["R′ U′ R U2 R′ U R U′ R′ U′ R","R′ U R U′ R′ U2 R U′ R′ U R","R′ U2 R′ U′ R U′ R′ U2 R2"]}
       }
     },{
-      id:'F2L -39', preview:'previews/f2l-39.svg', slots:{
+      id:'F2L -39', preview:'../previews/f2l-39.svg', slots:{
         FR:{setup:"R U′ R′ U′ R U R′ U2 R U′ R′",solutions:["R U′ R′ U R U2 R′ U R U′ R′","R U2 R U R′ U R U2 R2","R U R′ U2 R U′ R′ U R U R′","R U2 R′ U R U′ R′ U R U R′","F′ L′ U2 L U L′ U′ L U2 F","y F R U2 R′ U R U2 R′ U F′","y F′ L F L2 U2 L U L′ U′ L","R U r′ R U′ R′ U M′ U′ R U R′ U′ R U R′","R U2 R′ r U′ r′ U r R′ U2 R U r′","R U2 r U R′ U R U2 R′ r′","R U R′ U2 R U′ r′ U R U R′ U′ R′ r","y L′ U L U L′ U′ L U2 L′ U L","R U R′ U′ R U R′ U′ R′ F R F′ R U R′","R U2 R′ U R′ F R2 U R′ U′ R′ F′ R","R U′ R′ U R U2 R2 F R F′","R U R D r′ U r D′ R2 U2 R U R′","R U R′ U′ R U R′ U′ F′ U′ F U R U R′","S′ R F′ L F U L U′ L′ R′ S","F′ U F U F′ U′ F U2 F′ U F","y L′ U′ L U L′ U2 L U L′ U′ L","U D′ R′ D R U′ R′ D′ R D R′ D′ R U R′ D R","F′ U F U F′ U′ F U F′ U2 F"]},
         FL:{setup:"R U′ R′ U′ R U R′ U2 R U′ R′ y",solutions:["L′ U′ L U L′ U2 L U L′ U′ L","F′ L F L2 U2 L U L′ U′ L","F U2 R U′ R′ U R U2 R′ F′","L′ U L U L′ U′ L U2 L′ U L","L2 U2 L U L′ U L U2 L"]},
         BL:{setup:"R U′ R′ U′ R U R′ U2 R U′ R′ y2",solutions:["L U L′ U2 L U′ L′ U L U L′","L U′ L′ U L U2 L′ U L U′ L′","L U2 L′ U L U′ L′ U L U L′","L U2 L U L′ U L U2 L2"]},
         BR:{setup:"R U′ R′ U′ R U R′ U2 R U′ R′ y′",solutions:["R′ U′ R U R′ U2 R U R′ U′ R","R′ U R U R′ U′ R U2 R′ U R","f R2 U R′ U′ F R′ f′ U F′","R2 U2 R U R′ U R U2 R"]}
       }
     },{
-      id:'F2L -40', preview:'previews/f2l-40.svg', slots:{
+      id:'F2L -40', preview:'../previews/f2l-40.svg', slots:{
         FR:{setup:"R U R′ F U R U′ R′ F′ R U R′",solutions:["r U′ r′ U2 r U r′ R U R′","F′ L′ U2 L F R U R′","R U′ R′ F R U R′ U′ F′ R U′ R′","R U′ R′ U′ R U′ R′ U y′ R′ U′ R","R U′ R′ U′ R U′ R′ U F′ U′ F","R F U R U′ R′ F′ U′ R′","y F U′ F U R U′ R′ F2","R U′ R′ d R′ U′ R U′ R′ U′ R","r U′ r′ U2 r U M U R′","y L′ U L U2 y L U L′ U L U′ L′","F′ r′ F2 r F R U R′","y′ R′ U′ R b′ U′ R′ U R b R′ U′ R","L F′ L′ U2 L F L′ R U R′","y L′ U L R′ F R U2 R′ F′ R","y L′ U L F R U2 R′ F′","R U′ R′ y′ U2 R′ U R U R′ U′ R","R U R′ U′ F U R U′ R′ F′ R U′ R′","R′ F R F2 U F U2 R U R′","y L′ U L l′ U l U2 l′ U′ l","R U2 R′ U R U R2 F R F′ R U′ R′","r U′ r′ U2 r U r′ R3′ U R′","S′ R U2 R′ S R U R′ U R U′ R′","R U′ R U B U′ B′ R2","y′ R2 F′ U′ F U R U′ R","R U R′ d′ L′ U2 L U2 L′ U′ L U′ L′ U′ L","r U′ r′ U2 r U r′ R U R′ y","F2 L F L2 U L U2 F","y L′ U′ F′ L′ U′ L U F L","y L′ U′ L U L′ U L U2 F U F′","R U R′ U′ y U′ L′ U L U L′ U L U′ L′ U L","y L′ U′ L U L′ U′ L U2 y′ R′ F R F′ R U R′","R U R′ U′ R U R′ U R U R′ U F′ U2 F","R′ F R F′ R U R′ U2 R U′ R′ U R U′ R′","R′ F R F′ R U R′ U2 R U′ R2 F R F′","F2 r U r′ F U2 R U R′","y2 l U′ l′ U2 l U l′ L U L′","R U′ R′ U′ R U′ R′ U y L′ U′ L","R U′ R′ U′ R U′ R′ d R′ U′ R","R U′ R′ y U L′ U′ L U′ L′ U′ L","R U R′ U2 y L′ U L U L′ U L U′ L′ U L","R U′ R′ U F′ U′ F U′ F′ U′ F","F′ U F U2 R U R′ U R U′ R′","R U′ R′ y′ U R′ U′ R U′ R′ U′ R"]},
         FL:{setup:"R U R′ F U R U′ R′ F′ R U R′ y",solutions:["L′ U L F R U2 R′ F′","L′ U L l′ U l U2 l′ U′ l","L′ U L R′ F R U2 R′ F′ R","L′ U L U2 y L U L′ U L U′ L′","L′ U M′ U l U2 l′ U′ l","F U2 R U R2 F R F2","F U′ F U R U′ R′ F2"]},
         BL:{setup:"R U R′ F U R U′ R′ F′ R U R′ y2",solutions:["l U′ l′ U2 l U l′ L U L′","f′ L f U2 L U L′ U L U′ L′","f′ L f U2 L U L′ U2 L U2 L′","f′ L f L F U2 F′ L′","L U′ L′ U′ L U′ L′ U f′ L′ f","L U′ L U F U′ F′ L2","L U′ L′ U′ L U′ L′ d L′ U′ L","l U′ l′ U2 l U M′ U L′","f′ U′ L2 U f L U L′","B′ R′ U2 R B L U L′","R B′ R′ U2 R B R′ L U L′","y R′ U R U2 y R U R′ U R U′ R′"]},
         BR:{setup:"R U R′ F U R U′ R′ F′ R U R′ y′",solutions:["R′ U R r′ U r U2 r′ U′ r","R′ U R f U R2 U′ f′","R2 F′ U′ F U R U′ R","R′ F′ U2 F R f R f′","R′ U R U2 y R U R′ U R U′ R′","f R′ f′ U R′ U′ R U′ R′ U′ R","R′ U R B L U2 L′ B′","R′ U R L′ B L U2 L′ B′ L"]}
       }
     },{
-      id:'F2L -41', preview:'previews/f2l-41.svg', slots:{
+      id:'F2L -41', preview:'../previews/f2l-41.svg', slots:{
         FR:{setup:"R F U R U′ R′ F′ U′ R′",solutions:["R U′ R′ r U′ r′ U2 r U r′","R U′ R′ F′ L′ U2 L F","R U R′ U′ y M U′ R′ F R U M′","R U R′ U′ R U′ R′ U2 y′ R′ U′ R","R U F R U R′ U′ F′ R′","R U′ R′ U2 y′ R′ U′ R U′ R′ U R","R U′ R′ L F′ L′ U2 L F L′","R U′ M′ U′ r′ U2 r U r′","R U R′ F U R U′ R′ F′ R U R′","R U R′ M′ U R U′ r′ U′ R U R′","R U′ R′ y U2 L′ U′ L U′ L′ U L","R U R′ U′ R U′ R′ U2 F′ U′ F","y L′ F′ U′ L′ U L F U L","y R′ F R U2 R′ F′ R L′ U′ L","y F R U2 R′ F′ L′ U′ L","R U R′ U′ R U′ R′ U2 y L′ U′ L","S′ R U2 R′ S R U′ R′ U′ R U R′","R2 f R f′ U′ R′ U R′","R U R′ U2 R U′ R′ y′ U2 R′ U2 R U2 R′ U R","y L′ U L U L′ U L U′ y′ R U R′","y L′ U L U L′ U L U′ F U F′","F′ U F′ U′ L′ U L F2","R B U2 B′ R′ F′ U′ F","R U R′ d′ L′ U2 L U L′ U L U2 L′ U′ L","y′ R′ U R′ U′ F′ U F R2","F′ U F d R′ U R d′ R U R′","R U R′ U′ R U R′ U2 R U R′ U′ F′ U′ F","R′ F R F′ U R U′ R′ U′ R U′ R′ U R U′ R′","y2 L U′ L′ l U′ l′ U2 l U l′","y l′ U l U2 l′ U′ l L′ U′ L","R U′ R′ U d R′ U′ R U′ R′ U R","F R′ F′ R2 U′ R′ U2 y′ R′ U′ R","y L′ U L y′ U′ R U R′ U R U R′","R U′ R′ d U R′ U′ R U′ R′ U R","y′ R′ U R U R′ U R U′ f R f′","R U R′ F R U R′ U′ F′ U R U′ R′","F′ U F U′ R U R′ U R U R′","R U R′ U′ R U′ R′ U d R′ U′ R"]},
         FL:{setup:"R F U R U′ R′ F′ U′ R′ y",solutions:["l′ U l U2 l′ U′ l L′ U′ L","L′ U L U L′ U L U′ y′ R U R′","F R U2 R′ F′ L′ U′ L","R′ F R U2 R′ F′ R L′ U′ L","L′ U L U L′ U L U′ F U F′","F U′ R U′ R′ F′ U′ L′ U′ L","L′ U L d′ L U L′ U L U L′","F2 R U R′ U′ F′ U F′","L′ U L F U′ R U R′ U2 F′","L′ U L U L′ U L U′ y L U L′","F2 R′ F′ R2 U′ R′ U2 F′"]},
         BL:{setup:"R F U R U′ R′ F′ U′ R′ y2",solutions:["f′ L f U′ L U L′ U L U L′","L2 F U F′ U′ L′ U L′","L F U2 F′ L′ f′ L′ f","L U′ L′ d′ U′ R′ U′ R U′ R′ U R","L U′ L′ U2 y R′ U′ R U′ R′ U R","L U′ L′ f′ U′ L2 U f","L U′ L′ B′ R′ U2 R B","L U′ L′ l U′ l′ U2 l U l′"]},
@@ -1365,7 +1414,7 @@
     const advancedMethods=[{
       id:'AF2L -1',
       name:'AF2L - 1',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'M F M′',solutions:['L′ U′ L U R U′ R′','M F′ M′','L′ R U′ R′ L','R L′ U′ L R′']},
         FL:{setup:'M F M′ y',solutions:['S′ L′ S','y′ M F′ M′','y′ L′ U′ L U R U′ R′','y′ M F′ M′','y′ M F′ M′']},
@@ -1375,7 +1424,7 @@
     },{
       id:'AF2L -2',
       name:'AF2L - 2',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U2 R′ L U L′',solutions:['L U′ L′ U′ R U′ R′','L U′ L′ U′ R U′ R′','L U′ L′ R U2 R′','L U′ L′ U′ R U′ R′']},
         FL:{setup:'R U2 R′ L U L′ y',solutions:['y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′','y R U′ R′ L U2 L′']},
@@ -1385,7 +1434,7 @@
     },{
       id:'AF2L -3',
       name:'AF2L - 3',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F R′ F′ R U′ B U B′',solutions:['B U′ B′ U R′ F R F′','B U′ B′ U R′ F R F′']},
         FL:{setup:'F R′ F′ R U′ B U B′ y',solutions:['R U′ R′ U F′ r U r′','R U′ R′ U F′ L F L′','R U′ R′ U F′ r U r′','R U′ R′ U F′ r U r′','R U′ F R′ U R F′ R′','R U′ R′ U F′ r U r′','R U′ R′ U F′ r U r′','R U′ R′ U2 R′ F R U′ R′ F′ R','R U′ R′ U F′ r U r′','R U′ R′ U2 y′ R U′ R′','l F′ D R′ F R D′ l′','R U′ R′ U′ r2 F r U′ r','R U′ R′ d U R U′ R′','R U′ R′ U2 F U′ F′']},
@@ -1395,7 +1444,7 @@
     },{
       id:'AF2L -4',
       name:'AF2L - 4',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'l F′ l′ U2 F U′ F′',solutions:['F U F′ U2 l F l′','F U F′ U2 R U R′','U′ F U′ R U R2 F′ R','y′ R U R′ U2 y R U R′']},
         FL:{setup:'l F′ l′ U2 F U′ F′ y',solutions:['L U L′ y U2 L U L′','B L′ B′ L U L′ U2 L','L U L′ U2 F U F′','L U L′ y′ U2 R U R′']},
@@ -1405,7 +1454,7 @@
     },{
       id:'AF2L -5',
       name:'AF2L - 5',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ L U′ L′',solutions:['L U L′ U R U R′']},
         FL:{setup:'R U′ R′ U′ L U′ L′ y',solutions:['y R U R′ U L U L′','y R U R′ U L U L′','y R U R′ U L U L′']},
@@ -1415,7 +1464,7 @@
     },{
       id:'AF2L -6',
       name:'AF2L - 6',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ B U′ B′',solutions:['y R U R′ F U F′','y R U R′ F U F′','f R f′ R U R′']},
         FL:{setup:'R U′ R′ B U′ B′ y',solutions:['R U R′ F U F′','F R′ F′ R L′ U L','R U R′ b L b′','R U R′ y L U L′']},
@@ -1425,7 +1474,7 @@
     },{
       id:'AF2L -7',
       name:'AF2L - 7',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'l F′ l′ U L F′ L′ F U',solutions:['U′ F′ L F L′ U′ l F l′','U′ F′ L F L′ U′ l F l′']},
         FL:{setup:'l F′ l′ U L F′ L′ F U y',solutions:['y′ U′ F′ L F L′ U′ l F l′','y′ U′ F′ L F L′ U′ l F l′','y′ U′ F′ L F L′ U′ l F l′']},
@@ -1435,7 +1484,7 @@
     },{
       id:'AF2L -8',
       name:'AF2L - 8',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U2 B L′ B′ L U',solutions:['U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′','U′ f′ L′ f U′ R U R′']},
         FL:{setup:'R U′ R′ U2 B L′ B′ L U y',solutions:['U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′','U′ R′ U′ R d′ L U L′']},
@@ -1445,7 +1494,7 @@
     },{
       id:'AF2L -9',
       name:'AF2L - 9',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ R B′ R′ B U',solutions:['U′ B′ R B R′ U R U R′','U′ B′ R B R′ U R U R′']},
         FL:{setup:'R U′ R′ U′ R B′ R′ B U y',solutions:['y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','y′ U′ B′ R B R′ U R U R′','R U′ R′ F U′ F′ U F U F′','y′ U′ B′ R B R′ U R U R′','U′ R′ F R F′ d R U R′','U′ R′ F R F′ U F U F′','y′ U′ B′ R B R′ U R U R′','y′ U′ R′ U′ R U2 R U R′']},
@@ -1455,7 +1504,7 @@
     },{
       id:'AF2L -10',
       name:'AF2L - 10',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F2 U′ F′ U',solutions:['U′ F U F2 U′ F','y′ U′ R U R2 U′ R','y U′ L U L2 U′ L','U′ L F2 L′ F2','U′ r U2 r′ F2']},
         FL:{setup:'F′ U F2 U′ F′ U y',solutions:['U′ L U L2 U′ L']},
@@ -1465,7 +1514,7 @@
     },{
       id:'AF2L -11',
       name:'AF2L - 11',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U R′ L U L′ U',solutions:['U′ L U′ L′ R U′ R′','U′ L U′ L′ R U′ R′']},
         FL:{setup:'R U R′ L U L′ U y',solutions:['y′ U′ L U′ L′ R U′ R′']},
@@ -1475,7 +1524,7 @@
     },{
       id:'AF2L -12',
       name:'AF2L - 12',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F U2 B U′ B′ U',solutions:['U′ B U B′ U2 F′ U′ F','U′ B U B′ U2 F′ U′ F','U′ B U B′ U2 F′ U′ F']},
         FL:{setup:'F′ U F U2 B U′ B′ U y',solutions:['y′ U′ B U B′ U2 F′ U′ F','y′ U′ B U B′ U2 F′ U′ F','U′ R U R′ U2 L′ U′ L','F U′ F′ U2 R U′ R′ L′ U′ L','y′ U′ B U B′ U2 F′ U′ F']},
@@ -1485,7 +1534,7 @@
     },{
       id:'AF2L -13',
       name:'AF2L - 13',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F L F′ L′ F U′',solutions:['d R′ F R F′ R′ U′ R','d R′ F R F′ R′ U′ R','d R′ F R F′ R′ U′ R']},
         FL:{setup:'F′ U F L F′ L′ F U′ y',solutions:['y′ d R′ F R F′ R′ U′ R','U r′ U L U′ x L′ U′ L','y′ d R′ F R F′ R′ U′ R']},
@@ -1495,7 +1544,7 @@
     },{
       id:'AF2L -14',
       name:'AF2L - 14',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b′ R b U B L′ B′ L U′',solutions:['U L′ B L B′ U′ b′ R′ b','y2 U L′ U R U′ R′ L2 U′ L′ y2','y2 U R′ F R F′ U′ y R′ U′ R y2']},
         FL:{setup:'b′ R b U B L′ B′ L U′ y',solutions:['y′ U L′ B L B′ U′ b′ R′ b','y U L′ U R U′ R′ L2 U′ L′ y′','y U R′ F R F′ U′ y R′ U′ R y′']},
@@ -1505,7 +1554,7 @@
     },{
       id:'AF2L -15',
       name:'AF2L - 15',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F U2 R B′ R′ B U′',solutions:['y U R′ F R2 U′ R′ U2 F′','y U R′ F R F′ U2 L′ U′ L','U B′ R B R′ U2 F′ U′ F']},
         FL:{setup:'F′ U F U2 R B′ R′ B U′ y',solutions:['U R′ F R2 U′ R′ U2 F′','U R′ F R F′ U2 L′ U′ L','y′ U B′ R B R′ U2 F′ U′ F']},
@@ -1515,7 +1564,7 @@
     },{
       id:'AF2L -16',
       name:'AF2L - 16',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'L′ F′ U F L U',solutions:['y′ U′ F′ R′ U′ R F','U′ R′ D′ F′ D R','U′ R′ u′ R′ u R','U′ L′ F′ U′ F L','U′ r′ D′ F′ D r']},
         FL:{setup:'L′ F′ U F L U y',solutions:['U′ F′ D′ L′ D F','d′ L′ u′ L′ u L','y′ U′ L′ F′ U′ F L']},
@@ -1525,7 +1574,7 @@
     },{
       id:'AF2L -17',
       name:'AF2L - 17',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b′ R b U L U′ L′ U',solutions:['U′ L U L′ U′ F′ U′ F','U′ L U L′ y U′ L′ U′ L','U′ L U L′ y′ U′ R′ U′ R','U′ L U L′ U′ b′ R′ b']},
         FL:{setup:'b′ R b U L U′ L′ U y',solutions:['U′ f R f′ U′ L′ U′ L','y′ U′ L U L′ U′ b′ R′ b','y′ U′ L U L′ U′ F′ U′ F y']},
@@ -1535,7 +1584,7 @@
     },{
       id:'AF2L -18',
       name:'AF2L - 18',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F U R′ U R U',solutions:['U′ R′ U′ R d′ L′ U′ L','U′ R′ U′ R U′ F′ U′ F','U′ R′ U′ R y′ U′ R′ U′ R']},
         FL:{setup:'F′ U F U R′ U R U y',solutions:['U′ F′ U′ F U′ L′ U′ L','y′ U′ R′ U′ R U′ F′ U′ F','y′ U′ R′ U′ R d′ L′ U′ L y']},
@@ -1545,7 +1594,7 @@
     },{
       id:'AF2L -19',
       name:'AF2L - 19',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'l F′ l′ U′ F U′ F′ U′',solutions:['U F U F′ U l F l′','y U L U L′ d R U R′ y′','y U L U L′ U F U F′ y′']},
         FL:{setup:'l F′ l′ U′ F U′ F′ U′ y',solutions:['U L U L′ d R U R′','U L U L′ U F U F′','y′ U F U F′ U l F l′']},
@@ -1555,7 +1604,7 @@
     },{
       id:'AF2L -20',
       name:'AF2L - 20',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ L U′ L′ U′',solutions:['U L U L′ R U R′','y2 U R U R′ L U L′ y2','y2 U R U M′ B r′ y2']},
         FL:{setup:'R U′ R′ L U′ L′ U′ y',solutions:['y′ U L U L′ R U R′','y U R U R′ L U L′ y′','y U R U M′ B r′ y′']},
@@ -1565,7 +1614,7 @@
     },{
       id:'AF2L -21',
       name:'AF2L - 21',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'B R U′ R′ B′ U′',solutions:['U F D R D′ F′','d R u R u′ R′','U B R U R′ B′']},
         FL:{setup:'B R U′ R′ B′ U′ y',solutions:['U R F U F′ R′','U L u L u′ L′','U L D F D′ L′','y′ U B R U R′ B′']},
@@ -1575,7 +1624,7 @@
     },{
       id:'AF2L -22',
       name:'AF2L - 22',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U′ F2 U F′',solutions:['F U′ F2 U F','y L U′ L2 U L y′']},
         FL:{setup:'F′ U′ F2 U F′ y',solutions:['L U′ L2 U L','y′ F U′ F2 U F','y′ F U′ F2 U F y']},
@@ -1585,7 +1634,7 @@
     },{
       id:'AF2L -23',
       name:'AF2L - 23',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R B′ U′ B R′',solutions:['R B′ U B R′','y F R′ U R F′ y′','y R′ U R y′ U R U′ R′ y′']},
         FL:{setup:'R B′ U′ B R′ y',solutions:['F R′ U R F′','R′ U R y′ U R U′ R′','R′ U R y U L U′ L′','y′ R B′ U B R′']},
@@ -1595,7 +1644,7 @@
     },{
       id:'AF2L -24',
       name:'AF2L - 24',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ B U2 B′ F',solutions:['F′ B U2 B′ F','y M F2 M′ y′','y L′ R U2 R′ L y′']},
         FL:{setup:'F′ B U2 B′ F y',solutions:['M F2 M′','L′ R U2 R′ L','y′ S R2 S′','y′ F′ B U2 B′ F']},
@@ -1605,7 +1654,7 @@
     },{
       id:'AF2L -25',
       name:'AF2L - 25',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'l F′ l′ U F U F′',solutions:['R′ F R2 U′ R2 F′ R','F R U′ R2 F′ R','F U′ F′ U′ l F l′']},
         FL:{setup:'l F′ l′ U F U F′ y',solutions:['L U′ L′ d′ L U L′','L U′ L′ U′ F U F′','y′ F U′ F′ U′ l F l′']},
@@ -1615,7 +1664,7 @@
     },{
       id:'AF2L -26',
       name:'AF2L - 26',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'L R U2 R′ L′',solutions:['R L U2 L′ R′','L R U2 R′ L′','y R′ L′ U2 L R y′']},
         FL:{setup:'L R U2 R′ L′ y',solutions:['R′ L′ U2 L R','y′ L R U2 R′ L′','y′ R L U2 L′ R′ y']},
@@ -1625,7 +1674,7 @@
     },{
       id:'AF2L -27',
       name:'AF2L - 27',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b U′ b′ R B U′ B′',solutions:['B U B′ R′ b U b′','y R U R′ F′ r U r′ y′','y R U R′ F′ L F L′ y′']},
         FL:{setup:'b U′ b′ R B U′ B′ y',solutions:['R U R′ F′ r U r′','R U R′ F′ L F L′','R U R′ y′ U R U′ R′','y′ B U B′ R′ b U b′']},
@@ -1635,7 +1684,7 @@
     },{
       id:'AF2L -28',
       name:'AF2L - 28',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′',solutions:['D F′ U′ F U D′ F U F2 U′ F']},
         FL:{setup:'F′ U F2 U′ F′ D U′ F′ U F D′ y',solutions:['y′ D F′ U′ F U D′ F U F2 U′ F','y′ D F′ U′ F U D′ F U F2 U′ F y']},
@@ -1645,7 +1694,7 @@
     },{
       id:'AF2L -29',
       name:'AF2L - 29',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b′ R b U L U L′ U L U L′',solutions:['L U′ L′ U′ L U′ L′ d′ L′ U′ L','L U′ L′ U′ L U′ L′ U′ b′ R′ b','y2 R U′ R′ U′ R U′ R′ d′ R′ U′ R y2']},
         FL:{setup:'b′ R b U L U L′ U L U L′ y',solutions:['y′ L U′ L′ U′ L U′ L′ U′ b′ R′ b','y′ L U′ L′ U′ L U′ L′ d′ L′ U′ L y']},
@@ -1655,7 +1704,7 @@
     },{
       id:'AF2L -30',
       name:'AF2L - 30',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F U2 B U B′ U B U B′',solutions:['B U′ B′ U′ B U′ B′ U2 F′ U′ F','y R U′ R′ U′ R U′ R′ U2 L′ U′ L y′','y M F M′ U L′ U L U′ L′ U L y′']},
         FL:{setup:'F′ U F U2 B U B′ U B U B′ y',solutions:['R U′ R′ U′ R U′ R′ U2 L′ U′ L','M F M′ U L′ U L U′ L′ U L','y′ B U′ B′ U′ B U′ B′ U2 F′ U′ F']},
@@ -1665,7 +1714,7 @@
     },{
       id:'AF2L -31',
       name:'AF2L - 31',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U′ F U F′ U F U′ F U F′',solutions:['R′ F R U′ R′ F′ R2 U R′ U R U R′','F U′ F′ U F′ U′ F U′ F′ U F','y L U′ L′ U L′ U′ L U′ L′ U L y′']},
         FL:{setup:'F′ U′ F U F′ U F U′ F U F′ y',solutions:['L U′ L′ U L′ U′ L U′ L′ U L','y′ F U′ F′ U F′ U′ F U′ F′ U F','y′ R′ F R U′ R′ F′ R2 U R′ U R U R′ y']},
@@ -1675,7 +1724,7 @@
     },{
       id:'AF2L -32',
       name:'AF2L - 32',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b′ R b U2 R U R′ U′ L U′ L′',solutions:['L U L′ U R U′ R′ U2 b′ R′ b','y2 R U R′ F R U R′ U′ F′ L U2 L′ y2','y2 F′ L′ U2 L2 U L′ U L U L′ F y2']},
         FL:{setup:'b′ R b U2 R U R′ U′ L U′ L′ y',solutions:['y′ L U L′ U R U′ R′ U2 b′ R′ b','y′ L U L′ U R U′ R′ U2 b′ R′ b y']},
@@ -1685,7 +1734,7 @@
     },{
       id:'AF2L -33',
       name:'AF2L - 33',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F U B U B′ U B U′ B′',solutions:['B U B′ U′ B U′ B′ U′ F′ U′ F','y R U′ R′ U′ L′ U′ L U′ L′ U L y′','y R U R′ U′ R U′ R′ U′ L′ U′ L y′']},
         FL:{setup:'F′ U F U B U B′ U B U′ B′ y',solutions:['R U′ R′ U′ L′ U′ L U′ L′ U L','R U R′ U′ R U′ R′ U′ L′ U′ L','y′ B U B′ U′ B U′ B′ U′ F′ U′ F']},
@@ -1695,7 +1744,7 @@
     },{
       id:'AF2L -34',
       name:'AF2L - 34',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'L′ F′ U F U F′ U′ F L',solutions:['L′ F′ U F U′ F′ U′ F L','y′ F′ R′ U R U′ R′ U′ R F y','y′ R U R′ U′ R U2 R′ U2 y R U R′ y']},
         FL:{setup:'L′ F′ U F U F′ U′ F L y',solutions:['y′ L′ F′ U F U′ F′ U′ F L','y′ L′ F′ U F U′ F′ U′ F L y']},
@@ -1705,7 +1754,7 @@
     },{
       id:'AF2L -35',
       name:'AF2L - 35',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U R U2 R′ L U2 L′',solutions:['L U2 L′ R U2 R′ U′ R U R′','y2 R U2 R′ L U2 L′ U′ L U L′ y2','y′ y L U2 L′ R U2 R′ U′ R U R′ y']},
         FL:{setup:'R U′ R′ U R U2 R′ L U2 L′ y',solutions:['y R U2 R′ L U2 L′ U′ L U L′','y′ L U2 L′ R U2 R′ U′ R U R′','y′ L U2 L′ R U2 R′ U′ R U R′ y']},
@@ -1715,7 +1764,7 @@
     },{
       id:'AF2L -36',
       name:'AF2L - 36',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U R U2 R′ B U′ B′',solutions:['B U B′ R U2 R′ U′ R U R′','y R U R′ F U2 F′ U′ F U F′ y′','y R U R′ L F′ L′ F L′ U L U′ L′ U L y′']},
         FL:{setup:'R U′ R′ U R U2 R′ B U′ B′ y',solutions:['R U R′ F U2 F′ U′ F U F′','R U R′ L F′ L′ F L′ U L U′ L′ U L','y′ B U B′ R U2 R′ U′ R U R′']},
@@ -1725,7 +1774,7 @@
     },{
       id:'AF2L -37',
       name:'AF2L - 37',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'l F′ l′ F U F′ U2 F U′ F′',solutions:['F U F′ U2 F U′ F′ l F l′','y′ R U R′ U2 R U′ R′ f R f′ y','y′ y F U F′ U2 F U′ F′ l F l′ y']},
         FL:{setup:'l F′ l′ F U F′ U2 F U′ F′ y',solutions:['y′ F U F′ U2 F U′ F′ l F l′','y′ F U F′ U2 F U′ F′ l F l′ y']},
@@ -1735,7 +1784,7 @@
     },{
       id:'AF2L -38',
       name:'AF2L - 38',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ R U R′ L U′ L′',solutions:['L U L′ R U′ R′ U R U R′','y2 R U R′ L U′ L′ U L U L′ y2','y′ y L U L′ R U′ R′ U R U R′ y']},
         FL:{setup:'R U′ R′ U′ R U R′ L U′ L′ y',solutions:['y′ L U L′ R U′ R′ U R U R′','y′ L U L′ R U′ R′ U R U R′ y']},
@@ -1745,7 +1794,7 @@
     },{
       id:'AF2L -39',
       name:'AF2L - 39',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ R U R′ U B U′ B′',solutions:['B U B′ U′ R U′ R′ U R U R′','y R U R′ d′ L U′ L′ U L U L′ y′','y R U R′ U′ y′ R U′ R′ U R U R′ y′']},
         FL:{setup:'R U′ R′ U′ R U R′ U B U′ B′ y',solutions:['R U R′ d′ L U′ L′ U L U L′','R U R′ U′ y′ R U′ R′ U R U R′','R U R′ L′ U L U′ L F′ L′ F L′ U L','R U R′ y U′ L U′ L′ U L U L′','R U R′ F U′ R U R′ U F′ U′ L′ U L','y′ B U B′ U′ R U′ R′ U R U R′']},
@@ -1755,7 +1804,7 @@
     },{
       id:'AF2L -40',
       name:'AF2L - 40',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F′ U F2 U2 F′ U′ F U2 F′',solutions:['F U2 F′ U F U2 F2 U′ F','y′ R U R2 U2 R U2 R′ U2 R U2 R′ U′ R y','y′ R U R′ F U R′ F R F′ R′ U′ R F′ y']},
         FL:{setup:'F′ U F2 U2 F′ U′ F U2 F′ y',solutions:['y′ F U2 F′ U F U2 F2 U′ F','y′ F U2 F′ U F U2 F2 U′ F y']},
@@ -1765,7 +1814,7 @@
     },{
       id:'AF2L -41',
       name:'AF2L - 41',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'b′ R b U L U2 L′ U′ L U2 L′',solutions:['L U L′ R U2 R′ y′ U R′ U′ R','L U L′ R U2 R′ U F′ U′ F','L U2 L′ U L U2 L′ U′ b′ R′ b']},
         FL:{setup:'b′ R b U L U2 L′ U′ L U2 L′ y',solutions:['y′ L U2 L′ U L U2 L′ U′ b′ R′ b','y′ L U L′ R U2 R′ y′ U R′ U′ R y','y′ L U L′ R U2 R′ U F′ U′ F y']},
@@ -1775,7 +1824,7 @@
     },{
       id:'AF2L -42',
       name:'AF2L - 42',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'F U F2 U F2 U2 F′ U B U2 B′',solutions:['B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y R U2 R′ U2 F U2 F′ U L′ U′ L y′','y′ y B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y']},
         FL:{setup:'F U F2 U F2 U2 F′ U B U2 B′ y',solutions:['R U2 R′ U2 F U2 F′ U L′ U′ L','y′ B U2 B′ U′ F U2 F2 U′ F2 U′ F′','y′ B U2 B′ U′ F U2 F2 U′ F2 U′ F′ y']},
@@ -1785,7 +1834,7 @@
     },{
       id:'AF2L -43',
       name:'AF2L - 43',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R2 U R U′',solutions:['U R′ U′ R2 U R′','y U F′ U′ F2 U F′ y′','y U R′ F2 R F2 y′']},
         FL:{setup:'R U′ R2 U R U′ y',solutions:['U F′ U′ F2 U F′','U F′ U′ F2 U F′','U F′ U′ F2 U F′','U R′ F2 R F2','U R′ F2 R F2','y′ U R′ U′ R2 U R′']},
@@ -1795,7 +1844,7 @@
     },{
       id:'AF2L -44',
       name:'AF2L - 44',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U′ B′ U B U′',solutions:['U B′ U′ B U R U R′','y U R′ U′ R U F U F′ y′','y2 U F′ U′ F U L U L′ y2']},
         FL:{setup:'R U′ R′ U′ B′ U B U′ y',solutions:['U R′ U′ R U F U F′','U R′ U′ R U F U F′','U R′ U′ R U F U F′','y′ U B′ U′ B U R U R′']},
@@ -1805,7 +1854,7 @@
     },{
       id:'AF2L -45',
       name:'AF2L - 45',
-      preview:'previews/af2l-1.svg',
+      preview:'../previews/af2l-1.svg',
       slots:{
         FR:{setup:'R U′ R′ U2 L′ U L U′',solutions:['U L′ U′ L U2 R U R′','F′ U F U2 L′ U L R U R′','y2 U R′ U′ R U2 L U L′ y2']},
         FL:{setup:'R U′ R′ U2 L′ U L U′ y',solutions:['y′ U L′ U′ L U2 R U R′','y′ U L′ U′ L U2 R U R′ y','y′ F′ U F U2 L′ U L R U R′ y']},
@@ -1895,7 +1944,7 @@
         card.dataset.methodId=method.id;
         if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button'); main.type='button'; main.className='advanced-method-main'; main.title='Mở setup và công thức giải';
-        const image=document.createElement('img'); image.src=`previews/af2l-${method.id.replace('AF2L -','')}.png`; image.alt=`Preview ${method.name}`;
+        const image=document.createElement('img'); image.src=`../previews/af2l-${method.id.replace('AF2L -','')}.png`; image.alt=`Preview ${method.name}`;
         const title=document.createElement('b'); title.textContent=method.name;
         main.append(image,title);
         main.onclick=()=>{
@@ -2156,7 +2205,7 @@
     // Every macro restores the D-layer cross; a fresh randomized chain prevents repeating the same easy setup.
     const f2lMacros=[['R','U','R′'],['R','U′','R′'],['L','U','L′'],['L','U′','L′'],['F','U','F′'],['F','U′','F′'],['B','U','B′'],['B','U′','B′']];
     function randomF2LScramble(){const count=5+Math.floor(Math.random()*5), result=[]; let previous=-1; while(result.length<count*3){let index=Math.floor(Math.random()*f2lMacros.length); if(index===previous)continue; result.push(...f2lMacros[index]); previous=index;} return result;}
-    function setF2LPractice(enabled){f2lPractice=enabled; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT F2L':'LUYỆN F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; persistSetting('rubik-f2l-practice',f2lPractice?'1':'0');}
+    function setF2LPractice(enabled){f2lPractice=enabled; cubies.forEach(piece=>{if(piece.userData.containsYellow) piece.children.forEach(mesh=>{if(mesh.userData.originalMaterial) mesh.material=f2lPractice?maskedMaterial:mesh.userData.originalMaterial;});}); practiceButton.classList.toggle('is-active',f2lPractice); practiceButton.setAttribute('aria-pressed',String(f2lPractice)); practiceButton.textContent=f2lPractice?'THOÁT TẬP TRUNG':'TẬP TRUNG F2L'; stateEl.textContent=f2lPractice?'F2L / CROSS ONLY':'WHITE CROSS ↓'; persistSetting('rubik-f2l-practice',f2lPractice?'1':'0');}
     practiceButton.onclick=()=>setF2LPractice(!f2lPractice);
     if(readSetting('rubik-f2l-practice')==='1')setF2LPractice(true);
     scrambleButton.onclick=async()=>{if(busy)return; knownF2LCase=null; clearF2LSelection(); await runMoves(randomF2LScramble()); stateEl.textContent='F2L RANDOMIZED · SELECT A CORNER';};

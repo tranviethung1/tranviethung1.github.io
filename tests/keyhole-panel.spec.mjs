@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('Keyhole uses fixed matching setup and solve pairs', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/?test=1');
+  await page.goto('/f2l/?test=1');
   await page.getByRole('button', { name: 'Keyhole' }).click();
 
   const sheet = page.locator('#dock-sheet-keyhole');

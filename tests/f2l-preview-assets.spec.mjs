@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('the first twelve F2L cards use refreshed preview images', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/f2l/');
   await page.getByRole('button', { name: '4 hướng' }).click();
 
   for (let number = 1; number <= 12; number += 1) {

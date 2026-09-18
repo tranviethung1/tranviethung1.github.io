@@ -27,7 +27,7 @@ npm run test:f2l-2    # chỉ F2L -2
 npm run test:f2l-10   # chỉ F2L -10
 ```
 
-Config (`playwright.config.mjs`) tự chạy `python3 -m http.server 4173`, mở `/?test=1`, timeout suite `180s`. Trong chế độ test, trainer áp nước tức thì (không animation) nên validate không bị timeout 60s.
+Config (`playwright.config.mjs`) tự chạy `python3 -m http.server 4173`, mở `/f2l/?test=1`, timeout suite `180s`. Trong chế độ test, trainer áp nước tức thì (không animation) nên validate không bị timeout 60s.
 
 ### Env
 

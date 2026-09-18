@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('advanced panel mirrors the horizontal F2L case strip and remembers viewed cases', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/f2l/');
 
   await page.getByRole('button', { name: 'Nâng cao' }).click();
   const list = page.locator('#advanced-methods');
