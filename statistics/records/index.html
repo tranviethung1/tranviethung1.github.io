@@ -263,13 +263,10 @@
     .formula-panel .wr-meta b { font-weight:700; opacity:1; }
     .formula-panel .wr-note { margin:0; font:10px var(--font-ui); color:var(--accent); font-weight:600; }
     .formula-panel .wr-section { margin:4px 0 0; font:700 10px var(--font-display); letter-spacing:.06em; }
-    .formula-panel .wr-desc { margin:0; font:9px var(--font-ui); line-height:1.45; opacity:.68; }
     .formula-panel .scramble-box { display:flex; flex-direction:column; gap:5px; }
     .formula-panel .scramble-text { margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:rgba(244,240,232,.96); font:10px var(--font-mono); line-height:1.65; word-break:break-word; }
     .formula-panel .apply-scramble { width:100%; min-height:36px; border-color:var(--accent); color:var(--accent); font-weight:700; }
     .formula-panel .apply-scramble:hover, .formula-panel .apply-scramble:focus-visible { background:var(--accent); color:#fff; border-color:var(--accent); }
-    .formula-panel .wr-source { display:inline-flex; align-items:center; min-height:34px; padding:0 10px; border:1px solid var(--ink); border-radius:9px; color:var(--ink); text-decoration:none; font:700 10px var(--font-display); }
-    .formula-panel .wr-source:hover, .formula-panel .wr-source:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
     .formula-panel .case-options .opt-list { max-height:calc(4 * 40px + 3 * 5px + 16px); }
     .formula-panel .case-card.is-open .case-main { display:none; }
   </style>
@@ -821,20 +818,7 @@
         options.appendChild(scrambleBox);
         const stepsHead=document.createElement('div'); stepsHead.className='wr-section'; stepsHead.textContent='CÁC BƯỚC GIẢI';
         options.appendChild(stepsHead);
-        const stepsDesc=document.createElement('p'); stepsDesc.className='wr-desc';
-        stepsDesc.textContent='Play từng bước chạy từ trạng thái hiện tại. ÁP SCRAMBLE: solved → scramble. Play TOÀN BỘ: reset → scramble → mọi bước (kể cả Inspection). Đây là reconstruction lịch sử cố định, không phải solver cho scramble tùy ý.';
-        options.appendChild(stepsDesc);
         const list=document.createElement('div'); list.className='opt-list';
-        (entry.steps||[]).forEach((step,index)=>{
-          list.appendChild(createAlgRow({
-            id:`${entry.id}|step|${index}`,
-            label:`${step.label} · ${step.moves||''}`,
-            sequence:step.moves||'',
-            mode:'step',
-            status:`${entry.id} · ${step.label}`,
-            entry
-          }));
-        });
         const fullMoves=allStepsMoves(entry);
         list.appendChild(createAlgRow({
           id:`${entry.id}|full`,
@@ -845,16 +829,17 @@
           entry,
           extraClass:'opt-setup'
         }));
+        (entry.steps||[]).forEach((step,index)=>{
+          list.appendChild(createAlgRow({
+            id:`${entry.id}|step|${index}`,
+            label:`${step.label} · ${step.moves||''}`,
+            sequence:step.moves||'',
+            mode:'step',
+            status:`${entry.id} · ${step.label}`,
+            entry
+          }));
+        });
         options.appendChild(list);
-        if(entry.source){
-          const link=document.createElement('a');
-          link.className='wr-source';
-          link.href=entry.source;
-          link.target='_blank';
-          link.rel='noopener noreferrer';
-          link.textContent='Nguồn reconstruction ↗';
-          options.appendChild(link);
-        }
         card.appendChild(options);
         caseListParent.appendChild(card);
       });
