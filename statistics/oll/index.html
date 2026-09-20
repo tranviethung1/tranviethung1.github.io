@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RUBIK · OLL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--ink:#121212;--cream:#f4f0e8;--accent:#ff4b2b;--line:rgba(18,18,18,.18);--font-ui:'Space Grotesk',system-ui,sans-serif;--font-display:Syne,system-ui,sans-serif}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--cream);color:var(--ink);font:500 16px var(--font-ui)}
+    .brand{font:800 clamp(28px,4.2vw,52px)/.8 var(--font-display);letter-spacing:-.08em}.brand span{color:var(--accent)}
+    .site-menu-toggle{position:fixed;z-index:9;left:28px;top:23px;width:44px;min-height:44px;padding:0;border:0;border-radius:12px;background:rgba(244,240,232,.94);font-size:0}
+    .site-menu-toggle::before{content:'';display:block;width:19px;height:13px;margin:auto;border-top:2px solid;border-bottom:2px solid;background:linear-gradient(currentColor,currentColor) center/100% 2px no-repeat}
+    .site-menu-toggle[aria-expanded=true]::before{width:18px;height:18px;border:0;background:linear-gradient(45deg,transparent 45%,currentColor 46% 54%,transparent 55%),linear-gradient(-45deg,transparent 45%,currentColor 46% 54%,transparent 55%)}
+    .site-nav-backdrop{position:fixed;z-index:8;inset:0;border:0;background:rgba(18,18,18,.28);opacity:0;pointer-events:none}.site-nav-backdrop.is-open{opacity:1;pointer-events:auto}
+    .site-nav{position:fixed;z-index:9;top:0;bottom:0;left:0;width:min(310px,84vw);padding:22px 0;background:var(--cream);box-shadow:12px 0 32px rgba(18,18,18,.2);transform:translateX(-105%);transition:transform .24s;overflow-y:auto}.site-nav.is-open{transform:none}
+    .site-nav-head{display:flex;align-items:center;justify-content:space-between;padding:0 18px 18px;border-bottom:1px solid var(--line)}
+    .site-nav-head b{font:800 20px var(--font-display);letter-spacing:-.06em}.site-nav-head b span{color:var(--accent)}
+    .site-nav-close{min-height:34px;width:34px;padding:0;border:0;border-radius:8px;font-size:23px;background:transparent}
+    .site-nav-list{display:flex;flex-direction:column;margin:0;padding:10px 0;list-style:none}
+    .site-nav-item,.site-nav-parent{width:100%;min-height:48px;padding:0 18px;border:0;background:transparent;display:flex;align-items:center;justify-content:space-between;text-align:left;font:700 13px var(--font-display)}
+    .site-nav-parent .chevron{margin-left:auto;font-size:18px}.site-nav-parent[aria-expanded=true] .chevron{transform:rotate(180deg)}
+    .site-nav-sublist{display:none;margin:0;padding:0;list-style:none;background:rgba(18,18,18,.04)}.site-nav-sublist.is-open{display:block}
+    .site-nav-subitem{width:100%;min-height:42px;padding:0 22px 0 49px;border:0;background:transparent;text-align:left;font:600 12px var(--font-ui)}
+    .site-nav-subitem.is-current{background:rgba(18,18,18,.08);font-weight:700}
+    .site-nav-item:hover,.site-nav-parent:hover,.site-nav-subitem:hover{background:var(--ink);color:var(--cream)}
+    header{padding:28px 32px 28px 86px}main{max-width:520px;margin:12vh auto 0;padding:0 24px;text-align:center}
+    h1{font:800 clamp(28px,6vw,48px)/1 var(--font-display);letter-spacing:-.06em;margin:0 0 12px}
+    p{margin:0 0 28px;line-height:1.6;opacity:.72}
+    .links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    a.cta{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;background:var(--ink);color:var(--cream);text-decoration:none;font:700 12px var(--font-ui)}
+    a.cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+    a.cta:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  </style>
+</head>
+<body>
+  <button id="site-menu-toggle" class="site-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="site-nav"></button>
+  <button id="site-nav-backdrop" class="site-nav-backdrop" type="button" aria-label="Đóng menu" tabindex="-1"></button>
+  <nav id="site-nav" class="site-nav" aria-hidden="true">
+    <div class="site-nav-head"><b>RUB<span>I</span>K</b><button id="site-nav-close" class="site-nav-close" type="button" aria-label="Đóng">×</button></div>
+    <ul class="site-nav-list">
+      <li><button class="site-nav-item" type="button" data-nav="playground">Playground</button></li>
+      <li><button class="site-nav-item" type="button" data-nav="training">Training</button></li>
+      <li><button id="statistics-menu-toggle" class="site-nav-parent" type="button" aria-expanded="false" aria-controls="statistics-submenu">Statistics <span class="chevron">⌄</span></button>
+        <ul id="statistics-submenu" class="site-nav-sublist">
+          <li><button class="site-nav-subitem is-current" type="button" data-nav="oll" aria-current="page">OLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-nav="pll">PLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-nav="cross">Cross</button></li>
+          <li><button class="site-nav-subitem" type="button" data-nav="f2l">F2L</button></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <header><div class="brand">RUB<span>I</span>K</div></header>
+  <main>
+    <h1>OLL · Coming soon</h1>
+    <p>Trang luyện OLL chưa sẵn sàng. Quay lại Cross hoặc F2L để tiếp tục luyện.</p>
+    <div class="links">
+      <a class="cta" href="../cross/">← Cross</a>
+      <a class="cta ghost" href="../../f2l/">F2L →</a>
+    </div>
+  </main>
+  <script>
+    const toggle=document.querySelector('#site-menu-toggle'), nav=document.querySelector('#site-nav'), backdrop=document.querySelector('#site-nav-backdrop'), closeBtn=document.querySelector('#site-nav-close'), stats=document.querySelector('#statistics-menu-toggle'), sub=document.querySelector('#statistics-submenu');
+    const routes={playground:'../../',training:'../../f2l/',oll:'./',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/'};
+    function setOpen(open){nav.classList.toggle('is-open',open);backdrop.classList.toggle('is-open',open);nav.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));}
+    toggle.onclick=()=>setOpen(!nav.classList.contains('is-open'));
+    closeBtn.onclick=backdrop.onclick=()=>setOpen(false);
+    stats.onclick=()=>{const open=stats.getAttribute('aria-expanded')!=='true';stats.setAttribute('aria-expanded',String(open));sub.classList.toggle('is-open',open);};
+    nav.querySelectorAll('[data-nav]').forEach(btn=>btn.onclick=()=>{const key=btn.dataset.nav; if(key==='oll'){setOpen(false);return;} location.href=routes[key];});
+    addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false);});
+  </script>
+</body>
+</html>

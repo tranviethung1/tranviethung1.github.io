@@ -11,7 +11,10 @@ npm start
 # hoặc: python3 -m http.server 4173
 ```
 
-Rồi mở http://localhost:4173/f2l/
+Rồi mở:
+
+- F2L: http://localhost:4173/f2l/
+- Cross: http://localhost:4173/statistics/cross/
 
 ## Test Playwright (F2L formulas)
 
