@@ -249,15 +249,22 @@
     const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x3A3F46,roughness:.3,metalness:.02});
     let crossPractice=false;
 
+    function isFaceCenter(home){
+      return Math.abs(home.x)+Math.abs(home.y)+Math.abs(home.z)===1;
+    }
     function isWhiteCrossPiece(home){
-      if(home.x===0&&home.y===-1&&home.z===0) return true;
+      if(isFaceCenter(home)&&home.y===-1) return true;
       return home.y===-1&&Math.abs(home.x)+Math.abs(home.z)===1;
+    }
+    // Focus mode keeps white cross + all six face centers visible.
+    function isCrossFocusPiece(home){
+      return isWhiteCrossPiece(home)||isFaceCenter(home);
     }
 
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
       const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24);
       const homeCoord={x,y,z};
-      piece.userData={coord:{x,y,z},homeCoord,isCrossPiece:isWhiteCrossPiece(homeCoord)};
+      piece.userData={coord:{x,y,z},homeCoord,isCrossPiece:isCrossFocusPiece(homeCoord)};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
       faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
       cube.add(piece); cubies.push(piece);

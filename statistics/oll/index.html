@@ -2,75 +2,1025 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>RUBIK · OLL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js" defer></script>
   <style>
-    :root{--ink:#121212;--cream:#f4f0e8;--accent:#ff4b2b;--line:rgba(18,18,18,.18);--font-ui:'Space Grotesk',system-ui,sans-serif;--font-display:Syne,system-ui,sans-serif}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--cream);color:var(--ink);font:500 16px var(--font-ui)}
-    .brand{font:800 clamp(28px,4.2vw,52px)/.8 var(--font-display);letter-spacing:-.08em}.brand span{color:var(--accent)}
-    .site-menu-toggle{position:fixed;z-index:9;left:28px;top:23px;width:44px;min-height:44px;padding:0;border:0;border-radius:12px;background:rgba(244,240,232,.94);font-size:0}
-    .site-menu-toggle::before{content:'';display:block;width:19px;height:13px;margin:auto;border-top:2px solid;border-bottom:2px solid;background:linear-gradient(currentColor,currentColor) center/100% 2px no-repeat}
-    .site-menu-toggle[aria-expanded=true]::before{width:18px;height:18px;border:0;background:linear-gradient(45deg,transparent 45%,currentColor 46% 54%,transparent 55%),linear-gradient(-45deg,transparent 45%,currentColor 46% 54%,transparent 55%)}
-    .site-nav-backdrop{position:fixed;z-index:8;inset:0;border:0;background:rgba(18,18,18,.28);opacity:0;pointer-events:none}.site-nav-backdrop.is-open{opacity:1;pointer-events:auto}
-    .site-nav{position:fixed;z-index:9;top:0;bottom:0;left:0;width:min(310px,84vw);padding:22px 0;background:var(--cream);box-shadow:12px 0 32px rgba(18,18,18,.2);transform:translateX(-105%);transition:transform .24s;overflow-y:auto}.site-nav.is-open{transform:none}
-    .site-nav-head{display:flex;align-items:center;justify-content:space-between;padding:0 18px 18px;border-bottom:1px solid var(--line)}
-    .site-nav-head b{font:800 20px var(--font-display);letter-spacing:-.06em}.site-nav-head b span{color:var(--accent)}
-    .site-nav-close{min-height:34px;width:34px;padding:0;border:0;border-radius:8px;font-size:23px;background:transparent}
-    .site-nav-list{display:flex;flex-direction:column;margin:0;padding:10px 0;list-style:none}
-    .site-nav-item,.site-nav-parent{width:100%;min-height:48px;padding:0 18px;border:0;background:transparent;display:flex;align-items:center;justify-content:space-between;text-align:left;font:700 13px var(--font-display)}
-    .site-nav-parent .chevron{margin-left:auto;font-size:18px}.site-nav-parent[aria-expanded=true] .chevron{transform:rotate(180deg)}
-    .site-nav-sublist{display:none;margin:0;padding:0;list-style:none;background:rgba(18,18,18,.04)}.site-nav-sublist.is-open{display:block}
-    .site-nav-subitem{width:100%;min-height:42px;padding:0 22px 0 49px;border:0;background:transparent;text-align:left;font:600 12px var(--font-ui)}
-    .site-nav-subitem.is-current{background:rgba(18,18,18,.08);font-weight:700}
-    .site-nav-item:hover,.site-nav-parent:hover,.site-nav-subitem:hover{background:var(--ink);color:var(--cream)}
-    header{padding:28px 32px 28px 86px}main{max-width:520px;margin:12vh auto 0;padding:0 24px;text-align:center}
-    h1{font:800 clamp(28px,6vw,48px)/1 var(--font-display);letter-spacing:-.06em;margin:0 0 12px}
-    p{margin:0 0 28px;line-height:1.6;opacity:.72}
-    .links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-    a.cta{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;background:var(--ink);color:var(--cream);text-decoration:none;font:700 12px var(--font-ui)}
-    a.cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
-    a.cta:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+    :root {
+      --ink:#121212;
+      --cream:#f4f0e8;
+      --accent:#ff4b2b;
+      --line:rgba(18,18,18,.18);
+      --glass:rgba(244,240,232,.84);
+      --glass-strong:rgba(244,240,232,.94);
+      --shadow:0 10px 28px rgba(18,18,18,.08);
+      --radius:14px;
+      --font-ui:'Space Grotesk',system-ui,sans-serif;
+      --font-display:Syne,system-ui,sans-serif;
+      --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    }
+    * { box-sizing:border-box; }
+    html { color-scheme:light; }
+    body {
+      margin:0; min-height:100vh; overflow:hidden; color:var(--ink);
+      background:var(--cream);
+      font-family:var(--font-ui);
+      -webkit-font-smoothing:antialiased;
+    }
+    #stage { position:fixed; inset:0; z-index:0; cursor:grab; } #stage:active { cursor:grabbing; }
+    canvas { display:block; width:100%; height:100%; outline:none; }
+    #stage canvas { transform:translateY(60px); }
+    .grain { pointer-events:none; position:fixed; inset:0; opacity:.18; z-index:1; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
+    @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
+    header { position:fixed; inset:0 0 auto; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; padding:28px 32px 28px 86px; pointer-events:none; }
+    .brand { font-family:var(--font-display); font-weight:800; font-size:clamp(28px,4.2vw,52px); line-height:.8; letter-spacing:-.08em; } .brand span { color:var(--accent); }
+    .site-menu-toggle { position:fixed; z-index:9; left:28px; top:23px; width:44px; min-height:44px; padding:0; border:0; border-radius:12px; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:0 8px 22px rgba(16,20,24,.08); font-size:0; }
+    .site-menu-toggle::before { content:''; display:block; width:19px; height:13px; margin:auto; border-top:2px solid currentColor; border-bottom:2px solid currentColor; background:linear-gradient(currentColor,currentColor) center/100% 2px no-repeat; }
+    .site-menu-toggle[aria-expanded="true"]::before { width:18px; height:18px; border:0; background:linear-gradient(45deg,transparent 45%,currentColor 46% 54%,transparent 55%),linear-gradient(-45deg,transparent 45%,currentColor 46% 54%,transparent 55%); }
+    .site-nav-backdrop { position:fixed; z-index:8; inset:0; border:0; border-radius:0; background:rgba(18,18,18,.28); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .site-nav-backdrop.is-open { opacity:1; pointer-events:auto; }
+    .site-nav { position:fixed; z-index:9; top:0; bottom:0; left:0; width:min(310px,84vw); padding:22px 0; background:var(--cream); box-shadow:12px 0 32px rgba(18,18,18,.2); transform:translateX(-105%); transition:transform .24s ease; overflow-y:auto; }
+    .site-nav.is-open { transform:translateX(0); }
+    .site-nav-head { display:flex; align-items:center; justify-content:space-between; padding:0 18px 18px; border-bottom:1px solid var(--line); }
+    .site-nav-head b { font:800 20px var(--font-display); letter-spacing:-.06em; } .site-nav-head b span { color:var(--accent); }
+    .site-nav-close { min-height:34px; width:34px; padding:0; border:0; border-radius:8px; font-size:23px; background:transparent; }
+    .site-nav-list { display:flex; flex-direction:column; margin:0; padding:10px 0; list-style:none; }
+    .site-nav-item,.site-nav-parent { width:100%; min-height:48px; padding:0 18px; border:0; border-radius:0; background:transparent; display:flex; align-items:center; justify-content:space-between; text-align:left; font:700 13px var(--font-display); }
+    .site-nav-item::before,.site-nav-parent::before { content:'◈'; margin-right:11px; color:var(--accent); font-size:12px; } .site-nav-item::after { content:''; margin-left:auto; }
+    .site-nav-parent .chevron { margin-left:auto; font-size:18px; transition:transform .18s ease; } .site-nav-parent[aria-expanded="true"] .chevron { transform:rotate(180deg); }
+    .site-nav-sublist { display:none; margin:0; padding:0; list-style:none; background:rgba(18,18,18,.04); } .site-nav-sublist.is-open { display:block; }
+    .site-nav-subitem { width:100%; min-height:42px; padding:0 22px 0 49px; border:0; border-radius:0; background:transparent; text-align:left; font:600 12px var(--font-ui); }
+    .site-nav-subitem.is-current { background:rgba(18,18,18,.08); font-weight:700; }
+    .site-nav-item:hover,.site-nav-item:focus-visible,.site-nav-parent:hover,.site-nav-parent:focus-visible,.site-nav-subitem:hover,.site-nav-subitem:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    button { min-height:38px; color:var(--ink); border:1px solid var(--ink); border-radius:10px; background:transparent; font:600 11px var(--font-ui); letter-spacing:.02em; cursor:pointer; transition:background .18s,color .18s,transform .18s,box-shadow .18s,border-color .18s; }
+    button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(1px,1px) scale(.98); }
+    .practice-controls button:hover, .practice-controls button:focus-visible,
+    .settings-toggle:hover, .settings-toggle:focus-visible,
+    .reset-cube:hover, .reset-cube:focus-visible,
+    .settings-row button:hover, .settings-row button:focus-visible,
+    .move-pad-toggle:hover, .move-pad-toggle:focus-visible,
+    .move-pad-keys button:hover, .move-pad-keys button:focus-visible,
+    .mobile-dock button:hover, .mobile-dock button:focus-visible,
+    .formula-panel .case-options .opt-list button:hover, .formula-panel .case-options .opt-list button:focus-visible,
+    .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
+    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible, .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    .formula-panel .case-options .opt-controls button:hover,
+    .formula-panel .case-options .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
+    .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
+    .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .formula-panel .case-options .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
+    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
+    .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; }
+    .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); }
+    .formula-panel .case-card.is-open { outline:none; }
+    .formula-panel .case-card.is-active:not(.is-open) { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+    .formula-panel .case-card.is-viewed:not(.is-open):not(.is-active) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); }
+    .formula-panel .case-card.is-viewed .formula-id { color:var(--accent); }
+    .formula-panel .case-card.is-active:not(.is-open) .formula-id { color:var(--ink); }
+    .formula-panel .case-card.is-viewed .formula-id::after { content:' ✓'; font-weight:800; }
+    .formula-panel .case-card.is-open > .case-main { display:none; }
+    .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; }
+    .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; }
+    .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; }
+    .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; }
+    .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; }
+    .formula-panel .case-card.is-open .case-options { display:flex; }
+    .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 40px + 2 * 5px + 16px); overflow-y:auto; overscroll-behavior:contain; }
+    .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; }
+    .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+    .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
+    .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; }
+    .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
+    .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+    .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); }
+    .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; }
+    .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; }
+    .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; }
+    .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .formula-panel .case-drag { display:none; }
+    .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:11px; letter-spacing:.08em; text-align:right; line-height:1.7; font-weight:600; } .status b { color:var(--accent); font-family:var(--font-mono); font-size:14px; }
+    .move-pad-toggle { position:fixed; z-index:4; left:32px; bottom:32px; width:42px; min-width:42px; min-height:42px; padding:0; border:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:var(--shadow); touch-action:none; cursor:grab; user-select:none; }
+    .move-pad-toggle:active { cursor:grabbing; }
+    .move-pad-toggle.is-active { background:var(--ink); color:#fff; box-shadow:0 10px 24px rgba(16,20,24,.22); }
+    .move-pad-toggle.is-dragging { cursor:grabbing; opacity:.92; }
+    .move-pad { position:fixed; z-index:3; left:32px; bottom:84px; display:flex; flex-direction:column; gap:3px; padding:7px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(16px) saturate(1.15); box-shadow:var(--shadow); max-width:min(240px,calc(100vw - 64px)); }
+    .move-pad[hidden] { display:none; }
+    .move-pad.is-animating { display:flex !important; }
+    .move-pad-collapse { display:none; }
+    .move-pad-keys { display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .move-pad .move-row { display:flex; flex-wrap:wrap; gap:3px; }
+    .move-pad-keys button { min-width:28px; min-height:28px; padding:0 4px; border-radius:7px; font:600 11px var(--font-mono); letter-spacing:0; background:rgba(244,240,232,.96); }
+    .practice-controls { position:fixed; z-index:3; right:86px; top:78px; display:flex; gap:8px; } .practice-controls button { padding:0 14px; border-radius:12px; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); } .practice-controls button.is-active { background:var(--ink); color:#fff; }
+    .settings-toggle { position:fixed; z-index:4; right:32px; top:28px; width:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
+    .reset-cube { position:fixed; z-index:4; right:32px; top:78px; width:42px; min-height:42px; padding:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass); backdrop-filter:blur(12px); box-shadow:0 8px 22px rgba(16,20,24,.06); }
+    .settings-panel { position:fixed; z-index:4; right:32px; top:128px; width:250px; padding:14px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); } .settings-panel[hidden] { display:none; } .settings-panel h2 { margin:0 0 12px; font:700 13px var(--font-display); } .settings-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:10px; line-height:1.4; } .settings-row button { min-height:30px; padding:0 9px; border-radius:8px; } .settings-row input { width:110px; accent-color:var(--accent); }
+    .mobile-dock { display:none; }
+    @media (max-width:720px) {
+      header { padding:10px 12px 10px 54px; }
+      .brand { font-size:22px; }
+      .site-menu-toggle { left:8px; top:5px; width:38px; min-height:38px; border-radius:10px; }
+      .site-nav { width:min(296px,84vw); }
+      .site-nav-head { padding:0 14px 14px; }
+      #stage canvas { transform:scale(.78) translateY(calc(-6% + 60px)); transform-origin:center top; }
+      .practice-controls { top:52px; right:52px; left:auto; gap:5px; max-width:calc(100vw - 104px); flex-wrap:wrap; justify-content:flex-end; }
+      .practice-controls button { padding:0 8px; min-height:34px; font-size:8px; letter-spacing:0; background:rgba(244,240,232,.92); }
+      .practice-controls button.is-active { color:#fff; }
+      .settings-toggle { top:10px; right:10px; width:34px; min-height:34px; font-size:16px; }
+      .reset-cube { top:52px; right:10px; width:34px; min-height:34px; font-size:16px; }
+      .settings-panel { left:10px; right:10px; top:94px; width:auto; max-height:min(70vh,420px); overflow:auto; }
+      .mobile-dock {
+        display:grid; grid-template-columns:repeat(2,1fr); gap:0;
+        position:fixed; left:0; right:0; bottom:0; z-index:7;
+        padding:0 0 env(safe-area-inset-bottom,0px);
+        background:var(--cream);
+        border-top:1px solid var(--line);
+        box-shadow:0 -10px 28px rgba(16,20,24,.1);
+      }
+      .mobile-dock button {
+        width:100%; min-height:44px; border:0; border-radius:0;
+        border-right:1px solid var(--line);
+        background:transparent; font:700 11px var(--font-display); letter-spacing:.02em;
+      }
+      .mobile-dock button:last-child { border-right:0; }
+      .mobile-dock button.is-active { background:var(--ink); color:#fff; }
+      .mobile-dock #dock-keyboard { font-size:18px; letter-spacing:0; }
+      .status { left:12px; right:auto; top:52px; bottom:auto; text-align:left; font-size:9px; }
+      .move-pad-toggle { display:none !important; }
+      .move-pad {
+        left:0; right:0; bottom:calc(44px + env(safe-area-inset-bottom,0px));
+        z-index:6; width:100%; max-width:none;
+        max-height:min(36vh, 240px); overflow:hidden;
+        display:flex; flex-direction:column; align-items:stretch; gap:4px;
+        padding:0 8px 8px;
+        border-radius:14px 14px 0 0;
+        border-left:0; border-right:0; border-bottom:0;
+        box-shadow:0 -8px 24px rgba(18,18,18,.1);
+        transition:transform .2s ease, opacity .2s ease;
+      }
+      .move-pad.is-animating { display:flex !important; }
+      .move-pad.is-sheet-dragging { transition:none; }
+      .move-pad-collapse {
+        display:flex; justify-content:center; align-items:center;
+        order:0; width:100%; min-height:20px; padding:8px 0 6px; margin:0;
+        flex:0 0 auto; border:0; border-radius:0; background:transparent;
+        cursor:grab; touch-action:none;
+      }
+      .move-pad-collapse:hover, .move-pad-collapse:focus-visible { background:transparent; color:inherit; outline:none; }
+      .move-pad-collapse::before { content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35); }
+      .move-pad-keys {
+        order:1; flex:1; min-width:0; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+        display:grid; grid-template-columns:repeat(9, minmax(0,1fr));
+        gap:3px; align-content:start;
+      }
+      .move-pad-keys .move-row { display:contents; }
+      .move-pad-keys button { min-width:0; width:100%; min-height:28px; padding:0; font-size:10px; border-radius:6px; touch-action:manipulation; }
+      .formula-panel {
+        z-index:5;
+        top:auto; right:0; left:0; bottom:calc(44px + env(safe-area-inset-bottom,0px)); transform:none;
+        width:100%; max-height:156px; min-height:0;
+        flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:0;
+        padding:0 0 5px;
+        overflow:hidden;
+        background:var(--cream);
+        border-top:1px solid var(--line);
+        box-shadow:0 -12px 32px rgba(16,20,24,.12);
+        transition:transform .2s ease, opacity .2s ease;
+        will-change:transform;
+      }
+      .formula-panel:not(.is-dock-open) { display:none; }
+      .formula-panel > .case-strip {
+        display:flex; flex-direction:row; align-items:stretch; gap:8px;
+        width:100%; min-width:0; min-height:0; flex:1 1 auto;
+        padding:0 10px;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none; -ms-overflow-style:none;
+      }
+      .formula-panel > .case-strip::-webkit-scrollbar { display:none; width:0; height:0; }
+      .formula-panel .case-card {
+        flex:0 0 auto; width:92px; max-height:100%; overflow:hidden;
+        padding:7px; box-shadow:none; background:var(--cream);
+      }
+      .formula-panel:has(.case-card.is-open) {
+        max-height:none; height:auto; gap:0; overflow:hidden;
+      }
+      .formula-panel:has(> .case-card.is-open) > .case-strip { display:none; }
+      .formula-panel:has(.case-card.is-open) .case-card:not(.is-open) { display:none; }
+      .formula-panel > .case-drag {
+        display:flex; justify-content:center; align-items:center;
+        flex:0 0 auto; width:100%; min-height:20px; padding:8px 0 6px; margin:0;
+        border:0; background:transparent;
+        cursor:grab; touch-action:none; z-index:6;
+      }
+      .formula-panel > .case-drag::before {
+        content:''; width:42px; height:4px; border-radius:99px; background:rgba(18,18,18,.35);
+      }
+      .formula-panel > .case-drag:hover, .formula-panel > .case-drag:focus-visible {
+        background:transparent; color:inherit; outline:none;
+      }
+      .formula-panel .case-card.is-open {
+        width:100%; max-width:none;
+        max-height:none; overflow:hidden;
+        display:flex; flex-direction:column;
+        touch-action:pan-y;
+        outline:none; border-color:transparent;
+        padding:0 10px 0;
+        border-radius:0; border:0; box-shadow:none;
+      }
+      .formula-panel.is-sheet-dragging { transition:none; }
+      .formula-panel.is-sheet-dismissing { pointer-events:none; }
+      .formula-panel .case-card:not(.is-open) .formula-id { font-size:9px; }
+      .formula-panel .preview {
+        width:100%; max-width:76px; max-height:76px; height:auto;
+        aspect-ratio:1; margin:0 auto; object-fit:contain;
+      }
+      .formula-panel .case-card.is-open .case-options {
+        position:relative; z-index:2; background:var(--cream); isolation:isolate;
+        display:flex; flex-direction:column; min-height:0; gap:5px;
+        padding-bottom:0;
+      }
+      .formula-panel .case-options .opt-list {
+        position:relative; z-index:2;
+        max-height:calc(3 * 40px + 2 * 5px + 18px);
+        overflow-y:auto; -webkit-overflow-scrolling:touch;
+        scrollbar-width:none; -ms-overflow-style:none;
+      }
+      .formula-panel .case-options .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
+      .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
+      .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
+    }
   </style>
 </head>
 <body>
-  <button id="site-menu-toggle" class="site-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="site-nav"></button>
-  <button id="site-nav-backdrop" class="site-nav-backdrop" type="button" aria-label="Đóng menu" tabindex="-1"></button>
-  <nav id="site-nav" class="site-nav" aria-hidden="true">
-    <div class="site-nav-head"><b>RUB<span>I</span>K</b><button id="site-nav-close" class="site-nav-close" type="button" aria-label="Đóng">×</button></div>
+  <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 — luyện OLL"></main>
+  <div class="grain"></div>
+  <header><div class="brand">RUB<span>I</span>K</div></header>
+  <button id="site-menu-toggle" class="site-menu-toggle" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="site-nav"></button>
+  <button id="site-nav-backdrop" class="site-nav-backdrop" type="button" aria-label="Đóng menu điều hướng" tabindex="-1"></button>
+  <nav id="site-nav" class="site-nav" aria-label="Điều hướng chính" aria-hidden="true">
+    <div class="site-nav-head"><b>RUB<span>I</span>K</b><button id="site-nav-close" class="site-nav-close" type="button" aria-label="Đóng menu">×</button></div>
     <ul class="site-nav-list">
-      <li><button class="site-nav-item" type="button" data-nav="playground">Playground</button></li>
-      <li><button class="site-nav-item" type="button" data-nav="training">Training</button></li>
+      <li><button class="site-nav-item" type="button" data-nav-section="playground">Playground</button></li>
+      <li><button class="site-nav-item" type="button" data-nav-section="training">Training</button></li>
       <li><button id="statistics-menu-toggle" class="site-nav-parent" type="button" aria-expanded="false" aria-controls="statistics-submenu">Statistics <span class="chevron">⌄</span></button>
         <ul id="statistics-submenu" class="site-nav-sublist">
-          <li><button class="site-nav-subitem is-current" type="button" data-nav="oll" aria-current="page">OLL</button></li>
-          <li><button class="site-nav-subitem" type="button" data-nav="pll">PLL</button></li>
-          <li><button class="site-nav-subitem" type="button" data-nav="cross">Cross</button></li>
-          <li><button class="site-nav-subitem" type="button" data-nav="f2l">F2L</button></li>
+          <li><button class="site-nav-subitem is-current" type="button" data-statistic="oll" aria-current="page">OLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="pll">PLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="cross">Cross</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="f2l">F2L</button></li>
         </ul>
       </li>
     </ul>
   </nav>
-  <header><div class="brand">RUB<span>I</span>K</div></header>
-  <main>
-    <h1>OLL · Coming soon</h1>
-    <p>Trang luyện OLL chưa sẵn sàng. Quay lại Cross hoặc F2L để tiếp tục luyện.</p>
-    <div class="links">
-      <a class="cta" href="../cross/">← Cross</a>
-      <a class="cta ghost" href="../../f2l/">F2L →</a>
-    </div>
-  </main>
-  <script>
-    const toggle=document.querySelector('#site-menu-toggle'), nav=document.querySelector('#site-nav'), backdrop=document.querySelector('#site-nav-backdrop'), closeBtn=document.querySelector('#site-nav-close'), stats=document.querySelector('#statistics-menu-toggle'), sub=document.querySelector('#statistics-submenu');
-    const routes={playground:'../../',training:'../../f2l/',oll:'./',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/'};
-    function setOpen(open){nav.classList.toggle('is-open',open);backdrop.classList.toggle('is-open',open);nav.setAttribute('aria-hidden',String(!open));toggle.setAttribute('aria-expanded',String(open));}
-    toggle.onclick=()=>setOpen(!nav.classList.contains('is-open'));
-    closeBtn.onclick=backdrop.onclick=()=>setOpen(false);
-    stats.onclick=()=>{const open=stats.getAttribute('aria-expanded')!=='true';stats.setAttribute('aria-expanded',String(open));sub.classList.toggle('is-open',open);};
-    nav.querySelectorAll('[data-nav]').forEach(btn=>btn.onclick=()=>{const key=btn.dataset.nav; if(key==='oll'){setOpen(false);return;} location.href=routes[key];});
-    addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false);});
+  <nav class="practice-controls" aria-label="Điều khiển luyện OLL">
+    <button id="oll-practice" type="button" aria-pressed="false">TẬP TRUNG OLL</button>
+    <button id="oll-scramble" type="button">XÁO TRỘN OLL</button>
+  </nav>
+  <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
+  <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
+  <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden>
+    <h2>CÀI ĐẶT</h2>
+    <div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div>
+    <label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label>
+  </section>
+  <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup OLL"></nav>
+  <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
+    <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
+    <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Các trường hợp OLL">OLL</button>
+  </nav>
+  <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
+  <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
+  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">YELLOW U · OLL</span></div>
+
+  <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+    import { ollCases } from './oll-data.js';
+
+    const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
+    const siteMenuToggle=document.querySelector('#site-menu-toggle'), siteNav=document.querySelector('#site-nav'), siteNavBackdrop=document.querySelector('#site-nav-backdrop'), siteNavClose=document.querySelector('#site-nav-close'), statisticsMenuToggle=document.querySelector('#statistics-menu-toggle'), statisticsSubmenu=document.querySelector('#statistics-submenu');
+    function setSiteNavigation(open){
+      siteNav.classList.toggle('is-open',open); siteNavBackdrop.classList.toggle('is-open',open);
+      siteNav.setAttribute('aria-hidden',String(!open)); siteMenuToggle.setAttribute('aria-expanded',String(open));
+      if(open) siteNavClose.focus(); else siteMenuToggle.focus();
+    }
+    siteMenuToggle.onclick=()=>setSiteNavigation(!siteNav.classList.contains('is-open'));
+    siteNavClose.onclick=()=>setSiteNavigation(false); siteNavBackdrop.onclick=()=>setSiteNavigation(false);
+    statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
+    const siteRoutes={playground:'../../',training:'../../f2l/',oll:'./',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/'};
+    siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{
+      const key=item.dataset.statistic||item.dataset.navSection;
+      const destination=siteRoutes[key];
+      if(key==='oll'||destination==='./'){ setSiteNavigation(false); return; }
+      location.href=destination;
+    });
+    addEventListener('keydown',event=>{if(event.key==='Escape'&&siteNav.classList.contains('is-open')) setSiteNavigation(false);});
+
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
+    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.9; stage.appendChild(renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.07; controls.minDistance=8; controls.maxDistance=17; controls.target.set(0,0,0); controls.autoRotate=true; controls.autoRotateSpeed=.5;
+    const initialCameraPosition=camera.position.clone(), initialCameraTarget=controls.target.clone(), initialCameraUp=camera.up.clone();
+    scene.add(new THREE.HemisphereLight(0xffffff,0xe9e4dc,2.55));
+    const key=new THREE.DirectionalLight(0xffffff,2.35); key.position.set(5,8,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key);
+    const fill=new THREE.DirectionalLight(0xffffff,1.5); fill.position.set(-6,4,5); scene.add(fill);
+    const rim=new THREE.DirectionalLight(0xffffff,1.25); rim.position.set(-4,5,-7); scene.add(rim);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({color:0x3b3027, opacity:.17})); floor.rotation.x=-Math.PI/2; floor.position.y=-2.15; floor.receiveShadow=true; scene.add(floor);
+    const cube = new THREE.Group(); cube.scale.setScalar(.756); cube.rotation.set(-.12,.45,0); scene.add(cube);
+    const initialCubeRotation=cube.rotation.clone();
+
+    const colors={R:0xff5900,L:0xb61a1a,U:0xd9bd24,D:0xffffff,F:0x21c925,B:0x0045ad};
+    const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
+    const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
+    const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
+    const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x3A3F46,roughness:.3,metalness:.02});
+    let ollPractice=false;
+
+    function isOllLayerPiece(home){
+      return home.y===1;
+    }
+
+    for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
+      const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24);
+      const homeCoord={x,y,z};
+      piece.userData={coord:{x,y,z},homeCoord,isOllPiece:isOllLayerPiece(homeCoord)};
+      const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
+      faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
+      cube.add(piece); cubies.push(piece);
+    }
+
+    const coordLabels=[];
+    let hideCoords=false;
+    function createCoordLabel(text, fontPx=72){const canvas=document.createElement('canvas'); canvas.width=canvas.height=128; const context=canvas.getContext('2d'); context.clearRect(0,0,128,128); context.font=`700 ${fontPx}px Syne, sans-serif`; context.textAlign='center'; context.textBaseline='middle'; context.lineJoin='round'; context.lineWidth=14; context.strokeStyle='#121212'; context.strokeText(text,64,68); context.lineWidth=7; context.strokeStyle='#ffffff'; context.strokeText(text,64,68); context.fillStyle='#ff4b2b'; context.fillText(text,64,68); const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace; const size=text.length>1?.62:.54; return new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide,depthTest:true}));}
+    function placeCoord(text, pos, outward, up, fontPx){
+      const label=createCoordLabel(text,fontPx);
+      label.position.copy(pos);
+      const z=outward.clone().normalize();
+      const x=new THREE.Vector3().crossVectors(up, z).normalize();
+      const y=new THREE.Vector3().crossVectors(z, x).normalize();
+      label.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+      label.renderOrder=2;
+      label.visible=!hideCoords;
+      cube.add(label);
+      coordLabels.push(label);
+    }
+    const cell=1.24, out=0.72;
+    const faceCoords=[
+      {name:'D', cells:[[-1,1,'W1'],[0,1,'W2'],[1,1,'W3'],[1,0,'W4'],[1,-1,'W5'],[0,-1,'W6'],[-1,-1,'W7'],[-1,0,'W8'],[0,0,'W']], pos:(a,b)=>new THREE.Vector3(a*cell,-cell-out,b*cell), outward:new THREE.Vector3(0,-1,0), up:new THREE.Vector3(0,0,1)},
+      {name:'U', cells:[[-1,-1,'Y1'],[0,-1,'Y2'],[1,-1,'Y3'],[1,0,'Y4'],[1,1,'Y5'],[0,1,'Y6'],[-1,1,'Y7'],[-1,0,'Y8'],[0,0,'Y']], pos:(a,b)=>new THREE.Vector3(a*cell,cell+out,b*cell), outward:new THREE.Vector3(0,1,0), up:new THREE.Vector3(0,0,-1)},
+      {name:'F', cells:[[-1,1,'G1'],[0,1,'G2'],[1,1,'G3'],[1,0,'G4'],[1,-1,'G5'],[0,-1,'G6'],[-1,-1,'G7'],[-1,0,'G8'],[0,0,'G']], pos:(a,b)=>new THREE.Vector3(a*cell,b*cell,cell+out), outward:new THREE.Vector3(0,0,1), up:new THREE.Vector3(0,1,0)},
+      {name:'R', cells:[[1,1,'O1'],[1,0,'O2'],[1,-1,'O3'],[0,-1,'O4'],[-1,-1,'O5'],[-1,0,'O6'],[-1,1,'O7'],[0,1,'O8'],[0,0,'O']], pos:(a,b)=>new THREE.Vector3(cell+out,a*cell,b*cell), outward:new THREE.Vector3(1,0,0), up:new THREE.Vector3(0,1,0)},
+      {name:'L', cells:[[1,-1,'R1'],[1,0,'R2'],[1,1,'R3'],[0,1,'R4'],[-1,1,'R5'],[-1,0,'R6'],[-1,-1,'R7'],[0,-1,'R8'],[0,0,'R']], pos:(a,b)=>new THREE.Vector3(-cell-out,a*cell,b*cell), outward:new THREE.Vector3(-1,0,0), up:new THREE.Vector3(0,1,0)},
+      {name:'B', cells:[[1,1,'B1'],[0,1,'B2'],[-1,1,'B3'],[-1,0,'B4'],[-1,-1,'B5'],[0,-1,'B6'],[1,-1,'B7'],[1,0,'B8'],[0,0,'B']], pos:(a,b)=>new THREE.Vector3(a*cell,b*cell,-cell-out), outward:new THREE.Vector3(0,0,-1), up:new THREE.Vector3(0,1,0)},
+    ];
+    faceCoords.forEach(face=>face.cells.forEach(([a,b,text])=>placeCoord(text, face.pos(a,b), face.outward, face.up, text.length>1?52:72)));
+    coordLabels.forEach(label=>{label.userData.homePosition=label.position.clone(); label.userData.homeQuaternion=label.quaternion.clone();});
+    function resetCoordLabels(){coordLabels.forEach(label=>{label.position.copy(label.userData.homePosition); label.quaternion.copy(label.userData.homeQuaternion);});}
+    cubies.forEach(piece=>piece.userData.homeQuaternion=piece.quaternion.clone());
+
+    let busy=false, moves=0, scrambleMoveDuration=60, activeRotate=null;
+    const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
+    function practiceStatus(){return ollPractice?'OLL ONLY':'YELLOW U · OLL';}
+
+    function finishRotatePieces(pivot,chosen,axis,dir){
+      pivot.rotation[axis]=dir*Math.PI/2;
+      pivot.updateMatrixWorld();
+      chosen.forEach(p=>{
+        cube.attach(p);
+        if(!p.userData.coord) return;
+        const c=p.userData.coord; const a=axis==='x'?'y':axis==='y'?'z':'x'; const b=axis==='x'?'z':axis==='y'?'x':'y'; const oldA=c[a],oldB=c[b]; c[a]=round(dir===1?-oldB:oldB); c[b]=round(dir===1?oldA:-oldA); p.position.set(c.x*1.24,c.y*1.24,c.z*1.24); p.rotation.set(Math.round(p.rotation.x/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.y/(Math.PI/2))*Math.PI/2,Math.round(p.rotation.z/(Math.PI/2))*Math.PI/2);
+      });
+      cube.remove(pivot); busy=false; moves++; updateMoves(); stateEl.textContent=practiceStatus();
+    }
+    function rotatePieces(chosen,axis,dir=1){ if(busy)return Promise.reject(new Error('busy')); busy=true; controls.autoRotate=false; stateEl.textContent='ROTATING'; const pivot=new THREE.Group(); cube.add(pivot); chosen.forEach(p=>pivot.attach(p)); const start=performance.now(), angle=dir*Math.PI/2, duration=scrambleMoveDuration;
+      if(duration<=0){ finishRotatePieces(pivot,chosen,axis,dir); activeRotate=null; return Promise.resolve(); }
+      let rafId=0, finished=false;
+      const finish=()=>{
+        if(finished) return;
+        finished=true;
+        if(rafId) cancelAnimationFrame(rafId);
+        finishRotatePieces(pivot,chosen,axis,dir);
+        if(activeRotate?.pivot===pivot) activeRotate=null;
+      };
+      const done=new Promise(resolve=>{function tick(now){ if(finished) return; const t=Math.min((now-start)/duration,1), ease=1-Math.pow(1-t,4); pivot.rotation[axis]=angle*ease; if(t<1)rafId=requestAnimationFrame(tick); else { finish(); resolve(); }} rafId=requestAnimationFrame(tick);});
+      activeRotate={pivot, snap:finish, promise:done};
+      return done;}
+    function cancelBusyAnimation(){
+      if(activeRotate) activeRotate.snap();
+      busy=false;
+    }
+    function rotateLayer(axis,layer,dir=1){return rotatePieces(cubies.filter(p=>p.userData.coord[axis]===layer),axis,dir);}
+    function rotateCube(axis,dir=1){return rotatePieces([...cubies,...coordLabels],axis,dir);}
+    function rotateWide(axis,side,dir=1){return rotatePieces(cubies.filter(p=>side>0?p.userData.coord[axis]>=0:p.userData.coord[axis]<=0),axis,dir);}
+
+    const moveMap={R:['layer','x',1,-1],'R′':['layer','x',1,1],L:['layer','x',-1,1],'L′':['layer','x',-1,-1],U:['layer','y',1,-1],'U′':['layer','y',1,1],D:['layer','y',-1,1],'D′':['layer','y',-1,-1],F:['layer','z',1,-1],'F′':['layer','z',1,1],B:['layer','z',-1,1],'B′':['layer','z',-1,-1],M:['layer','x',0,1],'M′':['layer','x',0,-1],E:['layer','y',0,1],'E′':['layer','y',0,-1],S:['layer','z',0,-1],'S′':['layer','z',0,1],r:['wide','x',1,-1],'r′':['wide','x',1,1],l:['wide','x',-1,1],'l′':['wide','x',-1,-1],u:['wide','y',1,-1],'u′':['wide','y',1,1],d:['wide','y',-1,1],'d′':['wide','y',-1,-1],f:['wide','z',1,-1],'f′':['wide','z',1,1],b:['wide','z',-1,1],'b′':['wide','z',-1,-1],x:['cube','x',-1],'x′':['cube','x',1],y:['cube','y',-1],'y′':['cube','y',1],z:['cube','z',-1],'z′':['cube','z',1]};
+
+    const practiceButton=document.querySelector('#oll-practice'), scrambleButton=document.querySelector('#oll-scramble'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), resetButton=document.querySelector('#reset-cube'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
+    const persistSetting=(key,value)=>{document.cookie=`${key}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem(key,value);};
+    const readSetting=key=>document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`))?.[1]??localStorage.getItem(key);
+    function setSettingsOpen(open){settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open)); settingsToggle.setAttribute('aria-label',open?'Đóng cài đặt':'Mở cài đặt');}
+    settingsToggle.onclick=()=>setSettingsOpen(settingsPanel.hidden);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden) setSettingsOpen(false);});
+    window.addEventListener('blur',()=>setSettingsOpen(false));
+    function applyHideCoords(enabled){hideCoords=enabled; coordLabels.forEach(label=>label.visible=!hideCoords); hideCoordsButton.classList.toggle('is-active',hideCoords); hideCoordsButton.setAttribute('aria-pressed',String(hideCoords)); hideCoordsButton.textContent=hideCoords?'BẬT':'TẮT'; persistSetting('rubik-hide-coords',hideCoords?'1':'0');}
+    hideCoordsButton.onclick=()=>applyHideCoords(!hideCoords);
+    let scrambleDelay=0;
+    const speedLevels={1:['CHẬM',520,900],2:['NHANH',55,240],3:['RẤT NHANH',0,60]};
+    function applyScrambleSpeed(level){const value=String(Math.min(3,Math.max(1,Number(level)||3))); const settings=speedLevels[value]; speedInput.value=value; speedValue.textContent=settings[0]; scrambleDelay=settings[1]; scrambleMoveDuration=settings[2]; persistSetting('rubik-scramble-speed',value);}
+    speedInput.oninput=()=>applyScrambleSpeed(speedInput.value);
+    if(readSetting('rubik-hide-coords')==='1')applyHideCoords(true);
+    const savedSpeed=readSetting('rubik-scramble-speed'); if(savedSpeed)applyScrambleSpeed(savedSpeed);
+
+    const normalizeMove=move=>move.replace(/['’]/g,'′');
+    function expandMoveToken(token){
+      const t=normalizeMove(token);
+      const m=t.match(/^([RUFLDBrufldbMESxyz])([23])?(′)?$/);
+      if(!m) throw new Error(`Unknown move: ${token}`);
+      const face=m[1];
+      let quarterTurns=m[2]?Number(m[2]):1;
+      if(m[3]) quarterTurns=(4-quarterTurns)%4;
+      if(!quarterTurns) return [];
+      const cw=face, ccw=`${face}′`;
+      if(!moveMap[cw]||!moveMap[ccw]) throw new Error(`Unknown move: ${token}`);
+      if(quarterTurns===1) return [cw];
+      if(quarterTurns===2) return [cw,cw];
+      return [ccw];
+    }
+    const parseMoves=sequence=>sequence.trim().split(/\s+/).filter(Boolean).flatMap(expandMoveToken);
+    async function runMoves(movesList,delay=scrambleDelay){
+      const tokens=(Array.isArray(movesList)?movesList:[movesList]).flatMap(item=>{
+        const text=String(item||'').trim();
+        if(!text) return [];
+        if(text.includes(' ')) return parseMoves(text);
+        try{ return expandMoveToken(text); }
+        catch{ return parseMoves(text); }
+      });
+      for(const move of tokens){
+        const key=normalizeMove(move);
+        const spec=moveMap[key];
+        if(!spec) throw new Error(`Unknown move: ${move}`);
+        if(spec[0]==='cube') await rotateCube(spec[1],spec[2]);
+        else if(spec[0]==='wide') await rotateWide(spec[1],spec[2],spec[3]);
+        else await rotateLayer(spec[1],spec[2],spec[3]);
+        if(delay) await new Promise(resolve=>setTimeout(resolve,delay));
+      }
+    }
+
+    function resetToSolved(){
+      cubies.forEach(piece=>{const h=piece.userData.homeCoord; piece.userData.coord={x:h.x,y:h.y,z:h.z}; piece.position.set(h.x*1.24,h.y*1.24,h.z*1.24); piece.quaternion.copy(piece.userData.homeQuaternion); piece.rotation.setFromQuaternion(piece.quaternion);});
+      resetCoordLabels(); moves=0; updateMoves();
+    }
+    function resetToSetupStart(){
+      resetToSolved();
+      cube.rotation.copy(initialCubeRotation);
+      controls.autoRotate=false;
+      controls.target.copy(initialCameraTarget);
+      camera.position.copy(initialCameraPosition);
+      camera.up.copy(initialCameraUp);
+      camera.lookAt(controls.target);
+      controls.update();
+      applyOllPractice(ollPractice, {persist:false});
+      stateEl.textContent=practiceStatus();
+    }
+
+    function applyOllPractice(enabled, {persist=true}={}){
+      ollPractice=enabled;
+      cubies.forEach(piece=>{
+        piece.children.forEach(mesh=>{
+          if(!mesh.userData.originalMaterial) return;
+          const keep=piece.userData.isOllPiece;
+          mesh.material=(ollPractice&&!keep)?maskedMaterial:mesh.userData.originalMaterial;
+        });
+      });
+      practiceButton.classList.toggle('is-active',ollPractice);
+      practiceButton.setAttribute('aria-pressed',String(ollPractice));
+      practiceButton.textContent=ollPractice?'THOÁT TẬP TRUNG':'TẬP TRUNG OLL';
+      if(persist) persistSetting('rubik-oll-practice',ollPractice?'1':'0');
+      stateEl.textContent=practiceStatus();
+    }
+    practiceButton.onclick=()=>applyOllPractice(!ollPractice);
+    if(readSetting('rubik-oll-practice')==='1')applyOllPractice(true);
+
+    scrambleButton.onclick=async()=>{
+      if(busy) return;
+      cancelBusyAnimation();
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      const entry=ollCases[Math.floor(Math.random()*ollCases.length)];
+      if(!entry?.setup) return;
+      resetToSetupStart();
+      await runMoves(parseMoves(entry.setup));
+      stateEl.textContent=`OLL RANDOMIZED · ${entry.id}`;
+    };
+    resetButton.onclick=()=>{
+      cancelBusyAnimation();
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      resetToSetupStart();
+    };
+
+
+    let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
+    let openCaseId=null, activeCaseId=null;
+    const formulaPanel=document.querySelector('#formula-panel');
+    const dockCases=document.querySelector('#dock-cases');
+    const viewedOllCases=new Set((readSetting('rubik-oll-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
+    function markOllCaseViewed(caseId){
+      if(!caseId||viewedOllCases.has(caseId)) return;
+      viewedOllCases.add(caseId);
+      persistSetting('rubik-oll-viewed', [...viewedOllCases].map(encodeURIComponent).join('|'));
+    }
+    const invertToken=token=>{
+      const t=normalizeMove(token);
+      if(t.endsWith('2')) return t;
+      return t.endsWith('′')?t.slice(0,-1):`${t}′`;
+    };
+    const stepDelay=()=>Math.max(scrambleDelay, 120);
+    const isMobileUi=()=>matchMedia('(max-width:720px)').matches;
+    function markActiveAlgRow(id){
+      activeAlgId=id;
+      document.querySelectorAll('.opt-row').forEach(row=>row.classList.toggle('is-active', row.dataset.algId===id));
+    }
+    function updateMoveStepHighlight(){
+      document.querySelectorAll('.opt-row').forEach(row=>{
+        const isCurrent=algPlayback&&row.dataset.algId===algPlayback.id;
+        const highlightedStep=Math.max(0,(algPlayback?.index||0)-1);
+        row.querySelectorAll('.move-step').forEach((step,index)=>step.classList.toggle('is-current',isCurrent&&index===highlightedStep));
+      });
+    }
+    function beginAlgPlayback(id, sequence, isSetup){
+      algPlayback={id, moves:parseMoves(sequence), index:0, isSetup};
+      activeAlgId=id;
+      updateMoveStepHighlight();
+    }
+    async function algPlayAll(id, sequence, isSetup, status){
+      if(busy) return;
+      const token=++algPlayToken;
+      markActiveAlgRow(id);
+      beginAlgPlayback(id, sequence, isSetup);
+      if(isSetup){ resetToSetupStart(); algPlayback.index=0; }
+      while(algPlayback&&algPlayback.id===id&&algPlayback.index<algPlayback.moves.length){
+        if(token!==algPlayToken) return;
+        await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
+        if(token!==algPlayToken) return;
+        algPlayback.index++;
+        updateMoveStepHighlight();
+        stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+      }
+      if(token===algPlayToken) stateEl.textContent=status;
+    }
+    async function algNext(id, sequence, isSetup, status){
+      const token=algPlayToken;
+      nextMoveQueue=nextMoveQueue.then(async()=>{
+        if(token!==algPlayToken||busy) return;
+        markActiveAlgRow(id);
+        if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSetupStart(); }
+        if(!algPlayback||algPlayback.index>=algPlayback.moves.length) return;
+        if(token!==algPlayToken) return;
+        const move=algPlayback.moves[algPlayback.index];
+        await runMoves([move], stepDelay());
+        if(token!==algPlayToken||!algPlayback) return;
+        algPlayback.index++;
+        updateMoveStepHighlight();
+        stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+      }).catch(error=>{console.error('Không thể chạy nước tiếp theo:',error);});
+      return nextMoveQueue;
+    }
+    async function algPrev(id, sequence, isSetup, status){
+      if(busy) return;
+      markActiveAlgRow(id);
+      if(!algPlayback||algPlayback.id!==id||algPlayback.index<=0) return;
+      algPlayback.index--;
+      await runMoves([invertToken(algPlayback.moves[algPlayback.index])], stepDelay());
+      updateMoveStepHighlight();
+      stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
+    }
+    function createAlgRow({id, label, sequence, isSetup, status, extraClass=''}){
+      const row=document.createElement('div');
+      row.className=`opt-row${activeAlgId===id?' is-active':''}`;
+      row.dataset.algId=id;
+      const btn=document.createElement('button');
+      btn.type='button'; btn.className=`opt-label${extraClass?` ${extraClass}`:''}`;
+      const [labelPrefix,labelMoves='']=label.split(' · ');
+      btn.append(document.createTextNode(`${labelPrefix} · `));
+      labelMoves.split(/\s+/).filter(Boolean).forEach((move,index)=>{const step=document.createElement('span'); step.className='move-step'; step.dataset.step=String(index); step.textContent=move; btn.append(step,' ');});
+      btn.title=sequence||''; btn.disabled=!sequence;
+      btn.onclick=()=>algPlayAll(id, sequence, isSetup, status);
+      const controls=document.createElement('div'); controls.className='opt-controls';
+      const mk=(cls, text, title, fn)=>{
+        const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
+        b.disabled=!sequence; b.onclick=()=>{ fn(id, sequence, isSetup, status); b.blur(); }; return b;
+      };
+      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',algPrev));
+      controls.appendChild(mk('opt-play','▶','Play / chạy hết',algPlayAll));
+      controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',algNext));
+      row.appendChild(btn); row.appendChild(controls);
+      return row;
+    }
+    function scrollActiveCaseIntoView(){
+      if(!activeCaseId||openCaseId) return;
+      const card=formulaPanel.querySelector(`.case-card[data-case-id="${CSS.escape(activeCaseId)}"]`);
+      const strip=formulaPanel.querySelector('.case-strip');
+      if(!card) return;
+      requestAnimationFrame(()=>{
+        if(strip){
+          const left=card.offsetLeft-(strip.clientWidth-card.offsetWidth)/2;
+          strip.scrollTo({left:Math.max(0,left), behavior:'smooth'});
+        } else {
+          card.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+        }
+      });
+    }
+    function closeOpenCase(){
+      if(openCaseId) activeCaseId=openCaseId;
+      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      renderFormulaButtons();
+      scrollActiveCaseIntoView();
+    }
+    function closeCasesDockPanel(){
+      formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
+      formulaPanel.style.transform=''; formulaPanel.style.opacity='';
+      if(openCaseId) activeCaseId=openCaseId;
+      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
+      setDockPanels(null);
+      syncMobileDockFromSheets();
+      renderFormulaButtons();
+    }
+    function setDockPanels(openSheet){
+      formulaPanel.classList.toggle('is-dock-open', openSheet==='cases');
+    }
+    function syncMobileDockFromSheets(){
+      if(!isMobileUi()) return;
+      const keyboardOpen=!movePad.hidden;
+      const openSheet=keyboardOpen?'keyboard'
+        :formulaPanel.classList.contains('is-dock-open')?'cases'
+        :null;
+      dockKeyboard.classList.toggle('is-active', openSheet==='keyboard');
+      dockKeyboard.setAttribute('aria-pressed', String(openSheet==='keyboard'));
+      dockCases.classList.toggle('is-active', openSheet==='cases');
+      dockCases.setAttribute('aria-pressed', String(openSheet==='cases'));
+    }
+    function closeMovePadInstant(){
+      if(window.anime) anime.remove(movePad);
+      movePad.hidden=true;
+      movePad.classList.remove('is-animating');
+      movePad.style.opacity=''; movePad.style.transform='';
+      movePadToggle.classList.remove('is-active');
+      movePadToggle.setAttribute('aria-expanded','false');
+    }
+    function setMobileDockSheet(sheet){
+      if(!isMobileUi()) return;
+      const keyboardOpen=!movePad.hidden;
+      const casesOpen=formulaPanel.classList.contains('is-dock-open');
+      const current=keyboardOpen?'keyboard':casesOpen?'cases':null;
+      const next=current===sheet?null:sheet;
+      if(next==='keyboard'){
+        setDockPanels(null);
+        setMovePadOpen(true);
+      } else if(next==='cases'){
+        closeMovePadInstant();
+        setDockPanels('cases');
+        syncMobileDockFromSheets();
+        scrollActiveCaseIntoView();
+      } else {
+        closeMovePadInstant();
+        setDockPanels(null);
+        syncMobileDockFromSheets();
+      }
+    }
+    function enableFormulaPanelSwipeDismiss(){
+      if(!isMobileUi()) return;
+      const handle=formulaPanel.querySelector(':scope > .case-drag');
+      if(!handle) return;
+      let startY=0, startX=0, dragging=false, dy=0, moved=false;
+      const applyShift=(y, opacity)=>{
+        formulaPanel.style.transform=`translateY(${y}px)`;
+        formulaPanel.style.opacity=opacity;
+      };
+      const clearShift=()=>{
+        formulaPanel.style.transform='';
+        formulaPanel.style.opacity='';
+      };
+      const onStart=(event)=>{
+        const point=event.touches?event.touches[0]:event;
+        startY=point.clientY; startX=point.clientX; dragging=true; dy=0; moved=false;
+        formulaPanel.classList.add('is-sheet-dragging');
+      };
+      const onMove=(event)=>{
+        if(!dragging) return;
+        const point=event.touches?event.touches[0]:event;
+        const deltaY=point.clientY-startY, deltaX=point.clientX-startX;
+        if(Math.abs(deltaX)>Math.abs(deltaY)&&dy<8) return;
+        dy=Math.max(0, deltaY);
+        if(dy>6) moved=true;
+        applyShift(dy, String(Math.max(.35, 1-dy/220)));
+        if(event.cancelable) event.preventDefault();
+      };
+      const onEnd=()=>{
+        if(!dragging) return;
+        dragging=false; formulaPanel.classList.remove('is-sheet-dragging');
+        if(dy>72){
+          formulaPanel.classList.add('is-sheet-dismissing');
+          applyShift(Math.max(dy,180), '0');
+          setTimeout(()=>{
+            if(openCaseId) closeOpenCase();
+            else closeCasesDockPanel();
+          }, 180);
+        } else {
+          clearShift();
+        }
+        dy=0;
+      };
+      handle.addEventListener('touchstart', onStart, {passive:true});
+      handle.addEventListener('touchmove', onMove, {passive:false});
+      handle.addEventListener('touchend', onEnd);
+      handle.addEventListener('touchcancel', onEnd);
+      handle.addEventListener('click', event=>{
+        if(moved){ event.preventDefault(); moved=false; return; }
+        if(openCaseId) closeOpenCase();
+        else closeCasesDockPanel();
+      });
+    }
+    function renderFormulaButtons(){
+      formulaPanel.innerHTML='';
+      formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
+      formulaPanel.style.transform=''; formulaPanel.style.opacity='';
+      if(isMobileUi()){
+        const drag=document.createElement('button');
+        drag.type='button'; drag.className='case-drag'; drag.setAttribute('aria-label','Kéo xuống để đóng');
+        drag.title='Kéo xuống để đóng';
+        formulaPanel.appendChild(drag);
+      }
+      const caseListParent=(!openCaseId&&isMobileUi())?(()=>{
+        const strip=document.createElement('div');
+        strip.className='case-strip';
+        formulaPanel.appendChild(strip);
+        return strip;
+      })():formulaPanel;
+      ollCases.forEach(entry=>{
+        const card=document.createElement('div');
+        const viewed=viewedOllCases.has(entry.id);
+        const isActive=activeCaseId===entry.id&&openCaseId!==entry.id;
+        card.className=`case-card${openCaseId===entry.id?' is-open':''}${viewed?' is-viewed':''}${isActive?' is-active':''}`;
+        card.dataset.caseId=entry.id;
+        if(viewed) card.setAttribute('data-viewed','true');
+        if(isActive) card.setAttribute('aria-current','true');
+        const main=document.createElement('button');
+        main.type='button'; main.className='case-main'; main.title='Mở setup & công thức giải';
+        if(entry.preview){const img=document.createElement('img'); img.className='preview'; img.src=entry.preview; img.alt=`Preview ${entry.id}`; img.loading='lazy'; main.appendChild(img);}
+        const label=document.createElement('span'); label.className='formula-id'; label.textContent=entry.id; main.appendChild(label);
+        main.onclick=()=>{
+          const opening=openCaseId!==entry.id;
+          openCaseId=opening?entry.id:null;
+          activeCaseId=entry.id;
+          if(opening) markOllCaseViewed(entry.id);
+          algPlayback=null; algPlayToken++; activeAlgId=null;
+          renderFormulaButtons();
+          if(!opening) scrollActiveCaseIntoView();
+        };
+        card.appendChild(main);
+        const options=document.createElement('div'); options.className='case-options';
+        const list=document.createElement('div'); list.className='opt-list';
+        list.appendChild(createAlgRow({
+          id:`${entry.id}|setup`,
+          label:`SETUP · ${entry.setup||'—'}`,
+          sequence:entry.setup||'',
+          isSetup:true,
+          status:`SETUP · ${entry.id}`,
+          extraClass:'opt-setup'
+        }));
+        (entry.solutions||[]).forEach((alg,index)=>{
+          list.appendChild(createAlgRow({
+            id:`${entry.id}|solve|${index}`,
+            label:`GIẢI ${index+1} · ${alg}`,
+            sequence:alg,
+            isSetup:false,
+            status:`SOLVE · ${entry.id} · ${index+1}`
+          }));
+        });
+        options.appendChild(list);
+        card.appendChild(options);
+        caseListParent.appendChild(card);
+      });
+      enableFormulaPanelSwipeDismiss();
+    }
+    renderFormulaButtons();
+
+    const movePadTokens=['U','U′','U2','D','D′','L','L′','R','R′','F','F′','B','B′','M','M′','S','S′','r','r′','l','l′','f','f′','b','b′','x','x′','y','y′','z','z′'];
+    const movePad=document.querySelector('#move-pad');
+    const movePadToggle=document.querySelector('#move-pad-toggle');
+    const dockKeyboard=document.querySelector('#dock-keyboard');
+    // dockCases already queried above
+    const movePadCollapse=document.createElement('button');
+    movePadCollapse.type='button';
+    movePadCollapse.className='move-pad-collapse';
+    movePadCollapse.setAttribute('aria-label','Kéo xuống để thu gọn bàn phím');
+    movePadCollapse.title='Kéo xuống để thu gọn';
+    const movePadKeys=document.createElement('div');
+    movePadKeys.className='move-pad-keys';
+    movePad.append(movePadCollapse, movePadKeys);
+    const movePadRowSize=7;
+    for(let i=0;i<movePadTokens.length;i+=movePadRowSize){
+      const rowEl=document.createElement('div');
+      rowEl.className='move-row';
+      movePadTokens.slice(i,i+movePadRowSize).forEach(move=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.textContent=move;
+        btn.dataset.move=move;
+        btn.setAttribute('aria-label',`Xoay ${move}`);
+        btn.onclick=()=>{if(busy)return; runMoves(parseMoves(move));};
+        rowEl.appendChild(btn);
+      });
+      movePadKeys.appendChild(rowEl);
+    }
+    function syncDockKeyboard(){
+      syncMobileDockFromSheets();
+      if(!isMobileUi()){
+        const open=!movePad.hidden;
+        dockKeyboard.classList.toggle('is-active',open);
+        dockKeyboard.setAttribute('aria-pressed',String(open));
+      }
+    }
+    function setMovePadOpen(open, {instant=false}={}){
+      const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+      const mobile=matchMedia('(max-width:720px)').matches;
+      if(open){
+        if(mobile) setDockPanels(null);
+        movePad.hidden=false;
+        movePad.classList.add('is-animating');
+        if(mobile) movePadToggle.hidden=true;
+        if(window.anime&&!reduce&&!instant){
+          anime.remove(movePad);
+          anime({targets:movePad, opacity:[0,1], translateY:[18,0], duration:320, easing:'easeOutCubic', complete:()=>movePad.classList.remove('is-animating')});
+          anime({targets:movePadKeys.querySelectorAll('button'), opacity:[0,1], scale:[.86,1], delay:anime.stagger(12,{start:40}), duration:280, easing:'easeOutBack'});
+        } else {
+          if(window.anime) anime.remove(movePad);
+          movePad.classList.remove('is-animating');
+          movePad.style.opacity=''; movePad.style.transform='';
+        }
+      } else {
+        if(window.anime) anime.remove(movePad);
+        const finishClose=()=>{
+          movePad.hidden=true;
+          movePad.classList.remove('is-animating','is-sheet-dragging');
+          movePad.style.opacity=''; movePad.style.transform='';
+          if(!mobile) movePadToggle.hidden=false;
+          syncDockKeyboard();
+        };
+        if(!instant&&window.anime&&!reduce&&!movePad.hidden){
+          movePad.classList.add('is-animating');
+          anime({targets:movePad, opacity:[1,0], translateY:[0,24], duration:180, easing:'easeInCubic', complete:finishClose});
+        } else {
+          finishClose();
+        }
+      }
+      movePadToggle.setAttribute('aria-expanded',String(open));
+      movePadToggle.setAttribute('aria-label',open?'Đóng bảng xoay Rubik':'Mở bảng xoay Rubik');
+      movePadToggle.classList.toggle('is-active',open);
+      syncDockKeyboard();
+    }
+    movePadToggle.onclick=()=>{
+      if(movePadToggle.dataset.dragged==='1'){ delete movePadToggle.dataset.dragged; return; }
+      setMovePadOpen(movePad.hidden);
+    };
+    dockKeyboard.onclick=()=>{
+      if(isMobileUi()) setMobileDockSheet('keyboard');
+      else setMovePadOpen(movePad.hidden);
+    };
+    dockCases.onclick=()=>setMobileDockSheet('cases');
+    if(isMobileUi()) movePadToggle.hidden=true;
+    addEventListener('resize',()=>{
+      if(!isMobileUi()){
+        setDockPanels(null);
+        dockKeyboard.classList.remove('is-active');
+        dockKeyboard.setAttribute('aria-pressed','false');
+        dockCases.classList.remove('is-active');
+        dockCases.setAttribute('aria-pressed','false');
+        movePadToggle.hidden=false;
+      } else {
+        movePadToggle.hidden=true;
+        syncMobileDockFromSheets();
+      }
+    });
+
+    function enableMovePadSwipeDismiss(){
+      let startY=0, startX=0, dragging=false, dy=0, moved=false;
+      const applyShift=(y, opacity)=>{ movePad.style.transform=`translateY(${y}px)`; movePad.style.opacity=opacity; };
+      const clearShift=()=>{ movePad.style.transform=''; movePad.style.opacity=''; };
+      const onStart=event=>{
+        if(!matchMedia('(max-width:720px)').matches||movePad.hidden) return;
+        const point=event.touches?event.touches[0]:event;
+        startY=point.clientY; startX=point.clientX; dragging=true; dy=0; moved=false;
+        movePad.classList.add('is-sheet-dragging');
+      };
+      const onMove=event=>{
+        if(!dragging) return;
+        const point=event.touches?event.touches[0]:event;
+        const deltaY=point.clientY-startY, deltaX=point.clientX-startX;
+        if(Math.abs(deltaX)>Math.abs(deltaY)&&dy<8) return;
+        dy=Math.max(0, deltaY);
+        if(dy>6) moved=true;
+        applyShift(dy, String(Math.max(.35, 1-dy/220)));
+        if(event.cancelable) event.preventDefault();
+      };
+      const onEnd=()=>{
+        if(!dragging) return;
+        dragging=false; movePad.classList.remove('is-sheet-dragging');
+        if(dy>56){ applyShift(Math.max(dy,220), '0'); setTimeout(()=>setMovePadOpen(false, {instant:true}), 120); }
+        else clearShift();
+        dy=0;
+      };
+      movePadCollapse.addEventListener('touchstart', onStart, {passive:true});
+      movePadCollapse.addEventListener('touchmove', onMove, {passive:false});
+      movePadCollapse.addEventListener('touchend', onEnd);
+      movePadCollapse.addEventListener('touchcancel', onEnd);
+      movePadCollapse.addEventListener('click', event=>{
+        if(moved){ event.preventDefault(); event.stopImmediatePropagation(); moved=false; return; }
+        setMovePadOpen(false, {instant:true});
+      });
+    }
+    enableMovePadSwipeDismiss();
+
+    function clampKbdPos(left, top){
+      const w=movePadToggle.offsetWidth||42, h=movePadToggle.offsetHeight||42;
+      const maxL=Math.max(0, innerWidth-w), maxT=Math.max(0, innerHeight-h);
+      return {left:Math.min(maxL, Math.max(0, left)), top:Math.min(maxT, Math.max(0, top))};
+    }
+    function applyKbdPos(left, top){
+      const pos=clampKbdPos(left, top);
+      movePadToggle.style.left=`${pos.left}px`;
+      movePadToggle.style.top=`${pos.top}px`;
+      movePadToggle.style.right='auto';
+      movePadToggle.style.bottom='auto';
+      return pos;
+    }
+    function persistKbdPos(left, top){
+      const pos=clampKbdPos(left, top);
+      persistSetting('rubik-kbd-pos', `${Math.round(pos.left)},${Math.round(pos.top)}`);
+      return pos;
+    }
+    const savedKbdPos=readSetting('rubik-kbd-pos');
+    if(savedKbdPos){
+      const [left, top]=savedKbdPos.split(',').map(Number);
+      if(Number.isFinite(left)&&Number.isFinite(top)) applyKbdPos(left, top);
+    }
+    let kbdDrag=null;
+    movePadToggle.addEventListener('pointerdown',event=>{
+      if(event.button!==0||movePadToggle.hidden) return;
+      const rect=movePadToggle.getBoundingClientRect();
+      kbdDrag={pointerId:event.pointerId, startX:event.clientX, startY:event.clientY, left:rect.left, top:rect.top, moved:false};
+      movePadToggle.setPointerCapture(event.pointerId);
+    });
+    movePadToggle.addEventListener('pointermove',event=>{
+      if(!kbdDrag||event.pointerId!==kbdDrag.pointerId) return;
+      const dx=event.clientX-kbdDrag.startX, dy=event.clientY-kbdDrag.startY;
+      if(!kbdDrag.moved&&Math.hypot(dx,dy)<6) return;
+      kbdDrag.moved=true;
+      movePadToggle.classList.add('is-dragging');
+      applyKbdPos(kbdDrag.left+dx, kbdDrag.top+dy);
+    });
+    const endKbdDrag=event=>{
+      if(!kbdDrag||event.pointerId!==kbdDrag.pointerId) return;
+      movePadToggle.classList.remove('is-dragging');
+      if(kbdDrag.moved){
+        const rect=movePadToggle.getBoundingClientRect();
+        persistKbdPos(rect.left, rect.top);
+        movePadToggle.dataset.dragged='1';
+      }
+      kbdDrag=null;
+    };
+    movePadToggle.addEventListener('pointerup', endKbdDrag);
+    movePadToggle.addEventListener('pointercancel', endKbdDrag);
+
+    function playUiEntrance(){
+      if(!window.anime||matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+      anime({targets:'.brand', opacity:[0,1], translateY:[-16,0], duration:700, easing:'easeOutExpo'});
+      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
+      anime({targets:'.formula-panel .case-card', opacity:[0,1], translateX:[24,0], delay:anime.stagger(45,{start:180}), duration:520, easing:'easeOutCubic'});
+    }
+    if(document.readyState==='complete') playUiEntrance();
+    else addEventListener('load', playUiEntrance, {once:true});
+
+    addEventListener('resize',()=>{
+      camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight);
+      if(movePadToggle.style.left){
+        const left=parseFloat(movePadToggle.style.left), top=parseFloat(movePadToggle.style.top);
+        if(Number.isFinite(left)&&Number.isFinite(top)) applyKbdPos(left, top);
+      }
+    });
+    renderer.setAnimationLoop(()=>{controls.update(); renderer.render(scene,camera);});
   </script>
 </body>
 </html>
