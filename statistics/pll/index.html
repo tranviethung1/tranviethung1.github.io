@@ -73,6 +73,26 @@
     .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel .case-options .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
     .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .solve-pll:hover, .solve-pll:focus-visible,
+    .detected-pll-solution .opt-controls button:hover,
+    .detected-pll-solution .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    .solve-pll { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; }
+    .detected-pll-solution { position:fixed; z-index:5; left:50%; bottom:84px; transform:translateX(-50%); width:min(430px,calc(100vw - 32px)); padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); }
+    .detected-pll-solution[hidden] { display:none; }
+    .detected-pll-solution h2 { margin:0 0 7px; font:700 12px var(--font-display); }
+    .detected-pll-solution p { margin:0 0 7px; font:10px var(--font-ui); opacity:.72; }
+    .detected-pll-solution .opt-row { display:flex; gap:4px; align-items:stretch; margin-top:4px; }
+    .detected-pll-solution .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+    .detected-pll-solution .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+    .detected-pll-solution .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
+    .detected-pll-solution .opt-next,.detected-pll-solution .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
+    .detected-pll-solution .opt-row.is-active .opt-label,.detected-pll-solution .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .detected-pll-solution .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
+    .detected-pll-solution .move-step.is-current { background:var(--accent); color:#fff; }
+    .detected-pll-solution .opt-controls button:hover,
+    .detected-pll-solution .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); }
+    .detected-pll-solution .opt-row.is-active .opt-controls button:hover,
+    .detected-pll-solution .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
     .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; }
     .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); }
@@ -253,6 +273,8 @@
       .formula-panel .case-options .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
       .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
       .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
+      .solve-pll { bottom:calc(60px + env(safe-area-inset-bottom,0px)); min-height:40px; }
+      .detected-pll-solution { bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
     }
   </style>
 </head>
@@ -296,6 +318,8 @@
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
   <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">YELLOW U · PLL</span></div>
+  <button id="solve-pll" class="solve-pll" type="button">GIẢI PLL</button>
+  <section id="detected-pll-solution" class="detected-pll-solution" aria-live="polite" hidden></section>
 
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
   <script type="module">
@@ -511,6 +535,7 @@
     scrambleButton.onclick=async()=>{
       if(busy) return;
       cancelBusyAnimation();
+      hidePllSolution();
       algPlayToken++;
       algPlayback=null;
       activeAlgId=null;
@@ -523,6 +548,7 @@
     };
     resetButton.onclick=()=>{
       cancelBusyAnimation();
+      hidePllSolution();
       algPlayToken++;
       algPlayback=null;
       activeAlgId=null;
@@ -628,6 +654,268 @@
       row.appendChild(btn); row.appendChild(controls);
       return row;
     }
+
+    const solvePllButton=document.querySelector('#solve-pll');
+    const detectedPllSolution=document.querySelector('#detected-pll-solution');
+    const faceFromXYZ=(x,y,z)=>Math.abs(x)>.5?(x>0?'R':'L'):Math.abs(y)>.5?(y>0?'U':'D'):(z>0?'F':'B');
+    function stickerFacingMap(piece){
+      const map={};
+      piece.children.filter(mesh=>mesh.userData.originalMaterial).forEach(sticker=>{
+        const normal=new THREE.Vector3(sticker.userData.axis==='x'?sticker.userData.layer:0,sticker.userData.axis==='y'?sticker.userData.layer:0,sticker.userData.axis==='z'?sticker.userData.layer:0).applyQuaternion(piece.quaternion);
+        map[sticker.userData.face]=faceFromXYZ(normal.x,normal.y,normal.z);
+      });
+      return map;
+    }
+    function lastLayerPieces(){
+      return cubies.filter(piece=>{
+        const h=piece.userData.homeCoord;
+        return h.y===1&&Math.abs(h.x)+Math.abs(h.z)>0;
+      });
+    }
+    function lastLayerSignature(){
+      return lastLayerPieces().map(piece=>{
+        const h=piece.userData.homeCoord;
+        const c=piece.userData.coord;
+        const facing=stickerFacingMap(piece);
+        const facingKey=Object.keys(facing).sort().map(color=>`${color}>${facing[color]}`).join(',');
+        return `${h.x},${h.y},${h.z}@${c.x},${c.y},${c.z}:${facingKey}`;
+      }).sort().join('|');
+    }
+    function isOllOriented(){
+      return lastLayerPieces().every(piece=>stickerFacingMap(piece).U==='U');
+    }
+    function isCubeSolved(){
+      return cubies.every(piece=>{
+        const h=piece.userData.homeCoord;
+        const c=piece.userData.coord;
+        if(c.x!==h.x||c.y!==h.y||c.z!==h.z) return false;
+        return piece.quaternion.angleTo(piece.userData.homeQuaternion)<1e-4;
+      });
+    }
+    const isPllSolved=()=>isCubeSolved();
+    function snapshotCube(){
+      return {
+        cubies:cubies.map(piece=>({piece,coord:{...piece.userData.coord},position:piece.position.clone(),quaternion:piece.quaternion.clone()})),
+        labels:coordLabels.map(label=>({label,position:label.position.clone(),quaternion:label.quaternion.clone()})),
+        moves,
+      };
+    }
+    function restoreCube(snap){
+      snap.cubies.forEach(({piece,coord,position,quaternion})=>{
+        piece.userData.coord={...coord};
+        piece.position.copy(position);
+        piece.quaternion.copy(quaternion);
+        piece.rotation.setFromQuaternion(quaternion);
+      });
+      snap.labels.forEach(({label,position,quaternion})=>{
+        label.position.copy(position);
+        label.quaternion.copy(quaternion);
+      });
+      moves=snap.moves;
+      updateMoves();
+      busy=false;
+    }
+    function invertAuf(auf){
+      if(!auf) return '';
+      if(auf==='U2') return 'U2';
+      if(auf==='U') return 'U′';
+      if(auf==='U′') return 'U';
+      return invertToken(auf);
+    }
+    let pllSignatureCache=null;
+    async function ensurePllSignatureCache(){
+      if(pllSignatureCache) return pllSignatureCache;
+      const userSnap=snapshotCube();
+      const oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      const cache=new Map();
+      try{
+        for(const entry of pllCases){
+          if(!entry?.setup) continue;
+          try{
+            resetToSolved();
+            await runMoves(parseMoves(entry.setup),0);
+            const postSetup=snapshotCube();
+            for(const auf of ['','U','U2','U′']){
+              restoreCube(postSetup);
+              if(auf) await runMoves(parseMoves(auf),0);
+              const signature=lastLayerSignature();
+              const list=cache.get(signature)||[];
+              list.push({caseId:entry.id, auf, entry});
+              cache.set(signature, list);
+            }
+          }catch(error){
+            console.warn('PLL cache skip', entry?.id, error);
+          }
+        }
+        for(const [signature, list] of cache){
+          list.sort((a,b)=>{
+            const aufRank=auf=>(!auf?0:auf==='U'?1:auf==='U2'?2:3);
+            const byAuf=aufRank(a.auf)-aufRank(b.auf);
+            if(byAuf) return byAuf;
+            return String(a.caseId).localeCompare(String(b.caseId));
+          });
+          cache.set(signature, list);
+        }
+        pllSignatureCache=cache;
+      } finally {
+        restoreCube(userSnap);
+        scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;
+      }
+      return pllSignatureCache;
+    }
+    async function findPllSolution(){
+      if(!isOllOriented()) return {ok:false, reason:'needs-oll'};
+      if(isCubeSolved()) return {ok:true, formula:'', caseId:null, alreadySolved:true};
+      const userSnap=snapshotCube();
+      const oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      try{
+        await ensurePllSignatureCache();
+        restoreCube(userSnap);
+        const candidates=pllSignatureCache.get(lastLayerSignature())||[];
+        if(!candidates.length) return {ok:false, reason:'unrecognized'};
+        for(const candidate of candidates){
+          const extra=invertAuf(candidate.auf);
+          const solutions=candidate.entry.solutions||[];
+          for(const solution of solutions){
+            if(!solution) continue;
+            const formula=[extra, solution].filter(Boolean).join(' ');
+            try{
+              restoreCube(userSnap);
+              await runMoves(parseMoves(formula),0);
+              if(isCubeSolved()){
+                restoreCube(userSnap);
+                return {ok:true, formula, caseId:candidate.caseId, auf:candidate.auf};
+              }
+            }catch(error){
+              console.warn('PLL verify skip', candidate.caseId, formula, error);
+            }
+          }
+        }
+        restoreCube(userSnap);
+        return {ok:false, reason:'verify-fail'};
+      } finally {
+        restoreCube(userSnap);
+        scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;
+      }
+    }
+    function hidePllSolution(){
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      detectedPllSolution.hidden=true;
+      detectedPllSolution.replaceChildren();
+    }
+    function renderPllSolveFailure(message){
+      detectedPllSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent='PLL';
+      const description=document.createElement('p'); description.textContent=message;
+      detectedPllSolution.append(title,description);
+      detectedPllSolution.hidden=false;
+    }
+    function renderPllSolution({formula, caseId, alreadySolved}){
+      detectedPllSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent=caseId||'PLL';
+      if(alreadySolved||!formula){
+        const description=document.createElement('p'); description.textContent='PLL đã đúng — không cần công thức.';
+        detectedPllSolution.append(title,description);
+      } else {
+        const tokens=formula.trim().split(/\s+/).filter(Boolean);
+        const description=document.createElement('p');
+        description.textContent=`Công thức đã xác minh (${tokens.length} nước)${caseId?` · ${caseId}`:''}. Chạy Prev / Play / Next để luyện.`;
+        detectedPllSolution.append(title,description);
+        detectedPllSolution.append(createAlgRow({
+          id:'pll-solution',
+          label:`CÔNG THỨC · ${formula}`,
+          sequence:formula,
+          isSetup:false,
+          status:caseId||'PLL · CÔNG THỨC',
+        }));
+      }
+      detectedPllSolution.hidden=false;
+    }
+    solvePllButton.onclick=async()=>{
+      if(busy) return;
+      cancelBusyAnimation();
+      if(!isOllOriented()){
+        renderPllSolveFailure('Cần định hướng mặt vàng trước — hoàn thành OLL rồi mới giải PLL.');
+        stateEl.textContent='PLL · CẦN OLL TRƯỚC';
+        return;
+      }
+      if(isCubeSolved()){
+        renderPllSolution({formula:'', alreadySolved:true});
+        stateEl.textContent='PLL SOLVED';
+        return;
+      }
+      stateEl.textContent='PLL · ĐANG NHẬN DIỆN…';
+      await new Promise(resolve=>setTimeout(resolve,0));
+      const result=await findPllSolution();
+      if(!result.ok){
+        if(result.reason==='needs-oll'){
+          renderPllSolveFailure('Cần định hướng mặt vàng trước — hoàn thành OLL rồi mới giải PLL.');
+          stateEl.textContent='PLL · CẦN OLL TRƯỚC';
+        } else if(result.reason==='unrecognized'){
+          renderPllSolveFailure('KHÔNG NHẬN DIỆN PLL — trạng thái không khớp catalog case (có AUF).');
+          stateEl.textContent='PLL · KHÔNG NHẬN DIỆN';
+        } else {
+          renderPllSolveFailure('Nhận diện được case nhưng không xác minh được công thức trên cube — không hiện Play.');
+          stateEl.textContent='PLL · VERIFY FAIL';
+        }
+        return;
+      }
+      if(result.alreadySolved){
+        renderPllSolution(result);
+        stateEl.textContent='PLL SOLVED';
+        return;
+      }
+      renderPllSolution(result);
+      const n=result.formula.trim().split(/\s+/).filter(Boolean).length;
+      stateEl.textContent=result.caseId||`PLL · ${n} NƯỚC`;
+    };
+    if(new URLSearchParams(location.search).has('test')){
+      window.__pllTest={
+        isOllOriented,
+        isCubeSolved,
+        isPllSolved,
+        lastLayerSignature,
+        findPllSolution,
+        async applyCase(caseId, auf=''){
+          const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+          scrambleMoveDuration=0; scrambleDelay=0; busy=false;
+          try{
+            const entry=pllCases.find(c=>c.id===caseId)||pllCases[0];
+            hidePllSolution();
+            resetToSetupStart();
+            if(entry?.setup) await runMoves(parseMoves(entry.setup),0);
+            if(auf) await runMoves(parseMoves(auf),0);
+            return {caseId:entry?.id||null, oriented:isOllOriented(), signature:lastLayerSignature()};
+          } finally {
+            scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; busy=false;
+          }
+        },
+        async scrambleAndSolve(){
+          const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+          scrambleMoveDuration=0; scrambleDelay=0; busy=false;
+          try{
+            hidePllSolution();
+            resetToSetupStart();
+            const entry=pllCases[Math.floor(Math.random()*pllCases.length)];
+            if(entry?.setup) await runMoves(parseMoves(entry.setup),0);
+            const result=await findPllSolution();
+            if(result.ok&&result.formula) await runMoves(parseMoves(result.formula),0);
+            return {result, solved:isCubeSolved(), caseId:entry?.id||null};
+          } finally {
+            scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; busy=false;
+          }
+        }
+      };
+    }
+    addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      if(!detectedPllSolution.hidden){ hidePllSolution(); return; }
+    });
+
     function scrollActiveCaseIntoView(){
       if(!activeCaseId||openCaseId) return;
       const card=formulaPanel.querySelector(`.case-card[data-case-id="${CSS.escape(activeCaseId)}"]`);
@@ -1007,7 +1295,7 @@
     function playUiEntrance(){
       if(!window.anime||matchMedia('(prefers-reduced-motion:reduce)').matches) return;
       anime({targets:'.brand', opacity:[0,1], translateY:[-16,0], duration:700, easing:'easeOutExpo'});
-      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
+      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .solve-pll, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
       anime({targets:'.formula-panel .case-card', opacity:[0,1], translateX:[24,0], delay:anime.stagger(45,{start:180}), duration:520, easing:'easeOutCubic'});
     }
     if(document.readyState==='complete') playUiEntrance();

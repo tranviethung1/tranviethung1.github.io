@@ -64,13 +64,33 @@
     .move-pad-toggle:hover, .move-pad-toggle:focus-visible,
     .move-pad-keys button:hover, .move-pad-keys button:focus-visible,
     .mobile-dock button:hover, .mobile-dock button:focus-visible,
+    .solve-oll:hover, .solve-oll:focus-visible,
     .formula-panel .case-options .opt-list button:hover, .formula-panel .case-options .opt-list button:focus-visible,
     .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
-    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible, .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible, .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible,
+    .detected-oll-solution .opt-controls button:hover,
+    .detected-oll-solution .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
     .formula-panel .case-options .opt-controls button:hover,
     .formula-panel .case-options .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
     .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
     .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .solve-oll { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; }
+    .detected-oll-solution { position:fixed; z-index:5; left:50%; bottom:84px; transform:translateX(-50%); width:min(430px,calc(100vw - 32px)); padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); }
+    .detected-oll-solution[hidden] { display:none; }
+    .detected-oll-solution h2 { margin:0 0 7px; font:700 12px var(--font-display); }
+    .detected-oll-solution p { margin:0 0 7px; font:10px var(--font-ui); opacity:.72; }
+    .detected-oll-solution .opt-row { display:flex; gap:4px; align-items:stretch; margin-top:4px; }
+    .detected-oll-solution .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+    .detected-oll-solution .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+    .detected-oll-solution .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
+    .detected-oll-solution .opt-next,.detected-oll-solution .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
+    .detected-oll-solution .opt-row.is-active .opt-label,.detected-oll-solution .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .detected-oll-solution .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
+    .detected-oll-solution .move-step.is-current { background:var(--accent); color:#fff; }
+    .detected-oll-solution .opt-controls button:hover,
+    .detected-oll-solution .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); }
+    .detected-oll-solution .opt-row.is-active .opt-controls button:hover,
+    .detected-oll-solution .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel .case-options .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
     .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
@@ -149,6 +169,8 @@
       .mobile-dock button:last-child { border-right:0; }
       .mobile-dock button.is-active { background:var(--ink); color:#fff; }
       .mobile-dock #dock-keyboard { font-size:18px; letter-spacing:0; }
+      .solve-oll { bottom:calc(60px + env(safe-area-inset-bottom,0px)); min-height:40px; }
+      .detected-oll-solution { bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
       .status { left:12px; right:auto; top:52px; bottom:auto; text-align:left; font-size:9px; }
       .move-pad-toggle { display:none !important; }
       .move-pad {
@@ -296,6 +318,8 @@
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
   <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
   <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">YELLOW U · OLL</span></div>
+  <button id="solve-oll" class="solve-oll" type="button">GIẢI OLL</button>
+  <section id="detected-oll-solution" class="detected-oll-solution" aria-live="polite" hidden></section>
 
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
   <script type="module">
@@ -321,7 +345,12 @@
       if(key==='oll'||destination==='./'){ setSiteNavigation(false); return; }
       location.href=destination;
     });
-    addEventListener('keydown',event=>{if(event.key==='Escape'&&siteNav.classList.contains('is-open')) setSiteNavigation(false);});
+    addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      if(siteNav.classList.contains('is-open')){ setSiteNavigation(false); return; }
+      const detected=document.querySelector('#detected-oll-solution');
+      if(detected&&!detected.hidden) hideOllSolution();
+    });
 
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
     const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
@@ -490,6 +519,163 @@
       stateEl.textContent=practiceStatus();
     }
 
+    const faceFromXYZ=(x,y,z)=>Math.abs(x)>.5?(x>0?'R':'L'):Math.abs(y)>.5?(y>0?'U':'D'):(z>0?'F':'B');
+    function stickerFacingMap(piece){
+      const map={};
+      piece.children.filter(mesh=>mesh.userData.originalMaterial).forEach(sticker=>{
+        const normal=new THREE.Vector3(
+          sticker.userData.axis==='x'?sticker.userData.layer:0,
+          sticker.userData.axis==='y'?sticker.userData.layer:0,
+          sticker.userData.axis==='z'?sticker.userData.layer:0
+        ).applyQuaternion(piece.quaternion);
+        map[sticker.userData.face]=faceFromXYZ(normal.x,normal.y,normal.z);
+      });
+      return map;
+    }
+    function lastLayerSignature(){
+      const parts=[];
+      cubies.forEach(piece=>{
+        const h=piece.userData.homeCoord;
+        if(h.y!==1||(h.x===0&&h.z===0)) return;
+        const c=piece.userData.coord;
+        const facing=stickerFacingMap(piece);
+        const pairs=Object.keys(facing).sort().map(color=>`${color}>${facing[color]}`).join(',');
+        parts.push(`${h.x},${h.y},${h.z}@${c.x},${c.y},${c.z}:${pairs}`);
+      });
+      return parts.sort().join('|');
+    }
+    function isOllSolved(){
+      return cubies.filter(piece=>{
+        const h=piece.userData.homeCoord;
+        return h.y===1&&!(h.x===0&&h.z===0);
+      }).every(piece=>stickerFacingMap(piece).U==='U');
+    }
+    function snapshotCube(){
+      return {
+        moves,
+        cubies:cubies.map(piece=>({
+          piece,
+          coord:{...piece.userData.coord},
+          position:piece.position.clone(),
+          quaternion:piece.quaternion.clone(),
+          rotation:piece.rotation.clone(),
+        })),
+        labels:coordLabels.map(label=>({
+          label,
+          position:label.position.clone(),
+          quaternion:label.quaternion.clone(),
+        })),
+      };
+    }
+    function restoreCube(snap){
+      snap.cubies.forEach(({piece,coord,position,quaternion,rotation})=>{
+        piece.userData.coord={...coord};
+        piece.position.copy(position);
+        piece.quaternion.copy(quaternion);
+        if(rotation) piece.rotation.copy(rotation);
+        else piece.rotation.setFromQuaternion(quaternion);
+      });
+      snap.labels.forEach(({label,position,quaternion})=>{
+        label.position.copy(position);
+        label.quaternion.copy(quaternion);
+      });
+      moves=snap.moves;
+      updateMoves();
+      busy=false;
+    }
+    const invertAuf=auf=>{
+      if(!auf) return '';
+      if(auf==='U2') return 'U2';
+      if(auf==='U') return 'U′';
+      if(auf==='U′') return 'U';
+      return auf;
+    };
+    const ollCaseNumber=id=>{
+      const m=String(id||'').match(/(\d+)/);
+      return m?Number(m[1]):999;
+    };
+    const AUF_PREF={'':0,U:1,U2:2,'U′':3};
+    let ollSignatureCache=null;
+    async function ensureOllSignatureCache(){
+      if(ollSignatureCache) return ollSignatureCache;
+      const prior=snapshotCube();
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      scrambleMoveDuration=0; scrambleDelay=0;
+      const cache=new Map();
+      const aufs=['','U','U2','U′'];
+      try{
+        for(const entry of ollCases){
+          if(!entry?.setup) continue;
+          try{
+            resetToSolved();
+            await runMoves(parseMoves(entry.setup),0);
+            const postSetup=snapshotCube();
+            for(const auf of aufs){
+              restoreCube(postSetup);
+              if(auf) await runMoves(parseMoves(auf),0);
+              const sig=lastLayerSignature();
+              const list=cache.get(sig)||[];
+              list.push({caseId:entry.id, auf, entry});
+              cache.set(sig,list);
+            }
+          }catch(error){
+            console.warn('OLL cache skip', entry?.id, error);
+          }
+        }
+      }finally{
+        restoreCube(prior);
+        scrambleMoveDuration=priorDuration;
+        scrambleDelay=priorDelay;
+        busy=false;
+      }
+      ollSignatureCache=cache;
+      return cache;
+    }
+    async function findOllSolution(){
+      if(isOllSolved()) return {kind:'solved'};
+      const current=snapshotCube();
+      const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+      try{
+        await ensureOllSignatureCache();
+        restoreCube(current);
+        const sig=lastLayerSignature();
+        const candidates=(ollSignatureCache.get(sig)||[]).slice().sort((a,b)=>{
+          const aufDiff=(AUF_PREF[a.auf]??9)-(AUF_PREF[b.auf]??9);
+          if(aufDiff) return aufDiff;
+          return ollCaseNumber(a.caseId)-ollCaseNumber(b.caseId);
+        });
+        if(!candidates.length) return {kind:'unrecognized'};
+        scrambleMoveDuration=0; scrambleDelay=0;
+        for(const cand of candidates){
+          const extra=invertAuf(cand.auf);
+          const solutions=cand.entry.solutions||[];
+          const ordered=solutions.length<=12?solutions:[...solutions.slice(0,12),...solutions.slice(12)];
+          for(const solution of ordered){
+            const formula=[extra,solution].filter(Boolean).join(' ').trim();
+            if(!formula) continue;
+            restoreCube(current);
+            try{
+              await runMoves(parseMoves(formula),0);
+              if(isOllSolved()){
+                const tokenCount=formula.split(/\s+/).filter(Boolean).length;
+                restoreCube(current);
+                return {kind:'ok', formula, caseId:cand.caseId, tokenCount};
+              }
+            }catch(error){
+              /* skip invalid notation / engine error for this candidate */
+            }
+          }
+        }
+        restoreCube(current);
+        return {kind:'unverified'};
+      }finally{
+        restoreCube(current);
+        scrambleMoveDuration=priorDuration;
+        scrambleDelay=priorDelay;
+        busy=false;
+      }
+    }
+
     function applyOllPractice(enabled, {persist=true}={}){
       ollPractice=enabled;
       cubies.forEach(piece=>{
@@ -511,10 +697,7 @@
     scrambleButton.onclick=async()=>{
       if(busy) return;
       cancelBusyAnimation();
-      algPlayToken++;
-      algPlayback=null;
-      activeAlgId=null;
-      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      hideOllSolution();
       const entry=ollCases[Math.floor(Math.random()*ollCases.length)];
       if(!entry?.setup) return;
       resetToSetupStart();
@@ -523,10 +706,7 @@
     };
     resetButton.onclick=()=>{
       cancelBusyAnimation();
-      algPlayToken++;
-      algPlayback=null;
-      activeAlgId=null;
-      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      hideOllSolution();
       resetToSetupStart();
     };
 
@@ -627,6 +807,98 @@
       controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',algNext));
       row.appendChild(btn); row.appendChild(controls);
       return row;
+    }
+
+    const solveOllButton=document.querySelector('#solve-oll');
+    const detectedOllSolution=document.querySelector('#detected-oll-solution');
+    function hideOllSolution(){
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      detectedOllSolution.hidden=true;
+      detectedOllSolution.replaceChildren();
+    }
+    function renderOllSolution(result){
+      detectedOllSolution.replaceChildren();
+      const title=document.createElement('h2');
+      title.textContent=result.caseId||'OLL';
+      if(result.kind==='solved'){
+        const description=document.createElement('p');
+        description.textContent='OLL đã đúng — mọi sticker vàng đã hướng U, không cần công thức.';
+        detectedOllSolution.append(title,description);
+      } else {
+        const description=document.createElement('p');
+        description.textContent=`Công thức đã xác minh trên cube (${result.tokenCount} nước). Chạy Prev / Play / Next để luyện.`;
+        detectedOllSolution.append(title,description);
+        detectedOllSolution.append(createAlgRow({
+          id:'oll-detected-solution',
+          label:`CÔNG THỨC · ${result.formula}`,
+          sequence:result.formula,
+          isSetup:false,
+          status:result.caseId?`OLL · ${result.caseId}`:`OLL · CÔNG THỨC`,
+        }));
+      }
+      detectedOllSolution.hidden=false;
+    }
+    function renderOllSolveFailure(message){
+      detectedOllSolution.replaceChildren();
+      const title=document.createElement('h2'); title.textContent='OLL';
+      const description=document.createElement('p'); description.textContent=message;
+      detectedOllSolution.append(title,description);
+      detectedOllSolution.hidden=false;
+    }
+    solveOllButton.onclick=async()=>{
+      if(busy) return;
+      cancelBusyAnimation();
+      if(isOllSolved()){
+        renderOllSolution({kind:'solved'});
+        stateEl.textContent='OLL SOLVED';
+        return;
+      }
+      stateEl.textContent='OLL · ĐANG NHẬN DIỆN…';
+      await new Promise(resolve=>setTimeout(resolve,0));
+      const result=await findOllSolution();
+      if(result.kind==='solved'){
+        renderOllSolution(result);
+        stateEl.textContent='OLL SOLVED';
+        return;
+      }
+      if(result.kind==='ok'){
+        renderOllSolution(result);
+        stateEl.textContent=`OLL · ${result.tokenCount} NƯỚC`;
+        return;
+      }
+      if(result.kind==='unrecognized'){
+        renderOllSolveFailure('KHÔNG NHẬN DIỆN OLL');
+        stateEl.textContent='OLL · KHÔNG NHẬN DIỆN';
+        return;
+      }
+      renderOllSolveFailure('Nhận diện được case nhưng không xác minh được công thức trên cube — không hiện Play.');
+      stateEl.textContent='OLL · VERIFY FAIL';
+    };
+    if(new URLSearchParams(location.search).has('test')){
+      window.__ollTest={
+        isOllSolved,
+        findOllSolution,
+        async scrambleAndSolve(){
+          const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
+          scrambleMoveDuration=0; scrambleDelay=0; busy=false;
+          try{
+            resetToSetupStart();
+            const entry=ollCases[Math.floor(Math.random()*ollCases.length)];
+            if(entry?.setup) await runMoves(parseMoves(entry.setup),0);
+            const result=await findOllSolution();
+            const verified=result.kind==='ok';
+            if(verified) await runMoves(parseMoves(result.formula),0);
+            return {result, verified, solved:isOllSolved()};
+          }finally{
+            scrambleMoveDuration=priorDuration;
+            scrambleDelay=priorDelay;
+            busy=false;
+          }
+        },
+      };
     }
     function scrollActiveCaseIntoView(){
       if(!activeCaseId||openCaseId) return;
@@ -1007,7 +1279,7 @@
     function playUiEntrance(){
       if(!window.anime||matchMedia('(prefers-reduced-motion:reduce)').matches) return;
       anime({targets:'.brand', opacity:[0,1], translateY:[-16,0], duration:700, easing:'easeOutExpo'});
-      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
+      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .solve-oll, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
       anime({targets:'.formula-panel .case-card', opacity:[0,1], translateX:[24,0], delay:anime.stagger(45,{start:180}), duration:520, easing:'easeOutCubic'});
     }
     if(document.readyState==='complete') playUiEntrance();
