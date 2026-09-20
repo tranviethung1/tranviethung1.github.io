@@ -62,46 +62,56 @@
     .settings-row button:hover, .settings-row button:focus-visible,
     .move-pad-toggle:hover, .move-pad-toggle:focus-visible,
     .move-pad-keys button:hover, .move-pad-keys button:focus-visible,
-    .mobile-dock button:hover, .mobile-dock button:focus-visible,
-    .formula-panel .case-options .opt-list button:hover, .formula-panel .case-options .opt-list button:focus-visible,
-    .formula-panel .case-options .opt-row.is-active .opt-label:hover, .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
-    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible, .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
-    .formula-panel .case-options .opt-controls button:hover,
-    .formula-panel .case-options .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
-    .formula-panel .case-options .opt-row.is-active .opt-controls button:hover,
-    .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
-    .formula-panel .case-options .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
-    .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .mobile-dock button:hover, .mobile-dock button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
     .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
     .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; }
     .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); }
-    .formula-panel .case-card.is-open { outline:none; }
-    .formula-panel .case-card.is-active:not(.is-open) { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
-    .formula-panel .case-card.is-viewed:not(.is-open):not(.is-active) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); }
+    .formula-panel .case-card.is-active { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+    .formula-panel .case-card.is-viewed:not(.is-active) { border-color:var(--accent); box-shadow:0 10px 28px rgba(16,20,24,.08), inset 0 0 0 1px rgba(255,75,43,.45); }
     .formula-panel .case-card.is-viewed .formula-id { color:var(--accent); }
-    .formula-panel .case-card.is-active:not(.is-open) .formula-id { color:var(--ink); }
+    .formula-panel .case-card.is-active .formula-id { color:var(--ink); }
     .formula-panel .case-card.is-viewed .formula-id::after { content:' ✓'; font-weight:800; }
-    .formula-panel .case-card.is-open > .case-main { display:none; }
     .formula-panel .case-main { display:flex; flex-direction:column; gap:6px; width:100%; min-height:0; padding:0; border:0; background:transparent; box-shadow:none; text-align:left; border-radius:10px; }
     .formula-panel .case-main:hover,.formula-panel .case-main:focus-visible { background:transparent; color:var(--ink); transform:none; }
     .formula-panel .preview { display:block; width:100%; aspect-ratio:1; object-fit:contain; object-position:center; border:1px solid var(--line); border-radius:10px; background:#fff; }
     .formula-panel .formula-id { font:700 11px var(--font-display); letter-spacing:.02em; }
-    .formula-panel .case-options { display:none; flex-direction:column; gap:5px; padding-top:0; border-top:0; }
-    .formula-panel .case-card.is-open .case-options { display:flex; }
-    .formula-panel .case-options .opt-list { display:flex; flex-direction:column; gap:5px; max-height:calc(3 * 40px + 2 * 5px + 16px); overflow-y:auto; overscroll-behavior:contain; }
-    .formula-panel .case-options .opt-row { display:flex; align-items:stretch; gap:4px; }
-    .formula-panel .case-options .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
-    .formula-panel .case-options .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
-    .formula-panel .case-options .move-step.is-current { background:var(--accent); color:#fff; }
-    .formula-panel .case-options .opt-setup { border-color:var(--accent); color:var(--accent); font-weight:700; }
-    .formula-panel .case-options .opt-controls { display:flex; flex-shrink:0; gap:3px; }
-    .formula-panel .case-options .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); line-height:1; background:rgba(244,240,232,.96); }
-    .formula-panel .case-options .opt-next { width:52px; font-size:16px; letter-spacing:-.18em; padding-right:5px; }
-    .formula-panel .case-options .opt-prev { width:52px; font-size:16px; letter-spacing:-.18em; padding-left:5px; }
-    .formula-panel .case-options .opt-row.is-active .opt-label { background:var(--ink); color:#fff; border-color:var(--ink); }
-    .formula-panel .case-options .opt-row.is-active .opt-setup { color:#fff; }
-    .formula-panel .case-options .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
     .formula-panel .case-drag { display:none; }
+    .wr-scramble {
+      position:fixed; z-index:4; right:32px; top:128px; width:min(280px,calc(100vw - 64px));
+      padding:10px 12px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius);
+      backdrop-filter:blur(14px); box-shadow:var(--shadow); pointer-events:none;
+    }
+    .wr-scramble[hidden] { display:none; }
+    .wr-scramble-label { margin:0 0 6px; font:700 10px var(--font-display); letter-spacing:.08em; }
+    .wr-scramble-text { margin:0; font:10px var(--font-mono); line-height:1.65; word-break:break-word; }
+    .wr-solution {
+      position:fixed; z-index:5; left:50%; bottom:84px; transform:translateX(-50%);
+      width:min(480px,calc(100vw - 32px)); padding:8px 10px;
+      background:var(--glass-strong); border:1px solid var(--line); border-radius:14px;
+      backdrop-filter:blur(14px); box-shadow:var(--shadow);
+    }
+    .wr-solution[hidden] { display:none; }
+    .wr-solution h2 { margin:0 0 7px; font:700 12px var(--font-display); }
+    .wr-solution .opt-row { display:flex; gap:4px; align-items:stretch; }
+    .wr-solution .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
+    .wr-solution .opt-controls { display:flex; flex-shrink:0; gap:3px; }
+    .wr-solution .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
+    .wr-solution .opt-next,.wr-solution .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
+    .wr-solution .opt-row.is-active .opt-label,.wr-solution .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .wr-solution .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
+    .wr-solution .move-step.is-current { background:var(--accent); color:#fff; }
+    .wr-solution .opt-controls button:hover,
+    .wr-solution .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; background:var(--ink); color:var(--cream); }
+    .wr-solution .opt-row.is-active .opt-controls button:hover,
+    .wr-solution .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
+    .wr-solution .steps-expand { width:100%; min-height:26px; margin-top:4px; display:flex; align-items:center; justify-content:center; border-radius:9px; font:700 16px var(--font-display); line-height:1; }
+    .wr-solution .steps-expand[aria-expanded="true"] { background:var(--ink); color:var(--cream); border-color:var(--ink); }
+    .wr-solution .steps-expand .chevron { display:inline-block; transition:transform .18s ease; }
+    .wr-solution .steps-expand[aria-expanded="true"] .chevron { transform:rotate(180deg); }
+    .wr-solution .step-list { display:flex; flex-direction:column; gap:5px; margin-top:6px; max-height:calc(3 * 40px + 2 * 5px + 12px); overflow-y:auto; }
+    .wr-solution .step-list[hidden] { display:none; }
+    .wr-solution .step-list .opt-row { display:flex; gap:4px; align-items:stretch; }
+    .wr-solution .step-list .opt-label { flex:1; min-width:0; min-height:36px; padding:7px 9px; font-size:9px; }
     .status { position:fixed; right:32px; bottom:32px; z-index:2; font-size:11px; letter-spacing:.08em; text-align:right; line-height:1.7; font-weight:600; } .status b { color:var(--accent); font-family:var(--font-mono); font-size:14px; }
     .move-pad-toggle { position:fixed; z-index:4; left:32px; bottom:32px; width:42px; min-width:42px; min-height:42px; padding:0; border:0; border-radius:12px; font-size:18px; line-height:1; background:var(--glass-strong); backdrop-filter:blur(14px); box-shadow:var(--shadow); touch-action:none; cursor:grab; user-select:none; }
     .move-pad-toggle:active { cursor:grabbing; }
@@ -205,11 +215,6 @@
         flex:0 0 auto; width:92px; max-height:100%; overflow:hidden;
         padding:7px; box-shadow:none; background:var(--cream);
       }
-      .formula-panel:has(.case-card.is-open) {
-        max-height:none; height:auto; gap:0; overflow:hidden;
-      }
-      .formula-panel:has(> .case-card.is-open) > .case-strip { display:none; }
-      .formula-panel:has(.case-card.is-open) .case-card:not(.is-open) { display:none; }
       .formula-panel > .case-drag {
         display:flex; justify-content:center; align-items:center;
         flex:0 0 auto; width:100%; min-height:20px; padding:8px 0 6px; margin:0;
@@ -222,36 +227,16 @@
       .formula-panel > .case-drag:hover, .formula-panel > .case-drag:focus-visible {
         background:transparent; color:inherit; outline:none;
       }
-      .formula-panel .case-card.is-open {
-        width:100%; max-width:none;
-        max-height:none; overflow:hidden;
-        display:flex; flex-direction:column;
-        touch-action:pan-y;
-        outline:none; border-color:transparent;
-        padding:0 10px 0;
-        border-radius:0; border:0; box-shadow:none;
-      }
       .formula-panel.is-sheet-dragging { transition:none; }
       .formula-panel.is-sheet-dismissing { pointer-events:none; }
-      .formula-panel .case-card:not(.is-open) .formula-id { font-size:9px; }
+      .formula-panel .formula-id { font-size:9px; }
       .formula-panel .preview {
         width:100%; max-width:76px; max-height:76px; height:auto;
         aspect-ratio:1; margin:0 auto; object-fit:contain;
       }
-      .formula-panel .case-card.is-open .case-options {
-        position:relative; z-index:2; background:var(--cream); isolation:isolate;
-        display:flex; flex-direction:column; min-height:0; gap:5px;
-        padding-bottom:0;
-      }
-      .formula-panel .case-options .opt-list {
-        position:relative; z-index:2;
-        max-height:calc(3 * 40px + 2 * 5px + 18px);
-        overflow-y:auto; -webkit-overflow-scrolling:touch;
-        scrollbar-width:none; -ms-overflow-style:none;
-      }
-      .formula-panel .case-options .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
-      .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
-      .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
+      .wr-scramble { right:10px; top:94px; width:min(220px,calc(100vw - 100px)); padding:8px 10px; }
+      .wr-scramble-text { font-size:9px; }
+      .wr-solution { bottom:calc(52px + env(safe-area-inset-bottom,0px)); width:min(480px,calc(100vw - 16px)); }
     }
 
     .formula-panel .wr-time { font:800 22px var(--font-display); letter-spacing:-.04em; line-height:1; }
@@ -259,16 +244,6 @@
     .formula-panel .case-card.is-viewed .wr-time::after { content:' ✓'; font-weight:800; }
     .formula-panel .wr-solver { font:600 11px var(--font-ui); opacity:.78; }
     .formula-panel .wr-date { font:600 10px var(--font-mono); letter-spacing:.04em; opacity:.62; }
-    .formula-panel .wr-meta { margin:0; font:10px var(--font-ui); line-height:1.55; opacity:.78; }
-    .formula-panel .wr-meta b { font-weight:700; opacity:1; }
-    .formula-panel .wr-note { margin:0; font:10px var(--font-ui); color:var(--accent); font-weight:600; }
-    .formula-panel .wr-section { margin:4px 0 0; font:700 10px var(--font-display); letter-spacing:.06em; }
-    .formula-panel .scramble-box { display:flex; flex-direction:column; gap:5px; }
-    .formula-panel .scramble-text { margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:rgba(244,240,232,.96); font:10px var(--font-mono); line-height:1.65; word-break:break-word; }
-    .formula-panel .apply-scramble { width:100%; min-height:36px; border-color:var(--accent); color:var(--accent); font-weight:700; }
-    .formula-panel .apply-scramble:hover, .formula-panel .apply-scramble:focus-visible { background:var(--accent); color:#fff; border-color:var(--accent); }
-    .formula-panel .case-options .opt-list { max-height:calc(4 * 40px + 3 * 5px + 16px); }
-    .formula-panel .case-card.is-open .case-main { display:none; }
   </style>
 </head>
 <body>
@@ -295,6 +270,11 @@
   </nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
+  <aside id="wr-scramble" class="wr-scramble" aria-label="Scramble kỷ lục" hidden>
+    <div class="wr-scramble-label">ĐỀ BÀI</div>
+    <p id="wr-scramble-text" class="wr-scramble-text"></p>
+  </aside>
+  <section id="wr-solution" class="wr-solution" aria-live="polite" hidden></section>
   <section id="settings-panel" class="settings-panel" aria-label="Cài đặt luyện tập" hidden>
     <h2>CÀI ĐẶT</h2>
     <div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div>
@@ -331,10 +311,6 @@
       const destination=siteRoutes[key];
       if(key==='records'||destination==='./'){ setSiteNavigation(false); return; }
       location.href=destination;
-    });
-    addEventListener('keydown',event=>{
-      if(event.key!=='Escape') return;
-      if(siteNav.classList.contains('is-open')) setSiteNavigation(false);
     });
 
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
@@ -500,15 +476,16 @@
 
     resetButton.onclick=()=>{
       cancelBusyAnimation();
-      algPlayToken++;
-      algPlayback=null;
-      activeAlgId=null;
-      resetToSetupStart();
+      clearWrSelection({resetCube:true});
     };
 
     let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
-    let openCaseId=null, activeCaseId=null;
+    let activeCaseId=null, selectedEntry=null, wrStepsExpanded=false;
+    const SOLUTION_ALG_ID='wr-solution';
     const formulaPanel=document.querySelector('#formula-panel');
+    const wrScramble=document.querySelector('#wr-scramble');
+    const wrScrambleText=document.querySelector('#wr-scramble-text');
+    const wrSolution=document.querySelector('#wr-solution');
     const dockCases=document.querySelector('#dock-cases');
     const viewedWrCases=new Set((readSetting('rubik-wr-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
     function markWrViewed(caseId){
@@ -543,32 +520,131 @@
     function beginAlgPlayback(id, sequence){
       algPlayback={id, moves:parseMoves(sequence), index:0};
       activeAlgId=id;
+      markActiveAlgRow(id);
       updateMoveStepHighlight();
     }
-    async function applyScramble(entry){
-      if(busy) return;
-      cancelBusyAnimation();
+    function hideWrPanels(){
+      wrScramble.hidden=true;
+      wrScrambleText.textContent='';
+      wrSolution.hidden=true;
+      wrSolution.replaceChildren();
+      wrStepsExpanded=false;
+    }
+    function clearWrSelection({resetCube=false}={}){
       algPlayToken++;
       algPlayback=null;
       activeAlgId=null;
-      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      selectedEntry=null;
+      activeCaseId=null;
+      hideWrPanels();
+      renderFormulaButtons();
+      if(resetCube){
+        resetToSetupStart();
+      } else {
+        stateEl.textContent=practiceStatus();
+      }
+    }
+    function createAlgRow({id, label, sequence, status}){
+      const row=document.createElement('div');
+      row.className=`opt-row${activeAlgId===id?' is-active':''}`;
+      row.dataset.algId=id;
+      const btn=document.createElement('button');
+      btn.type='button'; btn.className='opt-label';
+      const [labelPrefix,labelMoves='']=label.split(' · ');
+      btn.append(document.createTextNode(`${labelPrefix} · `));
+      labelMoves.split(/\s+/).filter(Boolean).forEach((move,index)=>{
+        const step=document.createElement('span');
+        step.className='move-step';
+        step.dataset.step=String(index);
+        step.textContent=move;
+        btn.append(step,' ');
+      });
+      btn.title=sequence||''; btn.disabled=!sequence;
+      btn.onclick=()=>algPlayAll(id, sequence, status);
+      const controls=document.createElement('div'); controls.className='opt-controls';
+      const mk=(cls, text, title, fn)=>{
+        const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
+        b.disabled=!sequence; b.onclick=()=>{ fn(); b.blur(); }; return b;
+      };
+      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',()=>algPrev(id, status)));
+      controls.appendChild(mk('opt-play','▶','Play / chạy hết',()=>algPlayAll(id, sequence, status)));
+      controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',()=>algNext(id, sequence, status)));
+      row.appendChild(btn); row.appendChild(controls);
+      return row;
+    }
+    function renderWrSolution(entry, fullMoves){
+      wrSolution.replaceChildren();
+      const title=document.createElement('h2');
+      title.textContent=`${entry.id} · GIẢI`;
+      wrSolution.appendChild(title);
+      wrSolution.appendChild(createAlgRow({
+        id:SOLUTION_ALG_ID,
+        label:`TOÀN BỘ · ${fullMoves}`,
+        sequence:fullMoves,
+        status:`${entry.id} · TOÀN BỘ`
+      }));
+      const expandBtn=document.createElement('button');
+      expandBtn.type='button';
+      expandBtn.className='steps-expand';
+      expandBtn.setAttribute('aria-expanded', String(wrStepsExpanded));
+      expandBtn.setAttribute('aria-label', wrStepsExpanded?'Thu gọn các bước CFOP':'Hiện các bước CFOP');
+      expandBtn.title=wrStepsExpanded?'Thu gọn':'Hiện Cross / F2L / OLL / …';
+      const chevron=document.createElement('span'); chevron.className='chevron'; chevron.textContent='⌄';
+      expandBtn.appendChild(chevron);
+      const stepList=document.createElement('div');
+      stepList.className='step-list';
+      stepList.hidden=!wrStepsExpanded;
+      (entry.steps||[]).forEach((step,index)=>{
+        stepList.appendChild(createAlgRow({
+          id:`${entry.id}|step|${index}`,
+          label:`${step.label} · ${step.moves||''}`,
+          sequence:step.moves||'',
+          status:`${entry.id} · ${step.label}`
+        }));
+      });
+      expandBtn.onclick=()=>{
+        wrStepsExpanded=!wrStepsExpanded;
+        expandBtn.setAttribute('aria-expanded', String(wrStepsExpanded));
+        expandBtn.setAttribute('aria-label', wrStepsExpanded?'Thu gọn các bước CFOP':'Hiện các bước CFOP');
+        expandBtn.title=wrStepsExpanded?'Thu gọn':'Hiện Cross / F2L / OLL / …';
+        stepList.hidden=!wrStepsExpanded;
+        expandBtn.blur();
+      };
+      wrSolution.append(expandBtn, stepList);
+      wrSolution.hidden=false;
+      updateMoveStepHighlight();
+    }
+    async function selectWorldRecord(entry){
+      cancelBusyAnimation();
+      const token=++algPlayToken;
+      algPlayback=null;
+      activeAlgId=null;
+      activeCaseId=entry.id;
+      selectedEntry=entry;
+      wrStepsExpanded=false;
+      markWrViewed(entry.id);
+      renderFormulaButtons();
+      if(isMobileUi()){
+        setDockPanels(null);
+        syncMobileDockFromSheets();
+      }
+      scrollActiveCaseIntoView();
+      const fullMoves=allStepsMoves(entry);
+      wrScrambleText.textContent=entry.scramble||'—';
+      wrScramble.hidden=false;
+      renderWrSolution(entry, fullMoves);
       resetToSetupStart();
+      stateEl.textContent=`SCRAMBLE · ${entry.id}`;
       await runMoves(parseMoves(entry.scramble||''));
+      if(token!==algPlayToken||selectedEntry!==entry) return;
+      beginAlgPlayback(SOLUTION_ALG_ID, fullMoves);
       stateEl.textContent=`SCRAMBLE · ${entry.id}`;
     }
-    async function algPlayAll(id, sequence, mode, status, entry){
+    async function algPlayAll(id, sequence, status){
       if(busy) return;
       const token=++algPlayToken;
       markActiveAlgRow(id);
-      if(mode==='full'){
-        resetToSetupStart();
-        if(token!==algPlayToken) return;
-        await runMoves(parseMoves(entry.scramble||''), stepDelay());
-        if(token!==algPlayToken) return;
-        beginAlgPlayback(id, sequence);
-      } else {
-        beginAlgPlayback(id, sequence);
-      }
+      if(!algPlayback||algPlayback.id!==id) beginAlgPlayback(id, sequence);
       while(algPlayback&&algPlayback.id===id&&algPlayback.index<algPlayback.moves.length){
         if(token!==algPlayToken) return;
         await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
@@ -579,19 +655,12 @@
       }
       if(token===algPlayToken) stateEl.textContent=status;
     }
-    async function algNext(id, sequence, mode, status, entry){
+    async function algNext(id, sequence, status){
       const token=algPlayToken;
       nextMoveQueue=nextMoveQueue.then(async()=>{
         if(token!==algPlayToken||busy) return;
         markActiveAlgRow(id);
-        if(!algPlayback||algPlayback.id!==id){
-          if(mode==='full'){
-            resetToSetupStart();
-            await runMoves(parseMoves(entry.scramble||''), stepDelay());
-            if(token!==algPlayToken) return;
-          }
-          beginAlgPlayback(id, sequence);
-        }
+        if(!algPlayback||algPlayback.id!==id) beginAlgPlayback(id, sequence);
         if(!algPlayback||algPlayback.index>=algPlayback.moves.length) return;
         if(token!==algPlayToken) return;
         const move=algPlayback.moves[algPlayback.index];
@@ -603,7 +672,7 @@
       }).catch(error=>{console.error('Không thể chạy nước tiếp theo:',error);});
       return nextMoveQueue;
     }
-    async function algPrev(id, sequence, mode, status){
+    async function algPrev(id, status){
       if(busy) return;
       markActiveAlgRow(id);
       if(!algPlayback||algPlayback.id!==id||algPlayback.index<=0) return;
@@ -612,30 +681,8 @@
       updateMoveStepHighlight();
       stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
     }
-    function createAlgRow({id, label, sequence, mode='step', status, entry=null, extraClass=''}){
-      const row=document.createElement('div');
-      row.className=`opt-row${activeAlgId===id?' is-active':''}`;
-      row.dataset.algId=id;
-      const btn=document.createElement('button');
-      btn.type='button'; btn.className=`opt-label${extraClass?` ${extraClass}`:''}`;
-      const [labelPrefix,labelMoves='']=label.split(' · ');
-      btn.append(document.createTextNode(`${labelPrefix} · `));
-      labelMoves.split(/\s+/).filter(Boolean).forEach((move,index)=>{const step=document.createElement('span'); step.className='move-step'; step.dataset.step=String(index); step.textContent=move; btn.append(step,' ');});
-      btn.title=sequence||''; btn.disabled=!sequence;
-      btn.onclick=()=>algPlayAll(id, sequence, mode, status, entry);
-      const controls=document.createElement('div'); controls.className='opt-controls';
-      const mk=(cls, text, title, fn)=>{
-        const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
-        b.disabled=!sequence; b.onclick=()=>{ fn(); b.blur(); }; return b;
-      };
-      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',()=>algPrev(id, sequence, mode, status)));
-      controls.appendChild(mk('opt-play','▶','Play / chạy hết',()=>algPlayAll(id, sequence, mode, status, entry)));
-      controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',()=>algNext(id, sequence, mode, status, entry)));
-      row.appendChild(btn); row.appendChild(controls);
-      return row;
-    }
     function scrollActiveCaseIntoView(){
-      if(!activeCaseId||openCaseId) return;
+      if(!activeCaseId) return;
       const card=formulaPanel.querySelector(`.case-card[data-case-id="${CSS.escape(activeCaseId)}"]`);
       const strip=formulaPanel.querySelector('.case-strip');
       if(!card) return;
@@ -648,20 +695,11 @@
         }
       });
     }
-    function closeOpenCase(){
-      if(openCaseId) activeCaseId=openCaseId;
-      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
-      renderFormulaButtons();
-      scrollActiveCaseIntoView();
-    }
     function closeCasesDockPanel(){
       formulaPanel.classList.remove('is-sheet-dragging','is-sheet-dismissing');
       formulaPanel.style.transform=''; formulaPanel.style.opacity='';
-      if(openCaseId) activeCaseId=openCaseId;
-      openCaseId=null; algPlayback=null; algPlayToken++; activeAlgId=null;
       setDockPanels(null);
       syncMobileDockFromSheets();
-      renderFormulaButtons();
     }
     function setDockPanels(openSheet){
       formulaPanel.classList.toggle('is-dock-open', openSheet==='cases');
@@ -739,10 +777,7 @@
         if(dy>72){
           formulaPanel.classList.add('is-sheet-dismissing');
           applyShift(Math.max(dy,180), '0');
-          setTimeout(()=>{
-            if(openCaseId) closeOpenCase();
-            else closeCasesDockPanel();
-          }, 180);
+          setTimeout(()=>closeCasesDockPanel(), 180);
         } else {
           clearShift();
         }
@@ -754,8 +789,7 @@
       handle.addEventListener('touchcancel', onEnd);
       handle.addEventListener('click', event=>{
         if(moved){ event.preventDefault(); moved=false; return; }
-        if(openCaseId) closeOpenCase();
-        else closeCasesDockPanel();
+        closeCasesDockPanel();
       });
     }
     function renderFormulaButtons(){
@@ -768,7 +802,7 @@
         drag.title='Kéo xuống để đóng';
         formulaPanel.appendChild(drag);
       }
-      const caseListParent=(!openCaseId&&isMobileUi())?(()=>{
+      const caseListParent=isMobileUi()?(()=>{
         const strip=document.createElement('div');
         strip.className='case-strip';
         formulaPanel.appendChild(strip);
@@ -777,76 +811,35 @@
       worldRecords.forEach(entry=>{
         const card=document.createElement('div');
         const viewed=viewedWrCases.has(entry.id);
-        const isActive=activeCaseId===entry.id&&openCaseId!==entry.id;
-        card.className=`case-card${openCaseId===entry.id?' is-open':''}${viewed?' is-viewed':''}${isActive?' is-active':''}`;
+        const isActive=activeCaseId===entry.id;
+        card.className=`case-card${viewed?' is-viewed':''}${isActive?' is-active':''}`;
         card.dataset.caseId=entry.id;
         if(viewed) card.setAttribute('data-viewed','true');
         if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button');
-        main.type='button'; main.className='case-main'; main.title='Mở scramble & các bước giải';
+        main.type='button'; main.className='case-main'; main.title='Chọn kỷ lục · áp scramble & xem công thức';
         const timeEl=document.createElement('span'); timeEl.className='wr-time'; timeEl.textContent=`${entry.time}s`;
         const solverEl=document.createElement('span'); solverEl.className='wr-solver'; solverEl.textContent=entry.solver;
         const dateEl=document.createElement('span'); dateEl.className='wr-date'; dateEl.textContent=formatShortDate(entry.date);
         main.append(timeEl, solverEl, dateEl);
-        main.onclick=()=>{
-          const opening=openCaseId!==entry.id;
-          openCaseId=opening?entry.id:null;
-          activeCaseId=entry.id;
-          if(opening) markWrViewed(entry.id);
-          algPlayback=null; algPlayToken++; activeAlgId=null;
-          renderFormulaButtons();
-          if(!opening) scrollActiveCaseIntoView();
-        };
+        main.onclick=()=>selectWorldRecord(entry);
         card.appendChild(main);
-        const options=document.createElement('div'); options.className='case-options';
-        const meta=document.createElement('p'); meta.className='wr-meta';
-        meta.innerHTML=`<b>${entry.competition||''}</b> · ${entry.method||'CFOP'}`;
-        options.appendChild(meta);
-        if(entry.note){
-          const note=document.createElement('p'); note.className='wr-note'; note.textContent=entry.note;
-          options.appendChild(note);
-        }
-        const scrambleHead=document.createElement('div'); scrambleHead.className='wr-section'; scrambleHead.textContent='ĐỀ BÀI (Scramble)';
-        options.appendChild(scrambleHead);
-        const scrambleBox=document.createElement('div'); scrambleBox.className='scramble-box';
-        const scrambleText=document.createElement('p'); scrambleText.className='scramble-text'; scrambleText.textContent=entry.scramble||'—';
-        const applyBtn=document.createElement('button');
-        applyBtn.type='button'; applyBtn.className='apply-scramble'; applyBtn.textContent='ÁP SCRAMBLE';
-        applyBtn.title='Reset về solved rồi chạy scramble';
-        applyBtn.onclick=()=>applyScramble(entry);
-        scrambleBox.append(scrambleText, applyBtn);
-        options.appendChild(scrambleBox);
-        const stepsHead=document.createElement('div'); stepsHead.className='wr-section'; stepsHead.textContent='CÁC BƯỚC GIẢI';
-        options.appendChild(stepsHead);
-        const list=document.createElement('div'); list.className='opt-list';
-        const fullMoves=allStepsMoves(entry);
-        list.appendChild(createAlgRow({
-          id:`${entry.id}|full`,
-          label:`TOÀN BỘ · ${fullMoves}`,
-          sequence:fullMoves,
-          mode:'full',
-          status:`${entry.id} · TOÀN BỘ`,
-          entry,
-          extraClass:'opt-setup'
-        }));
-        (entry.steps||[]).forEach((step,index)=>{
-          list.appendChild(createAlgRow({
-            id:`${entry.id}|step|${index}`,
-            label:`${step.label} · ${step.moves||''}`,
-            sequence:step.moves||'',
-            mode:'step',
-            status:`${entry.id} · ${step.label}`,
-            entry
-          }));
-        });
-        options.appendChild(list);
-        card.appendChild(options);
         caseListParent.appendChild(card);
       });
       enableFormulaPanelSwipeDismiss();
     }
 
     renderFormulaButtons();
+
+    addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      if(siteNav.classList.contains('is-open')){ setSiteNavigation(false); return; }
+      if(settingsPanel && !settingsPanel.hidden){ setSettingsOpen(false); return; }
+      if(selectedEntry){
+        cancelBusyAnimation();
+        clearWrSelection({resetCube:true});
+      }
+    });
 
     const movePadTokens=['U','U′','U2','D','D′','L','L′','R','R′','F','F′','B','B′','M','M′','S','S′','r','r′','l','l′','f','f′','b','b′','x','x′','y','y′','z','z′'];
     const movePad=document.querySelector('#move-pad');
