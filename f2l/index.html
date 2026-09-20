@@ -354,6 +354,7 @@
           <li><button class="site-nav-subitem" type="button" data-statistic="pll">PLL</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="cross">Cross</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="f2l">F2L</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="records">Kỷ lục</button></li>
         </ul>
       </li>
     </ul>
@@ -395,7 +396,7 @@
     siteMenuToggle.onclick=()=>setSiteNavigation(!siteNav.classList.contains('is-open'));
     siteNavClose.onclick=()=>setSiteNavigation(false); siteNavBackdrop.onclick=()=>setSiteNavigation(false);
     statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
-    const siteRoutes={playground:'../',training:'./',oll:'../statistics/oll/',pll:'../statistics/pll/',cross:'../statistics/cross/',f2l:'./'};
+    const siteRoutes={playground:'../',training:'./',oll:'../statistics/oll/',pll:'../statistics/pll/',cross:'../statistics/cross/',f2l:'./',records:'../statistics/records/'};
     siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{const destination=siteRoutes[item.dataset.statistic||item.dataset.navSection]; if(destination===location.pathname){setSiteNavigation(false);return;} location.href=destination;});
     addEventListener('keydown',event=>{if(event.key!=='Escape')return; if(siteNav.classList.contains('is-open')) setSiteNavigation(false); else if(typeof setContextualSurface==='function'&&contextualSurface) setContextualSurface(null);});
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);

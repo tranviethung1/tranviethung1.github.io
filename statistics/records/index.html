@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>RUBIK · PLL</title>
+  <title>RUBIK · Kỷ lục</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
@@ -57,7 +57,6 @@
     .site-nav-item:hover,.site-nav-item:focus-visible,.site-nav-parent:hover,.site-nav-parent:focus-visible,.site-nav-subitem:hover,.site-nav-subitem:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
     button { min-height:38px; color:var(--ink); border:1px solid var(--ink); border-radius:10px; background:transparent; font:600 11px var(--font-ui); letter-spacing:.02em; cursor:pointer; transition:background .18s,color .18s,transform .18s,box-shadow .18s,border-color .18s; }
     button:hover, button:focus-visible { background:var(--ink); color:var(--cream); outline:2px solid var(--accent); outline-offset:2px; } button:active { transform:translate(1px,1px) scale(.98); }
-    .practice-controls button:hover, .practice-controls button:focus-visible,
     .settings-toggle:hover, .settings-toggle:focus-visible,
     .reset-cube:hover, .reset-cube:focus-visible,
     .settings-row button:hover, .settings-row button:focus-visible,
@@ -73,26 +72,6 @@
     .formula-panel .case-options .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel .case-options .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); outline:none; }
     .formula-panel .case-options .opt-row.is-active .opt-label:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
-    .solve-pll:hover, .solve-pll:focus-visible,
-    .detected-pll-solution .opt-controls button:hover,
-    .detected-pll-solution .opt-controls button:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
-    .solve-pll { position:fixed; z-index:4; left:50%; bottom:32px; transform:translateX(-50%); padding:0 20px; border-radius:12px; background:var(--accent); color:var(--cream); border-color:var(--accent); box-shadow:0 10px 24px rgba(255,75,43,.28); font-weight:700; }
-    .detected-pll-solution { position:fixed; z-index:5; left:50%; bottom:84px; transform:translateX(-50%); width:min(430px,calc(100vw - 32px)); padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:14px; backdrop-filter:blur(14px); box-shadow:var(--shadow); }
-    .detected-pll-solution[hidden] { display:none; }
-    .detected-pll-solution h2 { margin:0 0 7px; font:700 12px var(--font-display); }
-    .detected-pll-solution p { margin:0 0 7px; font:10px var(--font-ui); opacity:.72; }
-    .detected-pll-solution .opt-row { display:flex; gap:4px; align-items:stretch; margin-top:4px; }
-    .detected-pll-solution .opt-label { flex:1; min-width:0; min-height:38px; padding:8px 10px; text-align:left; white-space:normal; line-height:1.7; font-size:10px; border-radius:9px; background:rgba(244,240,232,.96); font-family:var(--font-mono); }
-    .detected-pll-solution .opt-controls { display:flex; flex-shrink:0; gap:3px; }
-    .detected-pll-solution .opt-controls button { width:32px; min-height:38px; padding:0; border-radius:9px; font:700 14px var(--font-display); background:rgba(244,240,232,.96); }
-    .detected-pll-solution .opt-next,.detected-pll-solution .opt-prev { width:52px !important; font-size:16px !important; letter-spacing:-.18em; }
-    .detected-pll-solution .opt-row.is-active .opt-label,.detected-pll-solution .opt-row.is-active .opt-controls button { background:var(--ink); color:#fff; border-color:var(--ink); }
-    .detected-pll-solution .move-step { display:inline-block; padding:0 2px; border-radius:4px; }
-    .detected-pll-solution .move-step.is-current { background:var(--accent); color:#fff; }
-    .detected-pll-solution .opt-controls button:hover,
-    .detected-pll-solution .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(18,18,18,.22); }
-    .detected-pll-solution .opt-row.is-active .opt-controls button:hover,
-    .detected-pll-solution .opt-row.is-active .opt-controls button:focus-visible { box-shadow:inset 0 0 0 2px rgba(244,240,232,.88); }
     .formula-panel { position:fixed; z-index:3; right:32px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; width:300px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
     .formula-panel .case-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:10px; background:var(--glass-strong); border:1px solid var(--line); border-radius:var(--radius); backdrop-filter:blur(14px); box-shadow:0 10px 28px rgba(16,20,24,.08); transition:transform .2s, box-shadow .2s; }
     .formula-panel .case-card:hover { transform:translateY(-2px); box-shadow:0 16px 34px rgba(16,20,24,.12); }
@@ -273,13 +252,30 @@
       .formula-panel .case-options .opt-list::-webkit-scrollbar { display:none; width:0; height:0; }
       .formula-panel .case-options .opt-label { min-height:40px; font-size:10px; padding:8px 10px; }
       .formula-panel .case-options .opt-controls button { width:36px; min-height:40px; font-size:14px; }
-      .solve-pll { bottom:calc(60px + env(safe-area-inset-bottom,0px)); min-height:40px; }
-      .detected-pll-solution { bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
     }
+
+    .formula-panel .wr-time { font:800 22px var(--font-display); letter-spacing:-.04em; line-height:1; }
+    .formula-panel .case-card.is-viewed .wr-time { color:var(--accent); }
+    .formula-panel .case-card.is-viewed .wr-time::after { content:' ✓'; font-weight:800; }
+    .formula-panel .wr-solver { font:600 11px var(--font-ui); opacity:.78; }
+    .formula-panel .wr-date { font:600 10px var(--font-mono); letter-spacing:.04em; opacity:.62; }
+    .formula-panel .wr-meta { margin:0; font:10px var(--font-ui); line-height:1.55; opacity:.78; }
+    .formula-panel .wr-meta b { font-weight:700; opacity:1; }
+    .formula-panel .wr-note { margin:0; font:10px var(--font-ui); color:var(--accent); font-weight:600; }
+    .formula-panel .wr-section { margin:4px 0 0; font:700 10px var(--font-display); letter-spacing:.06em; }
+    .formula-panel .wr-desc { margin:0; font:9px var(--font-ui); line-height:1.45; opacity:.68; }
+    .formula-panel .scramble-box { display:flex; flex-direction:column; gap:5px; }
+    .formula-panel .scramble-text { margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:rgba(244,240,232,.96); font:10px var(--font-mono); line-height:1.65; word-break:break-word; }
+    .formula-panel .apply-scramble { width:100%; min-height:36px; border-color:var(--accent); color:var(--accent); font-weight:700; }
+    .formula-panel .apply-scramble:hover, .formula-panel .apply-scramble:focus-visible { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .formula-panel .wr-source { display:inline-flex; align-items:center; min-height:34px; padding:0 10px; border:1px solid var(--ink); border-radius:9px; color:var(--ink); text-decoration:none; font:700 10px var(--font-display); }
+    .formula-panel .wr-source:hover, .formula-panel .wr-source:focus-visible { background:var(--ink); color:var(--cream); outline:none; }
+    .formula-panel .case-options .opt-list { max-height:calc(4 * 40px + 3 * 5px + 16px); }
+    .formula-panel .case-card.is-open .case-main { display:none; }
   </style>
 </head>
 <body>
-  <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 — luyện PLL"></main>
+  <main id="stage" aria-label="Mô phỏng khối Rubik 3x3 — kỷ lục thế giới CFOP"></main>
   <div class="grain"></div>
   <header><div class="brand">RUB<span>I</span>K</div></header>
   <button id="site-menu-toggle" class="site-menu-toggle" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="site-nav"></button>
@@ -292,17 +288,13 @@
       <li><button id="statistics-menu-toggle" class="site-nav-parent" type="button" aria-expanded="false" aria-controls="statistics-submenu">Statistics <span class="chevron">⌄</span></button>
         <ul id="statistics-submenu" class="site-nav-sublist">
           <li><button class="site-nav-subitem" type="button" data-statistic="oll">OLL</button></li>
-          <li><button class="site-nav-subitem is-current" type="button" data-statistic="pll" aria-current="page">PLL</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="pll">PLL</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="cross">Cross</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="f2l">F2L</button></li>
-          <li><button class="site-nav-subitem" type="button" data-statistic="records">Kỷ lục</button></li>
+          <li><button class="site-nav-subitem is-current" type="button" data-statistic="records" aria-current="page">Kỷ lục</button></li>
         </ul>
       </li>
     </ul>
-  </nav>
-  <nav class="practice-controls" aria-label="Điều khiển luyện PLL">
-    <button id="pll-practice" type="button" aria-pressed="false">TẬP TRUNG PLL</button>
-    <button id="pll-scramble" type="button">XÁO TRỘN PLL</button>
   </nav>
   <button id="settings-toggle" class="settings-toggle" type="button" aria-label="Mở cài đặt" aria-expanded="false">⚙</button>
   <button id="reset-cube" class="reset-cube" type="button" aria-label="Reset về trạng thái ban đầu" title="Reset">↻</button>
@@ -311,23 +303,20 @@
     <div class="settings-row"><span>ẨN TỌA ĐỘ</span><button id="hide-coords" type="button" aria-pressed="false">TẮT</button></div>
     <label class="settings-row" for="scramble-speed"><span>TỐC ĐỘ XÁO TRỘN<br><b id="speed-value">RẤT NHANH</b></span><input id="scramble-speed" type="range" min="1" max="3" value="3" step="1" /></label>
   </section>
-  <nav id="formula-panel" class="formula-panel" aria-label="Công thức setup PLL"></nav>
+  <nav id="formula-panel" class="formula-panel" aria-label="Kỷ lục thế giới 3×3 CFOP"></nav>
   <nav id="mobile-dock" class="mobile-dock" aria-label="Menu dưới">
     <button id="dock-keyboard" type="button" aria-pressed="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
-    <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Các trường hợp PLL">PLL</button>
+    <button id="dock-cases" type="button" aria-pressed="false" aria-controls="formula-panel" title="Kỷ lục thế giới">WR</button>
   </nav>
   <button id="move-pad-toggle" class="move-pad-toggle" type="button" aria-label="Mở bảng xoay Rubik" aria-expanded="false" aria-controls="move-pad" title="Bàn phím xoay">⌨</button>
   <nav id="move-pad" class="move-pad" aria-label="Nút xoay Rubik" hidden></nav>
-  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">YELLOW U · PLL</span></div>
-  <button id="solve-pll" class="solve-pll" type="button">GIẢI PLL</button>
-  <section id="detected-pll-solution" class="detected-pll-solution" aria-live="polite" hidden></section>
-
+  <div class="status"><b id="move-count">00</b> MOVES<br><span id="state">WR 3×3 · CFOP</span></div>
   <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.180.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.180.0/examples/jsm/"}}</script>
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-    import { pllCases } from './pll-data.js';
+    import { worldRecords } from './wr-data.js';
 
     const stage = document.querySelector('#stage'), stateEl = document.querySelector('#state'), moveEl = document.querySelector('#move-count');
     const siteMenuToggle=document.querySelector('#site-menu-toggle'), siteNav=document.querySelector('#site-nav'), siteNavBackdrop=document.querySelector('#site-nav-backdrop'), siteNavClose=document.querySelector('#site-nav-close'), statisticsMenuToggle=document.querySelector('#statistics-menu-toggle'), statisticsSubmenu=document.querySelector('#statistics-submenu');
@@ -339,14 +328,17 @@
     siteMenuToggle.onclick=()=>setSiteNavigation(!siteNav.classList.contains('is-open'));
     siteNavClose.onclick=()=>setSiteNavigation(false); siteNavBackdrop.onclick=()=>setSiteNavigation(false);
     statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
-    const siteRoutes={playground:'../../',training:'../../f2l/',oll:'../oll/',pll:'./',cross:'../cross/',f2l:'../../f2l/',records:'../records/'};
+    const siteRoutes={playground:'../../',training:'../../f2l/',oll:'../oll/',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/',records:'./'};
     siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{
       const key=item.dataset.statistic||item.dataset.navSection;
       const destination=siteRoutes[key];
-      if(key==='pll'||destination==='./'){ setSiteNavigation(false); return; }
+      if(key==='records'||destination==='./'){ setSiteNavigation(false); return; }
       location.href=destination;
     });
-    addEventListener('keydown',event=>{if(event.key==='Escape'&&siteNav.classList.contains('is-open')) setSiteNavigation(false);});
+    addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      if(siteNav.classList.contains('is-open')) setSiteNavigation(false);
+    });
 
     const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf4f0e8);
     const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, .1, 100); camera.position.set(8.4, 7.1, 9.8);
@@ -365,17 +357,11 @@
     const faces=[['R',[1,0,0]],['L',[-1,0,0]],['U',[0,1,0]],['D',[0,-1,0]],['F',[0,0,1]],['B',[0,0,-1]]];
     const cubies=[]; const bodyGeo=new RoundedBoxGeometry(1.235,1.235,1.235,5,.075); const black=new THREE.MeshPhysicalMaterial({color:0x111213,roughness:.3,metalness:.02});
     const stickerGeo=new RoundedBoxGeometry(1.205,1.205,.075,5,.145);
-    const maskedMaterial=new THREE.MeshPhysicalMaterial({color:0x3A3F46,roughness:.3,metalness:.02});
-    let pllPractice=false;
-
-    function isPllLayerPiece(home){
-      return home.y===1;
-    }
 
     for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){
       const piece=new THREE.Group(); piece.position.set(x*1.24,y*1.24,z*1.24);
       const homeCoord={x,y,z};
-      piece.userData={coord:{x,y,z},homeCoord,isPllPiece:isPllLayerPiece(homeCoord)};
+      piece.userData={coord:{x,y,z},homeCoord};
       const body=new THREE.Mesh(bodyGeo,black); body.castShadow=body.receiveShadow=true; piece.add(body);
       faces.forEach(([name,[nx,ny,nz]])=>{ if((nx&&x===nx)||(ny&&y===ny)||(nz&&z===nz)){ const s=new THREE.Mesh(stickerGeo,new THREE.MeshPhysicalMaterial({color:colors[name],roughness:.28,metalness:.01,clearcoat:.22,clearcoatRoughness:.3})); s.position.set(nx*.655,ny*.655,nz*.655); if(nx) s.rotation.y=Math.PI/2; if(ny) s.rotation.x=Math.PI/2; s.userData={face:name,axis:nx?'x':ny?'y':'z', layer:nx||ny||nz,originalMaterial:s.material}; piece.add(s); }});
       cube.add(piece); cubies.push(piece);
@@ -412,7 +398,7 @@
 
     let busy=false, moves=0, scrambleMoveDuration=60, activeRotate=null;
     const round=n=>Math.round(n); function updateMoves(){moveEl.textContent=String(moves).padStart(2,'0');}
-    function practiceStatus(){return pllPractice?'PLL ONLY':'YELLOW U · PLL';}
+    function practiceStatus(){return 'WR 3×3 · CFOP';}
 
     function finishRotatePieces(pivot,chosen,axis,dir){
       pivot.rotation[axis]=dir*Math.PI/2;
@@ -447,7 +433,7 @@
 
     const moveMap={R:['layer','x',1,-1],'R′':['layer','x',1,1],L:['layer','x',-1,1],'L′':['layer','x',-1,-1],U:['layer','y',1,-1],'U′':['layer','y',1,1],D:['layer','y',-1,1],'D′':['layer','y',-1,-1],F:['layer','z',1,-1],'F′':['layer','z',1,1],B:['layer','z',-1,1],'B′':['layer','z',-1,-1],M:['layer','x',0,1],'M′':['layer','x',0,-1],E:['layer','y',0,1],'E′':['layer','y',0,-1],S:['layer','z',0,-1],'S′':['layer','z',0,1],r:['wide','x',1,-1],'r′':['wide','x',1,1],l:['wide','x',-1,1],'l′':['wide','x',-1,-1],u:['wide','y',1,-1],'u′':['wide','y',1,1],d:['wide','y',-1,1],'d′':['wide','y',-1,-1],f:['wide','z',1,-1],'f′':['wide','z',1,1],b:['wide','z',-1,1],'b′':['wide','z',-1,-1],x:['cube','x',-1],'x′':['cube','x',1],y:['cube','y',-1],'y′':['cube','y',1],z:['cube','z',-1],'z′':['cube','z',1]};
 
-    const practiceButton=document.querySelector('#pll-practice'), scrambleButton=document.querySelector('#pll-scramble'), hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), resetButton=document.querySelector('#reset-cube'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
+    const hideCoordsButton=document.querySelector('#hide-coords'), settingsToggle=document.querySelector('#settings-toggle'), settingsPanel=document.querySelector('#settings-panel'), resetButton=document.querySelector('#reset-cube'), speedInput=document.querySelector('#scramble-speed'), speedValue=document.querySelector('#speed-value');
     const persistSetting=(key,value)=>{document.cookie=`${key}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`; localStorage.setItem(key,value);};
     const readSetting=key=>document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]*)`))?.[1]??localStorage.getItem(key);
     function setSettingsOpen(open){settingsPanel.hidden=!open; settingsToggle.setAttribute('aria-expanded',String(open)); settingsToggle.setAttribute('aria-label',open?'Đóng cài đặt':'Mở cài đặt');}
@@ -511,62 +497,27 @@
       camera.up.copy(initialCameraUp);
       camera.lookAt(controls.target);
       controls.update();
-      applyPllPractice(pllPractice, {persist:false});
       stateEl.textContent=practiceStatus();
     }
 
-    function applyPllPractice(enabled, {persist=true}={}){
-      pllPractice=enabled;
-      cubies.forEach(piece=>{
-        piece.children.forEach(mesh=>{
-          if(!mesh.userData.originalMaterial) return;
-          const keep=piece.userData.isPllPiece;
-          mesh.material=(pllPractice&&!keep)?maskedMaterial:mesh.userData.originalMaterial;
-        });
-      });
-      practiceButton.classList.toggle('is-active',pllPractice);
-      practiceButton.setAttribute('aria-pressed',String(pllPractice));
-      practiceButton.textContent=pllPractice?'THOÁT TẬP TRUNG':'TẬP TRUNG PLL';
-      if(persist) persistSetting('rubik-pll-practice',pllPractice?'1':'0');
-      stateEl.textContent=practiceStatus();
-    }
-    practiceButton.onclick=()=>applyPllPractice(!pllPractice);
-    if(readSetting('rubik-pll-practice')==='1')applyPllPractice(true);
 
-    scrambleButton.onclick=async()=>{
-      if(busy) return;
-      cancelBusyAnimation();
-      hidePllSolution();
-      algPlayToken++;
-      algPlayback=null;
-      activeAlgId=null;
-      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
-      const entry=pllCases[Math.floor(Math.random()*pllCases.length)];
-      if(!entry?.setup) return;
-      resetToSetupStart();
-      await runMoves(parseMoves(entry.setup));
-      stateEl.textContent=`PLL RANDOMIZED · ${entry.id}`;
-    };
     resetButton.onclick=()=>{
       cancelBusyAnimation();
-      hidePllSolution();
       algPlayToken++;
       algPlayback=null;
       activeAlgId=null;
-      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
       resetToSetupStart();
     };
-
 
     let algPlayback=null, algPlayToken=0, activeAlgId=null, nextMoveQueue=Promise.resolve();
     let openCaseId=null, activeCaseId=null;
     const formulaPanel=document.querySelector('#formula-panel');
     const dockCases=document.querySelector('#dock-cases');
-    const viewedPllCases=new Set((readSetting('rubik-pll-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
-    function markPllCaseViewed(caseId){
-      if(!caseId||viewedPllCases.has(caseId)) return;
-      viewedPllCases.add(caseId);
-      persistSetting('rubik-pll-viewed', [...viewedPllCases].map(encodeURIComponent).join('|'));
+    const viewedWrCases=new Set((readSetting('rubik-wr-viewed')||'').split('|').map(decodeURIComponent).filter(Boolean));
+    function markWrViewed(caseId){
+      if(!caseId||viewedWrCases.has(caseId)) return;
+      viewedWrCases.add(caseId);
+      persistSetting('rubik-wr-viewed', [...viewedWrCases].map(encodeURIComponent).join('|'));
     }
     const invertToken=token=>{
       const t=normalizeMove(token);
@@ -575,6 +526,12 @@
     };
     const stepDelay=()=>Math.max(scrambleDelay, 120);
     const isMobileUi=()=>matchMedia('(max-width:720px)').matches;
+    const formatShortDate=iso=>{
+      const [y,m,d]=(iso||'').split('-');
+      if(!y||!m||!d) return iso||'';
+      return `${d}/${m}/${y}`;
+    };
+    const allStepsMoves=entry=>(entry.steps||[]).map(s=>s.moves).filter(Boolean).join(' ');
     function markActiveAlgRow(id){
       activeAlgId=id;
       document.querySelectorAll('.opt-row').forEach(row=>row.classList.toggle('is-active', row.dataset.algId===id));
@@ -586,17 +543,35 @@
         row.querySelectorAll('.move-step').forEach((step,index)=>step.classList.toggle('is-current',isCurrent&&index===highlightedStep));
       });
     }
-    function beginAlgPlayback(id, sequence, isSetup){
-      algPlayback={id, moves:parseMoves(sequence), index:0, isSetup};
+    function beginAlgPlayback(id, sequence){
+      algPlayback={id, moves:parseMoves(sequence), index:0};
       activeAlgId=id;
       updateMoveStepHighlight();
     }
-    async function algPlayAll(id, sequence, isSetup, status){
+    async function applyScramble(entry){
+      if(busy) return;
+      cancelBusyAnimation();
+      algPlayToken++;
+      algPlayback=null;
+      activeAlgId=null;
+      document.querySelectorAll('.opt-row.is-active').forEach(row=>row.classList.remove('is-active'));
+      resetToSetupStart();
+      await runMoves(parseMoves(entry.scramble||''));
+      stateEl.textContent=`SCRAMBLE · ${entry.id}`;
+    }
+    async function algPlayAll(id, sequence, mode, status, entry){
       if(busy) return;
       const token=++algPlayToken;
       markActiveAlgRow(id);
-      beginAlgPlayback(id, sequence, isSetup);
-      if(isSetup){ resetToSetupStart(); algPlayback.index=0; }
+      if(mode==='full'){
+        resetToSetupStart();
+        if(token!==algPlayToken) return;
+        await runMoves(parseMoves(entry.scramble||''), stepDelay());
+        if(token!==algPlayToken) return;
+        beginAlgPlayback(id, sequence);
+      } else {
+        beginAlgPlayback(id, sequence);
+      }
       while(algPlayback&&algPlayback.id===id&&algPlayback.index<algPlayback.moves.length){
         if(token!==algPlayToken) return;
         await runMoves([algPlayback.moves[algPlayback.index]], stepDelay());
@@ -607,12 +582,19 @@
       }
       if(token===algPlayToken) stateEl.textContent=status;
     }
-    async function algNext(id, sequence, isSetup, status){
+    async function algNext(id, sequence, mode, status, entry){
       const token=algPlayToken;
       nextMoveQueue=nextMoveQueue.then(async()=>{
         if(token!==algPlayToken||busy) return;
         markActiveAlgRow(id);
-        if(!algPlayback||algPlayback.id!==id){ beginAlgPlayback(id, sequence, isSetup); if(isSetup) resetToSetupStart(); }
+        if(!algPlayback||algPlayback.id!==id){
+          if(mode==='full'){
+            resetToSetupStart();
+            await runMoves(parseMoves(entry.scramble||''), stepDelay());
+            if(token!==algPlayToken) return;
+          }
+          beginAlgPlayback(id, sequence);
+        }
         if(!algPlayback||algPlayback.index>=algPlayback.moves.length) return;
         if(token!==algPlayToken) return;
         const move=algPlayback.moves[algPlayback.index];
@@ -624,7 +606,7 @@
       }).catch(error=>{console.error('Không thể chạy nước tiếp theo:',error);});
       return nextMoveQueue;
     }
-    async function algPrev(id, sequence, isSetup, status){
+    async function algPrev(id, sequence, mode, status){
       if(busy) return;
       markActiveAlgRow(id);
       if(!algPlayback||algPlayback.id!==id||algPlayback.index<=0) return;
@@ -633,7 +615,7 @@
       updateMoveStepHighlight();
       stateEl.textContent=`${status} · ${algPlayback.index}/${algPlayback.moves.length}`;
     }
-    function createAlgRow({id, label, sequence, isSetup, status, extraClass=''}){
+    function createAlgRow({id, label, sequence, mode='step', status, entry=null, extraClass=''}){
       const row=document.createElement('div');
       row.className=`opt-row${activeAlgId===id?' is-active':''}`;
       row.dataset.algId=id;
@@ -643,280 +625,18 @@
       btn.append(document.createTextNode(`${labelPrefix} · `));
       labelMoves.split(/\s+/).filter(Boolean).forEach((move,index)=>{const step=document.createElement('span'); step.className='move-step'; step.dataset.step=String(index); step.textContent=move; btn.append(step,' ');});
       btn.title=sequence||''; btn.disabled=!sequence;
-      btn.onclick=()=>algPlayAll(id, sequence, isSetup, status);
+      btn.onclick=()=>algPlayAll(id, sequence, mode, status, entry);
       const controls=document.createElement('div'); controls.className='opt-controls';
       const mk=(cls, text, title, fn)=>{
         const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.title=title; b.setAttribute('aria-label',title);
-        b.disabled=!sequence; b.onclick=()=>{ fn(id, sequence, isSetup, status); b.blur(); }; return b;
+        b.disabled=!sequence; b.onclick=()=>{ fn(); b.blur(); }; return b;
       };
-      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',algPrev));
-      controls.appendChild(mk('opt-play','▶','Play / chạy hết',algPlayAll));
-      controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',algNext));
+      controls.appendChild(mk('opt-prev','◀◀','Prev / lùi 1 nước',()=>algPrev(id, sequence, mode, status)));
+      controls.appendChild(mk('opt-play','▶','Play / chạy hết',()=>algPlayAll(id, sequence, mode, status, entry)));
+      controls.appendChild(mk('opt-next','▶▶','Next / tới 1 nước',()=>algNext(id, sequence, mode, status, entry)));
       row.appendChild(btn); row.appendChild(controls);
       return row;
     }
-
-    const solvePllButton=document.querySelector('#solve-pll');
-    const detectedPllSolution=document.querySelector('#detected-pll-solution');
-    const faceFromXYZ=(x,y,z)=>Math.abs(x)>.5?(x>0?'R':'L'):Math.abs(y)>.5?(y>0?'U':'D'):(z>0?'F':'B');
-    function stickerFacingMap(piece){
-      const map={};
-      piece.children.filter(mesh=>mesh.userData.originalMaterial).forEach(sticker=>{
-        const normal=new THREE.Vector3(sticker.userData.axis==='x'?sticker.userData.layer:0,sticker.userData.axis==='y'?sticker.userData.layer:0,sticker.userData.axis==='z'?sticker.userData.layer:0).applyQuaternion(piece.quaternion);
-        map[sticker.userData.face]=faceFromXYZ(normal.x,normal.y,normal.z);
-      });
-      return map;
-    }
-    function lastLayerPieces(){
-      return cubies.filter(piece=>{
-        const h=piece.userData.homeCoord;
-        return h.y===1&&Math.abs(h.x)+Math.abs(h.z)>0;
-      });
-    }
-    function lastLayerSignature(){
-      return lastLayerPieces().map(piece=>{
-        const h=piece.userData.homeCoord;
-        const c=piece.userData.coord;
-        const facing=stickerFacingMap(piece);
-        const facingKey=Object.keys(facing).sort().map(color=>`${color}>${facing[color]}`).join(',');
-        return `${h.x},${h.y},${h.z}@${c.x},${c.y},${c.z}:${facingKey}`;
-      }).sort().join('|');
-    }
-    function isOllOriented(){
-      return lastLayerPieces().every(piece=>stickerFacingMap(piece).U==='U');
-    }
-    function isCubeSolved(){
-      return cubies.every(piece=>{
-        const h=piece.userData.homeCoord;
-        const c=piece.userData.coord;
-        if(c.x!==h.x||c.y!==h.y||c.z!==h.z) return false;
-        return piece.quaternion.angleTo(piece.userData.homeQuaternion)<1e-4;
-      });
-    }
-    const isPllSolved=()=>isCubeSolved();
-    function snapshotCube(){
-      return {
-        cubies:cubies.map(piece=>({piece,coord:{...piece.userData.coord},position:piece.position.clone(),quaternion:piece.quaternion.clone()})),
-        labels:coordLabels.map(label=>({label,position:label.position.clone(),quaternion:label.quaternion.clone()})),
-        moves,
-      };
-    }
-    function restoreCube(snap){
-      snap.cubies.forEach(({piece,coord,position,quaternion})=>{
-        piece.userData.coord={...coord};
-        piece.position.copy(position);
-        piece.quaternion.copy(quaternion);
-        piece.rotation.setFromQuaternion(quaternion);
-      });
-      snap.labels.forEach(({label,position,quaternion})=>{
-        label.position.copy(position);
-        label.quaternion.copy(quaternion);
-      });
-      moves=snap.moves;
-      updateMoves();
-      busy=false;
-    }
-    function invertAuf(auf){
-      if(!auf) return '';
-      if(auf==='U2') return 'U2';
-      if(auf==='U') return 'U′';
-      if(auf==='U′') return 'U';
-      return invertToken(auf);
-    }
-    let pllSignatureCache=null;
-    async function ensurePllSignatureCache(){
-      if(pllSignatureCache) return pllSignatureCache;
-      const userSnap=snapshotCube();
-      const oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
-      scrambleMoveDuration=0; scrambleDelay=0;
-      const cache=new Map();
-      try{
-        for(const entry of pllCases){
-          if(!entry?.setup) continue;
-          try{
-            resetToSolved();
-            await runMoves(parseMoves(entry.setup),0);
-            const postSetup=snapshotCube();
-            for(const auf of ['','U','U2','U′']){
-              restoreCube(postSetup);
-              if(auf) await runMoves(parseMoves(auf),0);
-              const signature=lastLayerSignature();
-              const list=cache.get(signature)||[];
-              list.push({caseId:entry.id, auf, entry});
-              cache.set(signature, list);
-            }
-          }catch(error){
-            console.warn('PLL cache skip', entry?.id, error);
-          }
-        }
-        for(const [signature, list] of cache){
-          list.sort((a,b)=>{
-            const aufRank=auf=>(!auf?0:auf==='U'?1:auf==='U2'?2:3);
-            const byAuf=aufRank(a.auf)-aufRank(b.auf);
-            if(byAuf) return byAuf;
-            return String(a.caseId).localeCompare(String(b.caseId));
-          });
-          cache.set(signature, list);
-        }
-        pllSignatureCache=cache;
-      } finally {
-        restoreCube(userSnap);
-        scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;
-      }
-      return pllSignatureCache;
-    }
-    async function findPllSolution(){
-      if(!isOllOriented()) return {ok:false, reason:'needs-oll'};
-      if(isCubeSolved()) return {ok:true, formula:'', caseId:null, alreadySolved:true};
-      const userSnap=snapshotCube();
-      const oldDuration=scrambleMoveDuration, oldDelay=scrambleDelay, oldMoves=moves;
-      scrambleMoveDuration=0; scrambleDelay=0;
-      try{
-        await ensurePllSignatureCache();
-        restoreCube(userSnap);
-        const candidates=pllSignatureCache.get(lastLayerSignature())||[];
-        if(!candidates.length) return {ok:false, reason:'unrecognized'};
-        for(const candidate of candidates){
-          const extra=invertAuf(candidate.auf);
-          const solutions=candidate.entry.solutions||[];
-          for(const solution of solutions){
-            if(!solution) continue;
-            const formula=[extra, solution].filter(Boolean).join(' ');
-            try{
-              restoreCube(userSnap);
-              await runMoves(parseMoves(formula),0);
-              if(isCubeSolved()){
-                restoreCube(userSnap);
-                return {ok:true, formula, caseId:candidate.caseId, auf:candidate.auf};
-              }
-            }catch(error){
-              console.warn('PLL verify skip', candidate.caseId, formula, error);
-            }
-          }
-        }
-        restoreCube(userSnap);
-        return {ok:false, reason:'verify-fail'};
-      } finally {
-        restoreCube(userSnap);
-        scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;
-      }
-    }
-    function hidePllSolution(){
-      algPlayToken++;
-      algPlayback=null;
-      activeAlgId=null;
-      detectedPllSolution.hidden=true;
-      detectedPllSolution.replaceChildren();
-    }
-    function renderPllSolveFailure(message){
-      detectedPllSolution.replaceChildren();
-      const title=document.createElement('h2'); title.textContent='PLL';
-      const description=document.createElement('p'); description.textContent=message;
-      detectedPllSolution.append(title,description);
-      detectedPllSolution.hidden=false;
-    }
-    function renderPllSolution({formula, caseId, alreadySolved}){
-      detectedPllSolution.replaceChildren();
-      const title=document.createElement('h2'); title.textContent=caseId||'PLL';
-      if(alreadySolved||!formula){
-        const description=document.createElement('p'); description.textContent='PLL đã đúng — không cần công thức.';
-        detectedPllSolution.append(title,description);
-      } else {
-        const tokens=formula.trim().split(/\s+/).filter(Boolean);
-        const description=document.createElement('p');
-        description.textContent=`Công thức đã xác minh (${tokens.length} nước)${caseId?` · ${caseId}`:''}. Chạy Prev / Play / Next để luyện.`;
-        detectedPllSolution.append(title,description);
-        detectedPllSolution.append(createAlgRow({
-          id:'pll-solution',
-          label:`CÔNG THỨC · ${formula}`,
-          sequence:formula,
-          isSetup:false,
-          status:caseId||'PLL · CÔNG THỨC',
-        }));
-      }
-      detectedPllSolution.hidden=false;
-    }
-    solvePllButton.onclick=async()=>{
-      if(busy) return;
-      cancelBusyAnimation();
-      if(!isOllOriented()){
-        renderPllSolveFailure('Cần định hướng mặt vàng trước — hoàn thành OLL rồi mới giải PLL.');
-        stateEl.textContent='PLL · CẦN OLL TRƯỚC';
-        return;
-      }
-      if(isCubeSolved()){
-        renderPllSolution({formula:'', alreadySolved:true});
-        stateEl.textContent='PLL SOLVED';
-        return;
-      }
-      stateEl.textContent='PLL · ĐANG NHẬN DIỆN…';
-      await new Promise(resolve=>setTimeout(resolve,0));
-      const result=await findPllSolution();
-      if(!result.ok){
-        if(result.reason==='needs-oll'){
-          renderPllSolveFailure('Cần định hướng mặt vàng trước — hoàn thành OLL rồi mới giải PLL.');
-          stateEl.textContent='PLL · CẦN OLL TRƯỚC';
-        } else if(result.reason==='unrecognized'){
-          renderPllSolveFailure('KHÔNG NHẬN DIỆN PLL — trạng thái không khớp catalog case (có AUF).');
-          stateEl.textContent='PLL · KHÔNG NHẬN DIỆN';
-        } else {
-          renderPllSolveFailure('Nhận diện được case nhưng không xác minh được công thức trên cube — không hiện Play.');
-          stateEl.textContent='PLL · VERIFY FAIL';
-        }
-        return;
-      }
-      if(result.alreadySolved){
-        renderPllSolution(result);
-        stateEl.textContent='PLL SOLVED';
-        return;
-      }
-      renderPllSolution(result);
-      const n=result.formula.trim().split(/\s+/).filter(Boolean).length;
-      stateEl.textContent=result.caseId||`PLL · ${n} NƯỚC`;
-    };
-    if(new URLSearchParams(location.search).has('test')){
-      window.__pllTest={
-        isOllOriented,
-        isCubeSolved,
-        isPllSolved,
-        lastLayerSignature,
-        findPllSolution,
-        async applyCase(caseId, auf=''){
-          const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
-          scrambleMoveDuration=0; scrambleDelay=0; busy=false;
-          try{
-            const entry=pllCases.find(c=>c.id===caseId)||pllCases[0];
-            hidePllSolution();
-            resetToSetupStart();
-            if(entry?.setup) await runMoves(parseMoves(entry.setup),0);
-            if(auf) await runMoves(parseMoves(auf),0);
-            return {caseId:entry?.id||null, oriented:isOllOriented(), signature:lastLayerSignature()};
-          } finally {
-            scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; busy=false;
-          }
-        },
-        async scrambleAndSolve(){
-          const priorDuration=scrambleMoveDuration, priorDelay=scrambleDelay;
-          scrambleMoveDuration=0; scrambleDelay=0; busy=false;
-          try{
-            hidePllSolution();
-            resetToSetupStart();
-            const entry=pllCases[Math.floor(Math.random()*pllCases.length)];
-            if(entry?.setup) await runMoves(parseMoves(entry.setup),0);
-            const result=await findPllSolution();
-            if(result.ok&&result.formula) await runMoves(parseMoves(result.formula),0);
-            return {result, solved:isCubeSolved(), caseId:entry?.id||null};
-          } finally {
-            scrambleMoveDuration=priorDuration; scrambleDelay=priorDelay; busy=false;
-          }
-        }
-      };
-    }
-    addEventListener('keydown',event=>{
-      if(event.key!=='Escape') return;
-      if(!detectedPllSolution.hidden){ hidePllSolution(); return; }
-    });
-
     function scrollActiveCaseIntoView(){
       if(!activeCaseId||openCaseId) return;
       const card=formulaPanel.querySelector(`.case-card[data-case-id="${CSS.escape(activeCaseId)}"]`);
@@ -1057,53 +777,90 @@
         formulaPanel.appendChild(strip);
         return strip;
       })():formulaPanel;
-      pllCases.forEach(entry=>{
+      worldRecords.forEach(entry=>{
         const card=document.createElement('div');
-        const viewed=viewedPllCases.has(entry.id);
+        const viewed=viewedWrCases.has(entry.id);
         const isActive=activeCaseId===entry.id&&openCaseId!==entry.id;
         card.className=`case-card${openCaseId===entry.id?' is-open':''}${viewed?' is-viewed':''}${isActive?' is-active':''}`;
         card.dataset.caseId=entry.id;
         if(viewed) card.setAttribute('data-viewed','true');
         if(isActive) card.setAttribute('aria-current','true');
         const main=document.createElement('button');
-        main.type='button'; main.className='case-main'; main.title='Mở setup & công thức giải';
-        if(entry.preview){const img=document.createElement('img'); img.className='preview'; img.src=entry.preview; img.alt=`Preview ${entry.id}`; img.loading='lazy'; main.appendChild(img);}
-        const label=document.createElement('span'); label.className='formula-id'; label.textContent=entry.id; main.appendChild(label);
+        main.type='button'; main.className='case-main'; main.title='Mở scramble & các bước giải';
+        const timeEl=document.createElement('span'); timeEl.className='wr-time'; timeEl.textContent=`${entry.time}s`;
+        const solverEl=document.createElement('span'); solverEl.className='wr-solver'; solverEl.textContent=entry.solver;
+        const dateEl=document.createElement('span'); dateEl.className='wr-date'; dateEl.textContent=formatShortDate(entry.date);
+        main.append(timeEl, solverEl, dateEl);
         main.onclick=()=>{
           const opening=openCaseId!==entry.id;
           openCaseId=opening?entry.id:null;
           activeCaseId=entry.id;
-          if(opening) markPllCaseViewed(entry.id);
+          if(opening) markWrViewed(entry.id);
           algPlayback=null; algPlayToken++; activeAlgId=null;
           renderFormulaButtons();
           if(!opening) scrollActiveCaseIntoView();
         };
         card.appendChild(main);
         const options=document.createElement('div'); options.className='case-options';
+        const meta=document.createElement('p'); meta.className='wr-meta';
+        meta.innerHTML=`<b>${entry.competition||''}</b> · ${entry.method||'CFOP'}`;
+        options.appendChild(meta);
+        if(entry.note){
+          const note=document.createElement('p'); note.className='wr-note'; note.textContent=entry.note;
+          options.appendChild(note);
+        }
+        const scrambleHead=document.createElement('div'); scrambleHead.className='wr-section'; scrambleHead.textContent='ĐỀ BÀI (Scramble)';
+        options.appendChild(scrambleHead);
+        const scrambleBox=document.createElement('div'); scrambleBox.className='scramble-box';
+        const scrambleText=document.createElement('p'); scrambleText.className='scramble-text'; scrambleText.textContent=entry.scramble||'—';
+        const applyBtn=document.createElement('button');
+        applyBtn.type='button'; applyBtn.className='apply-scramble'; applyBtn.textContent='ÁP SCRAMBLE';
+        applyBtn.title='Reset về solved rồi chạy scramble';
+        applyBtn.onclick=()=>applyScramble(entry);
+        scrambleBox.append(scrambleText, applyBtn);
+        options.appendChild(scrambleBox);
+        const stepsHead=document.createElement('div'); stepsHead.className='wr-section'; stepsHead.textContent='CÁC BƯỚC GIẢI';
+        options.appendChild(stepsHead);
+        const stepsDesc=document.createElement('p'); stepsDesc.className='wr-desc';
+        stepsDesc.textContent='Play từng bước chạy từ trạng thái hiện tại. ÁP SCRAMBLE: solved → scramble. Play TOÀN BỘ: reset → scramble → mọi bước (kể cả Inspection). Đây là reconstruction lịch sử cố định, không phải solver cho scramble tùy ý.';
+        options.appendChild(stepsDesc);
         const list=document.createElement('div'); list.className='opt-list';
-        list.appendChild(createAlgRow({
-          id:`${entry.id}|setup`,
-          label:`SETUP · ${entry.setup||'—'}`,
-          sequence:entry.setup||'',
-          isSetup:true,
-          status:`SETUP · ${entry.id}`,
-          extraClass:'opt-setup'
-        }));
-        (entry.solutions||[]).forEach((alg,index)=>{
+        (entry.steps||[]).forEach((step,index)=>{
           list.appendChild(createAlgRow({
-            id:`${entry.id}|solve|${index}`,
-            label:`GIẢI ${index+1} · ${alg}`,
-            sequence:alg,
-            isSetup:false,
-            status:`SOLVE · ${entry.id} · ${index+1}`
+            id:`${entry.id}|step|${index}`,
+            label:`${step.label} · ${step.moves||''}`,
+            sequence:step.moves||'',
+            mode:'step',
+            status:`${entry.id} · ${step.label}`,
+            entry
           }));
         });
+        const fullMoves=allStepsMoves(entry);
+        list.appendChild(createAlgRow({
+          id:`${entry.id}|full`,
+          label:`TOÀN BỘ · ${fullMoves}`,
+          sequence:fullMoves,
+          mode:'full',
+          status:`${entry.id} · TOÀN BỘ`,
+          entry,
+          extraClass:'opt-setup'
+        }));
         options.appendChild(list);
+        if(entry.source){
+          const link=document.createElement('a');
+          link.className='wr-source';
+          link.href=entry.source;
+          link.target='_blank';
+          link.rel='noopener noreferrer';
+          link.textContent='Nguồn reconstruction ↗';
+          options.appendChild(link);
+        }
         card.appendChild(options);
         caseListParent.appendChild(card);
       });
       enableFormulaPanelSwipeDismiss();
     }
+
     renderFormulaButtons();
 
     const movePadTokens=['U','U′','U2','D','D′','L','L′','R','R′','F','F′','B','B′','M','M′','S','S′','r','r′','l','l′','f','f′','b','b′','x','x′','y','y′','z','z′'];
@@ -1296,7 +1053,7 @@
     function playUiEntrance(){
       if(!window.anime||matchMedia('(prefers-reduced-motion:reduce)').matches) return;
       anime({targets:'.brand', opacity:[0,1], translateY:[-16,0], duration:700, easing:'easeOutExpo'});
-      anime({targets:'.practice-controls button, .settings-toggle, .reset-cube, .move-pad-toggle, .solve-pll, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
+      anime({targets:'.settings-toggle, .reset-cube, .move-pad-toggle, .status', opacity:[0,1], translateY:[-10,0], delay:anime.stagger(50,{start:120}), duration:520, easing:'easeOutCubic'});
       anime({targets:'.formula-panel .case-card', opacity:[0,1], translateX:[24,0], delay:anime.stagger(45,{start:180}), duration:520, easing:'easeOutCubic'});
     }
     if(document.readyState==='complete') playUiEntrance();

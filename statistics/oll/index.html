@@ -295,6 +295,7 @@
           <li><button class="site-nav-subitem" type="button" data-statistic="pll">PLL</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="cross">Cross</button></li>
           <li><button class="site-nav-subitem" type="button" data-statistic="f2l">F2L</button></li>
+          <li><button class="site-nav-subitem" type="button" data-statistic="records">Kỷ lục</button></li>
         </ul>
       </li>
     </ul>
@@ -338,7 +339,7 @@
     siteMenuToggle.onclick=()=>setSiteNavigation(!siteNav.classList.contains('is-open'));
     siteNavClose.onclick=()=>setSiteNavigation(false); siteNavBackdrop.onclick=()=>setSiteNavigation(false);
     statisticsMenuToggle.onclick=()=>{const open=statisticsMenuToggle.getAttribute('aria-expanded')!=='true'; statisticsMenuToggle.setAttribute('aria-expanded',String(open)); statisticsSubmenu.classList.toggle('is-open',open);};
-    const siteRoutes={playground:'../../',training:'../../f2l/',oll:'./',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/'};
+    const siteRoutes={playground:'../../',training:'../../f2l/',oll:'./',pll:'../pll/',cross:'../cross/',f2l:'../../f2l/',records:'../records/'};
     siteNav.querySelectorAll('[data-nav-section],[data-statistic]').forEach(item=>item.onclick=()=>{
       const key=item.dataset.statistic||item.dataset.navSection;
       const destination=siteRoutes[key];

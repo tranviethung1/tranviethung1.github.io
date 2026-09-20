@@ -15,6 +15,7 @@ Rồi mở:
 
 - F2L: http://localhost:4173/f2l/
 - Cross: http://localhost:4173/statistics/cross/
+- Records (WR): http://localhost:4173/statistics/records/
 
 ## Test Playwright (F2L formulas)
 
