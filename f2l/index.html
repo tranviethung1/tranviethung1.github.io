@@ -1460,7 +1460,9 @@
           if(!previous.turns) groups.pop();
         }else groups.push({face,turns});
       }
-      return groups.flatMap(({face,turns})=>turns===1?[face]:turns===2?[face,face]:[`${face}′`]);
+      // Preserve standard notation in the guide: never render `U U`, `U U U`,
+      // or `U U U U`; use `U2`, `U′`, or remove the cancelled turn instead.
+      return groups.map(({face,turns})=>turns===1?face:turns===2?`${face}2`:`${face}′`);
     }
     function f2lPairGroupId(algId){
       if(!algId) return 'manual';
