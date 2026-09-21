@@ -1374,7 +1374,10 @@
       document.querySelectorAll('.opt-row').forEach(row=>{
         const isCurrent=algPlayback&&row.dataset.algId===algPlayback.id;
         const highlightedStep=Math.max(0,algPlayback.index-1);
-        row.querySelectorAll('.move-step').forEach((step,index)=>step.classList.toggle('is-current',isCurrent&&index===highlightedStep));
+        row.querySelectorAll('.move-step').forEach((step,index)=>{
+          const start=Number(step.dataset.startMove??index), end=Number(step.dataset.endMove??start+1);
+          step.classList.toggle('is-current',isCurrent&&highlightedStep>=start&&highlightedStep<end);
+        });
       });
       updateFullF2LPairSeparators?.();
     }
@@ -1624,7 +1627,9 @@
         let completedBefore=0;
         const displayParts=[];
         steps.forEach(step=>{
-          displayParts.push(...step.moves);
+          // `step.moves` is deliberately expanded for single-quarter-turn
+          // Prev/Next playback; render its normal Rubik notation instead.
+          displayParts.push(...compactMoveSequence(step.moves));
           const completedNow=step.completed?.length||0;
           const separators=Math.max(0, Math.min(completedNow, pairCount-completedBefore-1));
           displayParts.push(...Array(separators).fill('|'));
@@ -1637,7 +1642,16 @@
             step.classList.remove('move-step'); step.classList.add('pair-separator');
             // All pairs completed by one AF2L macro share its completion move index.
             step.dataset.afterMove=String(moveIndex);
-          } else step.dataset.step=String(moveIndex++);
+          } else {
+            // One display token such as `U2` can represent two physical turns.
+            // Keep playback indexes in expanded-quarter-turn units so Next/Prev,
+            // highlighting, and pair separators stay aligned with the cube.
+            const turnCount=parseMoves(step.textContent).length;
+            step.dataset.step=String(moveIndex);
+            step.dataset.startMove=String(moveIndex);
+            step.dataset.endMove=String(moveIndex+turnCount);
+            moveIndex+=turnCount;
+          }
         });
         fullF2LSolution.append(row);
         let afterMove=0;
