@@ -544,7 +544,7 @@
     // The matching F2L edge shares the corner's two non-white home-face directions.
     function getPairedF2LEdge(corner){const h=corner.userData.homeCoord; return cubies.find(piece=>{const edge=piece.userData.homeCoord; return edge.y===0&&edge.x===h.x&&edge.z===h.z;});}
     // Mark every side-color sticker belonging to this pair—both colors on its corner and edge.
-    function showPairMarkers(corner,edge){pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0; if(!corner||!edge)return; [corner,edge].forEach(piece=>piece.children.filter(mesh=>mesh.userData.originalMaterial&&mesh.userData.face!=='D'&&mesh.userData.face!=='U').forEach(sticker=>{const isCool=['F','B'].includes(sticker.userData.face), isOrange=sticker.userData.face==='L', isBlue=sticker.userData.face==='B', marker=createBrushX(isCool?coolMarkerMaterial:pairMarkerMaterial); marker.position.z=isOrange||isBlue?-.1:.082; marker.renderOrder=100; sticker.add(marker); pairMarkers.push(marker);}));}
+    function showPairMarkers(corner,edge,{append=false}={}){if(!append){pairMarkers.forEach(marker=>marker.removeFromParent()); pairMarkers.length=0;} if(!corner||!edge)return; [corner,edge].forEach(piece=>piece.children.filter(mesh=>mesh.userData.originalMaterial&&mesh.userData.face!=='D'&&mesh.userData.face!=='U').forEach(sticker=>{const isCool=['F','B'].includes(sticker.userData.face), isOrange=sticker.userData.face==='L', isBlue=sticker.userData.face==='B', marker=createBrushX(isCool?coolMarkerMaterial:pairMarkerMaterial); marker.position.z=isOrange||isBlue?-.1:.082; marker.renderOrder=100; sticker.add(marker); pairMarkers.push(marker);}));}
     const solveButton=document.querySelector('#solve-f2l'), solveResult=document.querySelector('#solve-result'), detectedSolution=document.querySelector('#detected-f2l-solution');
     // A case is known only immediately after its stored SETUP has been applied.
     let knownF2LCase=null;
@@ -1560,30 +1560,67 @@
       solveFullF2LButton.hidden=isOriginalCubeState();
       if(isOriginalCubeState()) hideFullF2LSolution();
     }
+    function showSolvedPlanPairMarkers(pairIds){
+      pairMarkers.forEach(marker=>marker.removeFromParent());
+      pairMarkers.length=0;
+      pairIds.forEach(pairId=>{
+        const pairMeta=f2lPairHomes.find(pair=>pair.id===pairId);
+        if(!pairMeta) return;
+        const {corner,edge}=getF2LPairByHome(pairMeta.coord);
+        showPairMarkers(corner,edge,{append:true});
+      });
+    }
     function updateFullF2LPairSeparators(){
       if(!algPlayback||algPlayback.id!=='full-f2l-solution') return;
       fullF2LSolution.querySelectorAll('.pair-separator').forEach(separator=>{
         separator.classList.toggle('is-complete', algPlayback.index>=Number(separator.dataset.afterMove));
       });
+      const completed=[];
+      fullF2LSolution.querySelectorAll('.plan-step-marker').forEach(marker=>{
+        if(algPlayback.index>=Number(marker.dataset.afterMove)) completed.push(...marker.dataset.pairs.split('|').filter(Boolean));
+      });
+      showSolvedPlanPairMarkers([...new Set(completed)]);
     }
     function renderFullF2LSolution(steps,{timedOut=false,elapsed=0}={}){
       const tokens=steps.flatMap(step=>step.moves);
       fullF2LSolution.replaceChildren();
       const title=document.createElement('h2'); title.textContent=timedOut?'F2L · CATALOG FALLBACK':'F2L · TỐI ƯU CATALOG';
-      const description=document.createElement('p'); description.textContent=tokens.length?`${tokens.length} nước · ${steps.length} bước xử lý cặp · ${Math.round(elapsed)}ms. Ưu tiên ít nước, sau đó thuận tay phải; | chỉ hiện khi cặp trước đã hoàn tất.`:'F2L đã đúng — không cần công thức.';
+      const pairCount=steps.reduce((count,step)=>count+(step.completed?.length||0),0);
+      const description=document.createElement('p'); description.textContent=tokens.length?`${tokens.length} nước · ${pairCount} cặp hoàn tất · ${Math.round(elapsed)}ms. Ưu tiên ít nước, sau đó thuận tay phải; | chỉ hiện khi cặp trước đã hoàn tất.`:'F2L đã đúng — không cần công thức.';
       fullF2LSolution.append(title,description);
       if(tokens.length){
-        const display=steps.map(step=>step.moves.join(' ')).join(' | ');
-        const row=createAlgRow({id:'full-f2l-solution',label:`CÔNG THỨC · ${display}`,sequence:tokens.join(' '),isSetup:false,status:'TOÀN BỘ F2L · CÔNG THỨC'});
+        // A macro can complete two pairs at once (AF2L). Insert one delimiter per
+        // completed pair—not per macro—so four newly solved pairs have three `|`.
+        const pairCount=steps.reduce((count,step)=>count+(step.completed?.length||0),0);
+        let completedBefore=0;
+        const displayParts=[];
+        steps.forEach(step=>{
+          displayParts.push(...step.moves);
+          const completedNow=step.completed?.length||0;
+          const separators=Math.max(0, Math.min(completedNow, pairCount-completedBefore-1));
+          displayParts.push(...Array(separators).fill('|'));
+          completedBefore+=completedNow;
+        });
+        const row=createAlgRow({id:'full-f2l-solution',label:`CÔNG THỨC · ${displayParts.join(' ')}`,sequence:tokens.join(' '),isSetup:false,status:'TOÀN BỘ F2L · CÔNG THỨC'});
         let moveIndex=0;
         row.querySelectorAll('.move-step').forEach(step=>{
           if(step.textContent==='|'){
             step.classList.remove('move-step'); step.classList.add('pair-separator');
-            // This separator becomes visible only after the preceding F2L pair finishes.
+            // All pairs completed by one AF2L macro share its completion move index.
             step.dataset.afterMove=String(moveIndex);
           } else step.dataset.step=String(moveIndex++);
         });
         fullF2LSolution.append(row);
+        let afterMove=0;
+        steps.forEach(step=>{
+          afterMove+=step.moves.length;
+          if(!(step.completed?.length)) return;
+          const marker=document.createElement('span');
+          marker.className='plan-step-marker'; marker.hidden=true;
+          marker.dataset.afterMove=String(afterMove);
+          marker.dataset.pairs=step.completed.join('|');
+          fullF2LSolution.append(marker);
+        });
       }
       fullF2LSolution.hidden=false;
     }
