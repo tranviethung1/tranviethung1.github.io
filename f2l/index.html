@@ -1543,10 +1543,30 @@
             const after=completedF2LPairs();
             restoreCubiePose(snapshot); busy=false;
             const completed=after.filter(item=>!done.some(before=>before.id===item.id)).map(item=>item.id);
-            if(completed.length) branches.push({...candidate,completed});
+            if(completed.length){
+              // Look ahead one pair: among the remaining pairs, prefer a result
+              // that leaves an immediately usable/short F2L candidate. This only
+              // guides equivalent branches; the final plan remains minimum-move.
+              const remaining=f2lPairHomes.filter(meta=>!after.some(solved=>solved.id===meta.id));
+              let nextPairMoves=Infinity, nextPairOptions=0;
+              for(const nextMeta of remaining){
+                const nextPair=getF2LPairByHome(nextMeta.coord);
+                if(!nextPair.corner||!nextPair.edge) continue;
+                const nextCandidates=await listPairCandidates({...nextPair,id:nextMeta.id});
+                nextPairOptions+=nextCandidates.length;
+                for(const nextCandidate of nextCandidates) nextPairMoves=Math.min(nextPairMoves,nextCandidate.moves.length);
+              }
+              branches.push({...candidate,completed,nextPairMoves,nextPairOptions});
+            }
           }
         }
-        branches.sort((a,b)=>b.completed.length-a.completed.length||a.moves.length-b.moves.length||rightHandCost(a.moves)-rightHandCost(b.moves));
+        branches.sort((a,b)=>
+          b.completed.length-a.completed.length
+          || a.moves.length-b.moves.length
+          || rightHandCost(a.moves)-rightHandCost(b.moves)
+          || a.nextPairMoves-b.nextPairMoves
+          || b.nextPairOptions-a.nextPairOptions
+        );
         for(const branch of branches){
           if(best&&steps.flatMap(step=>step.moves).length+branch.moves.length>=best.score[0]) continue;
           const snapshot=saveCubiePose(); await runMoves(branch.moves,0);
