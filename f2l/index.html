@@ -1500,13 +1500,20 @@
         if(entry){
           for(const slot of f2lSlotOrder) for(const solution of entry.slots[slot]?.solutions||[]){
             for(const extraSetup of aufPrefixOrder(detected.extraSetup||'')){
-              const moves=parseMoves([extraSetup,solution].filter(Boolean).join(' '));
+              // Catalog detection can prepend an AUF that immediately cancels the
+              // first move of the selected formula (for example `U′ U F ...`).
+              // Reduce it before it enters the search/playback plan.
+              const rawMoves=parseMoves([extraSetup,solution].filter(Boolean).join(' '));
+              const moves=parseMoves(compactMoveSequence(rawMoves).join(' '));
               candidates.push({moves,label:`${entry.id} · ${slot}`,type:'F2L'});
             }
           }
         }
         const extraction=await findF2LExtractionSetup(pair.id);
-        if(extraction) candidates.push({moves:parseMoves([extraction.sequence,extraction.formula].filter(Boolean).join(' ')),label:`${extraction.detected.caseId} · ${extraction.slot}`,type:'F2L'});
+        if(extraction){
+          const rawMoves=parseMoves([extraction.sequence,extraction.formula].filter(Boolean).join(' '));
+          candidates.push({moves:parseMoves(compactMoveSequence(rawMoves).join(' ')),label:`${extraction.detected.caseId} · ${extraction.slot}`,type:'F2L'});
+        }
         const seen=new Set();
         return candidates.filter(candidate=>candidate.moves.length&&candidate.moves.length<=24&&!seen.has(candidate.moves.join(' '))&&seen.add(candidate.moves.join(' ')));
       } finally {selectedCorner=priorCorner; selectedEdge=priorEdge;}
