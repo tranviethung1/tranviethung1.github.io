@@ -1575,11 +1575,11 @@
       fullF2LSolution.querySelectorAll('.pair-separator').forEach(separator=>{
         separator.classList.toggle('is-complete', algPlayback.index>=Number(separator.dataset.afterMove));
       });
-      const completed=[];
-      fullF2LSolution.querySelectorAll('.plan-step-marker').forEach(marker=>{
-        if(algPlayback.index>=Number(marker.dataset.afterMove)) completed.push(...marker.dataset.pairs.split('|').filter(Boolean));
-      });
-      showSolvedPlanPairMarkers([...new Set(completed)]);
+      const markers=[...fullF2LSolution.querySelectorAll('.plan-step-marker')];
+      const activeMarker=markers.find(marker=>algPlayback.index>=Number(marker.dataset.startMove)&&algPlayback.index<Number(marker.dataset.afterMove))
+        // Keep the final target marked after the entire playback completes.
+        || (algPlayback.index>=algPlayback.moves.length?markers.at(-1):null);
+      showSolvedPlanPairMarkers(activeMarker?.dataset.pairs.split('|').filter(Boolean)||[]);
     }
     function renderFullF2LSolution(steps,{timedOut=false,elapsed=0}={}){
       const tokens=steps.flatMap(step=>step.moves);
@@ -1613,10 +1613,12 @@
         fullF2LSolution.append(row);
         let afterMove=0;
         steps.forEach(step=>{
+          const startMove=afterMove;
           afterMove+=step.moves.length;
           if(!(step.completed?.length)) return;
           const marker=document.createElement('span');
           marker.className='plan-step-marker'; marker.hidden=true;
+          marker.dataset.startMove=String(startMove);
           marker.dataset.afterMove=String(afterMove);
           marker.dataset.pairs=step.completed.join('|');
           fullF2LSolution.append(marker);
