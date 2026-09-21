@@ -929,8 +929,9 @@
         else await rotateLayer(spec[1],spec[2],spec[3]);
         if(recordMoveHistory){
           moveHistory.push(key);
-          // A direct formula is one F2L pair group; manual turns stay in their own group.
-          const group=activeAlgId||`manual-${moveHistory.length}`;
+          // SETUP and GIẢI of the same catalog case form one F2L pair. A separator
+          // is therefore never inserted between individual moves or these two steps.
+          const group=f2lPairGroupId(activeAlgId);
           const last=moveHistoryGroups.at(-1);
           if(last?.id===group) last.moves.push(key); else moveHistoryGroups.push({id:group,moves:[key]});
           syncFullF2LSolver();
@@ -1460,8 +1461,15 @@
       }
       return groups.flatMap(({face,turns})=>turns===1?[face]:turns===2?[face,face]:[`${face}′`]);
     }
+    function f2lPairGroupId(algId){
+      if(!algId) return 'manual';
+      // Catalog rows use `F2L -n|slot|setup|solve`; strip only the final action so
+      // SETUP and its GIẢI are displayed as the same pair, not two separate groups.
+      const match=algId.match(/^(F2L -\d+\|(?:FR|FL|BL|BR))\|(?:setup|solve\|\d+)$/);
+      return match?match[1]:algId;
+    }
     function buildFullF2LPlan(){
-      // Keep algorithm groups separate so every solved pair is visibly delimited.
+      // Keep complete F2L pairs separate so every solved pair is visibly delimited.
       // Within each group, only adjacent equal-face turns are reduced.
       return [...moveHistoryGroups].reverse().map(group=>compactMoveSequence([...group.moves].reverse().map(invertToken))).filter(group=>group.length);
     }
