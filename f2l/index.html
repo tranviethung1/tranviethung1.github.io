@@ -589,10 +589,10 @@
         // Signatures already canonicalize all four side-color pairs to FR. Adding
         // FL/BL/BR records here would create identical keys and let a rotated record
         // overwrite the true FR case (for example F2L-2 as F2L-4 · BR).
-        try{for(const entry of f2lSetups){const slot='FR', data=entry.slots[slot]; if(!data?.setup)continue; for(const auf of aufVariants){
+        try{for(const [catalog,type] of [[f2lSetups,'F2L'],[advancedMethods,'AF2L']]) for(const entry of catalog){const slot='FR', data=entry.slots[slot]; if(!data?.setup)continue; for(const auf of aufVariants){
           // A malformed formula elsewhere in the long library must not make every
           // recognisable case fail. Skip only that reference pose and continue.
-          try{placeSolvedCubies(); await runMoves(parseMoves(data.setup),0); if(auf.moves.length)await runMoves(parseMoves(auf.moves.join(' ')),0); const targetCorner=cubies.find(piece=>piece.userData.homeCoord.x===recognitionPairHome.x&&piece.userData.homeCoord.y===recognitionPairHome.y&&piece.userData.homeCoord.z===recognitionPairHome.z); const targetEdge=targetCorner&&getPairedF2LEdge(targetCorner); if(targetCorner&&targetEdge){const signature=pairPoseSignature(targetCorner,targetEdge), record={caseId:entry.id,slot,extraSetup:auf.setup}, cache=auf.setup?aufRecognitionCache:caseRecognitionCache, candidates=cache.get(signature)||[]; candidates.push(record); cache.set(signature,candidates);}}
+          try{placeSolvedCubies(); await runMoves(parseMoves(data.setup),0); if(auf.moves.length)await runMoves(parseMoves(auf.moves.join(' ')),0); const targetCorner=cubies.find(piece=>piece.userData.homeCoord.x===recognitionPairHome.x&&piece.userData.homeCoord.y===recognitionPairHome.y&&piece.userData.homeCoord.z===recognitionPairHome.z); const targetEdge=targetCorner&&getPairedF2LEdge(targetCorner); if(targetCorner&&targetEdge){const signature=pairPoseSignature(targetCorner,targetEdge), record={caseId:entry.id,slot,extraSetup:auf.setup,type}, cache=auf.setup?aufRecognitionCache:caseRecognitionCache, candidates=cache.get(signature)||[]; candidates.push(record); cache.set(signature,candidates);}}
           catch(error){console.warn(`Bỏ qua pose nhận diện ${entry.id} · ${slot}:`,error); busy=false;}
         }}}
         finally{restoreCubiePose(snapshot); scrambleMoveDuration=oldDuration; scrambleDelay=oldDelay; moves=oldMoves; updateMoves(); busy=false;}
@@ -619,7 +619,20 @@
     // number. Ambiguous signatures are exposed in the console instead of silently
     // choosing the final record that happened to be cached.
     function chooseRecognitionCandidate(candidates){return [...candidates].sort((a,b)=>Number(a.caseId.match(/\d+/)[0])-Number(b.caseId.match(/\d+/)[0]))[0]||null;}
-    function recognizePairFromCache(corner,edge){const signature=pairPoseSignature(corner,edge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[], candidates=standard.length?standard:auf; if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates); return chooseRecognitionCandidate(candidates);}
+    function recognitionCandidates(corner,edge){
+      const signature=pairPoseSignature(corner,edge), standard=caseRecognitionCache.get(signature)||[], auf=aufRecognitionCache.get(signature)||[];
+      // A normal pose is preferred for simple recognition, but keep every matching
+      // record for the global planner: an AF2L record can solve two pairs at once.
+      const candidates=standard.length?standard:auf;
+      if(candidates.length>1)console.warn('F2L recognition ambiguity',candidates);
+      return candidates;
+    }
+    function recognizePairFromCache(corner,edge){
+      const candidates=recognitionCandidates(corner,edge);
+      // Manual single-pair recognition must stay on the standard F2L catalog;
+      // AF2L alternatives are reserved for the full-plan global search.
+      return chooseRecognitionCandidate(candidates.filter(candidate=>candidate.type!=='AF2L').length?candidates.filter(candidate=>candidate.type!=='AF2L'):candidates);
+    }
     async function recognizeSelectedF2LCase(){if(!selectedCorner||!selectedEdge)return null; await buildCaseRecognitionCache(); return recognizePairFromCache(selectedCorner,selectedEdge);}
     function isSelectedPairInserted(){
       if(!selectedCorner||!selectedEdge) return false;
@@ -1497,10 +1510,13 @@
       const priorCorner=selectedCorner, priorEdge=selectedEdge;
       selectedCorner=pair.corner; selectedEdge=pair.edge;
       try{
-        const detected=await recognizeSelectedF2LCase();
-        const entry=detected&&f2lSetups.find(item=>item.id===detected.caseId);
+        await buildCaseRecognitionCache();
+        const detectedRecords=recognitionCandidates(pair.corner,pair.edge);
         const candidates=[];
-        if(entry){
+        for(const detected of detectedRecords){
+          const catalog=detected.type==='AF2L'?advancedMethods:f2lSetups;
+          const entry=catalog.find(item=>item.id===detected.caseId);
+          if(!entry) continue;
           for(const slot of f2lSlotOrder) for(const solution of entry.slots[slot]?.solutions||[]){
             for(const extraSetup of aufPrefixOrder(detected.extraSetup||'')){
               // Catalog detection can prepend an AUF that immediately cancels the
@@ -1508,7 +1524,7 @@
               // Reduce it before it enters the search/playback plan.
               const rawMoves=parseMoves([extraSetup,solution].filter(Boolean).join(' '));
               const moves=parseMoves(compactMoveSequence(rawMoves).join(' '));
-              candidates.push({moves,label:`${entry.id} · ${slot}`,type:'F2L'});
+              candidates.push({moves,label:`${entry.id} · ${slot}`,type:detected.type||'F2L'});
             }
           }
         }
@@ -1530,7 +1546,9 @@
         if(performance.now()-started>=budgetMs){timedOut=true; return;}
         const done=completedF2LPairs();
         if(done.length===4){
-          const tokens=steps.flatMap(step=>step.moves), score=[tokens.length,rightHandCost(tokens)];
+          // Score the complete stream after merging step boundaries. An AUF at
+          // the end of one pair can combine/cancel with the next pair’s AUF.
+          const tokens=compactMoveSequence(steps.flatMap(step=>step.moves)), score=[tokens.length,rightHandCost(tokens)];
           if(!best||score[0]<best.score[0]||(score[0]===best.score[0]&&score[1]<best.score[1])) best={steps:steps.map(step=>({...step,moves:[...step.moves]})),score};
           return;
         }
@@ -1545,8 +1563,11 @@
             await runMoves(candidate.moves,0);
             const after=completedF2LPairs();
             restoreCubiePose(snapshot); busy=false;
+            // A planner macro may never sacrifice an inserted pair. AF2L is only
+            // useful here when the live cube simulation confirms a true 2-pair gain.
+            const preservesCompleted=done.every(before=>after.some(item=>item.id===before.id));
             const completed=after.filter(item=>!done.some(before=>before.id===item.id)).map(item=>item.id);
-            if(completed.length){
+            if(preservesCompleted&&completed.length&&(candidate.type!=='AF2L'||completed.length>=2)){
               // Look ahead one pair: among the remaining pairs, prefer a result
               // that leaves an immediately usable/short F2L candidate. This only
               // guides equivalent branches; the final plan remains minimum-move.
