@@ -14,9 +14,8 @@ export const worldRecords = [
       { label: "Inspection", moves: "x′ z′" },
       { label: "XX-cross", moves: "U′ r′ R2 U′ R2 D′ R2 U R′ U′ D′" },
       { label: "F2L 3", moves: "R′ U′ R" },
-      { label: "F2L 4", moves: "L′ U′ L" },
-      { label: "ZBLS", moves: "R′ U R U R′ U2 R" },
-      { label: "ZBLL", moves: "R U R D R′ U2 R D′ R′" }
+      { label: "F2L 4 / ZBLS", moves: "L′ U′ L" },
+      { label: "ZBLL", moves: "R′ U R U R′ U2′ R U R D R′ U2 R D′ R′" }
     ],
     source: "https://reco.nz/solve/14240"
   },
